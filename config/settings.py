@@ -14,10 +14,12 @@ from django.contrib.messages import constants as messages
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
-SECRET_KEY = config(
-    "SECRET_KEY", default="django-insecure-thi-ni-thi-nai-rue-fallback-key-2026"
-)
-DEBUG = True
+_raw_secret_key = config('SECRET_KEY', default='').strip()
+SECRET_KEY = _raw_secret_key if _raw_secret_key else 'django-insecure-thi-ni-thi-nai-rue-prod-secret-key-2026-xyz'
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
 
 # Allow all hosts in production/serverless environments to avoid 400 Bad Request
 raw_allowed_hosts = config('ALLOWED_HOSTS', default='*', cast=Csv())
