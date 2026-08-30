@@ -1,14 +1,20 @@
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
+from django.db.models import Count, Q
 from django.utils.timesince import timesince
+from django.utils import timezone
+from datetime import timedelta
+import json
+
 from .models import CheckIn, Like, Comment, Bookmark
 from .forms import CheckInForm
-from accounts.models import Follow
+from accounts.models import Follow, Profile
 
 
 class FeedView(LoginRequiredMixin, ListView):
@@ -125,11 +131,11 @@ class CheckInUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         checkin = self.get_object()
-        return checkin.user == self.request.user
+        return checkin.user == self.request.user or self.request.user.is_staff or self.request.user.is_superuser
 
     def handle_no_permission(self):
         if self.request.user.is_authenticated:
-            raise PermissionDenied("คุณไม่มีสิทธิ์แก้ไขเช็คอินของผู้อื่น")
+            raise PermissionDenied("คุณไม่มีสิทธิ์แก้ไขเช็คอินนี้")
         return super().handle_no_permission()
 
     def form_valid(self, form):
@@ -156,11 +162,11 @@ class CheckInDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         checkin = self.get_object()
-        return checkin.user == self.request.user
+        return checkin.user == self.request.user or self.request.user.is_staff or self.request.user.is_superuser
 
     def handle_no_permission(self):
         if self.request.user.is_authenticated:
-            raise PermissionDenied("คุณไม่มีสิทธิ์ลบเช็คอินของผู้อื่น")
+            raise PermissionDenied("คุณไม่มีสิทธิ์ลบเช็คอินนี้")
         return super().handle_no_permission()
 
     def delete(self, request, *args, **kwargs):
@@ -274,8 +280,7 @@ class CommentDeleteView(LoginRequiredMixin, View):
         comment = get_object_or_404(Comment, pk=pk)
         checkin = comment.checkin
 
-        # Only comment owner or checkin owner can delete
-        if comment.user != request.user and checkin.user != request.user:
+        if comment.user != request.user and checkin.user != request.user and not request.user.is_staff:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'error': 'คุณไม่มีสิทธิ์ลบคอมเมนต์นี้'}, status=403)
             raise PermissionDenied("คุณไม่มีสิทธิ์ลบคอมเมนต์นี้")
@@ -291,3 +296,121 @@ class CommentDeleteView(LoginRequiredMixin, View):
         messages.info(request, 'ลบความคิดเห็นเรียบร้อยแล้ว')
         next_url = request.POST.get('next', reverse('checkins:detail', kwargs={'pk': checkin.pk}))
         return redirect(next_url)
+
+
+# =========================================================================
+# PRO CUSTOM ADMIN DASHBOARD VIEWS
+# =========================================================================
+
+class CustomAdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = 'dashboard/index.html'
+
+    def test_func(self):
+        return self.request.user.is_staff or self.request.user.is_superuser
+
+    def handle_no_permission(self):
+        messages.error(self.request, "เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถเข้าถึงแดชบอร์ดนี้ได้")
+        return redirect('checkins:feed')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tab = self.request.GET.get('tab', 'overview')
+        q = self.request.GET.get('q', '').strip()
+
+        checkins_qs = CheckIn.objects.select_related('user', 'user__profile').annotate(
+            num_likes=Count('likes', distinct=True),
+            num_comments=Count('comments', distinct=True)
+        ).order_by('-created_at')
+
+        users_qs = User.objects.select_related('profile').annotate(
+            num_checkins=Count('checkins', distinct=True)
+        ).order_by('-date_joined')
+
+        comments_qs = Comment.objects.select_related('user', 'user__profile', 'checkin').order_by('-created_at')
+
+        # Filter by search
+        if q:
+            if tab == 'checkins':
+                checkins_qs = checkins_qs.filter(
+                    Q(place_name__icontains=q) | Q(caption__icontains=q) | Q(user__username__icontains=q)
+                )
+            elif tab == 'users':
+                users_qs = users_qs.filter(
+                    Q(username__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(email__icontains=q)
+                )
+            elif tab == 'comments':
+                comments_qs = comments_qs.filter(
+                    Q(text__icontains=q) | Q(user__username__icontains=q) | Q(checkin__place_name__icontains=q)
+                )
+
+        # High-level Metrics
+        total_checkins = CheckIn.objects.count()
+        total_users = User.objects.count()
+        total_comments = Comment.objects.count()
+        total_likes = Like.objects.count()
+        total_bookmarks = Bookmark.objects.count()
+        total_follows = Follow.objects.count()
+        geotagged_count = CheckIn.objects.filter(latitude__isnull=False, longitude__isnull=False).count()
+        geotagged_pct = int(geotagged_count / total_checkins * 100) if total_checkins > 0 else 0
+
+        # Leaderboard Top 5 Places
+        top_places = CheckIn.objects.annotate(
+            num_likes=Count('likes', distinct=True),
+            num_comments=Count('comments', distinct=True)
+        ).select_related('user', 'user__profile').order_by('-num_likes', '-created_at')[:5]
+
+        # Top 5 Contributors
+        top_users = User.objects.annotate(
+            num_checkins=Count('checkins', distinct=True)
+        ).select_related('profile').order_by('-num_checkins')[:5]
+
+        # Chart Data: Engagement Breakdown
+        chart_engagement = {
+            'labels': ['จุดเช็คอิน', 'ความคิดเห็น', 'ยอดถูกใจ', 'การบันทึก', 'การติดตาม'],
+            'data': [total_checkins, total_comments, total_likes, total_bookmarks, total_follows]
+        }
+
+        context.update({
+            'active_tab': tab,
+            'search_query': q,
+            'total_checkins': total_checkins,
+            'total_users': total_users,
+            'total_comments': total_comments,
+            'total_likes': total_likes,
+            'total_bookmarks': total_bookmarks,
+            'total_follows': total_follows,
+            'geotagged_count': geotagged_count,
+            'geotagged_pct': geotagged_pct,
+            'top_places': top_places,
+            'top_users': top_users,
+            'checkins_list': checkins_qs[:100],
+            'users_list': users_qs[:100],
+            'comments_list': comments_qs[:100],
+            'recent_checkins': checkins_qs[:5],
+            'recent_comments': comments_qs[:5],
+            'chart_engagement_json': json.dumps(chart_engagement),
+        })
+        return context
+
+
+class AdminDeleteCheckInActionView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return self.request.user.is_staff or self.request.user.is_superuser
+
+    def post(self, request, pk):
+        checkin = get_object_or_404(CheckIn, pk=pk)
+        place_name = checkin.place_name
+        checkin.delete()
+        messages.success(request, f'🗑️ ลบจุดเช็คอิน "{place_name}" เรียบร้อยแล้ว')
+        return redirect(request.POST.get('next', '/dashboard/?tab=checkins'))
+
+
+class AdminDeleteCommentActionView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return self.request.user.is_staff or self.request.user.is_superuser
+
+    def post(self, request, pk):
+        comment = get_object_or_404(Comment, pk=pk)
+        comment.delete()
+        messages.success(request, '🗑️ ลบความคิดเห็นเรียบร้อยแล้ว')
+        return redirect(request.POST.get('next', '/dashboard/?tab=comments'))

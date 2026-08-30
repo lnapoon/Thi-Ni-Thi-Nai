@@ -1,0 +1,777 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}แผงควบคุมระบบ (Admin Dashboard) - ที่นี่ Check-in{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --dash-bg: #f8fafc;
+    --dash-card: #ffffff;
+    --dash-text: #0f172a;
+    --dash-muted: #64748b;
+    --dash-border: #e2e8f0;
+  }
+  
+  .dashboard-wrapper {
+    background-color: var(--dash-bg);
+    min-height: calc(100vh - 120px);
+  }
+
+  .dash-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+    border-radius: 20px;
+    padding: 24px 28px;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  }
+
+  .dash-card {
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid var(--dash-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .dash-kpi-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 18px 20px;
+    border: 1px solid var(--dash-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .dash-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+    border-color: #cbd5e1;
+    color: inherit;
+  }
+
+  .kpi-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .kpi-blue { background: #eff6ff; color: #2563eb; }
+  .kpi-emerald { background: #ecfdf5; color: #059669; }
+  .kpi-amber { background: #fffbeb; color: #d97706; }
+  .kpi-rose { background: #fff1f2; color: #e11d48; }
+  .kpi-purple { background: #faf5ff; color: #9333ea; }
+
+  .dash-tabs {
+    display: flex;
+    gap: 6px;
+    background: #ffffff;
+    padding: 6px;
+    border-radius: 14px;
+    border: 1px solid var(--dash-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    overflow-x: auto;
+  }
+
+  .dash-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #475569;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+
+  .dash-tab-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+
+  .dash-tab-btn.active {
+    background: #0f172a;
+    color: #ffffff;
+  }
+
+  .dash-tab-badge {
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .dash-tab-btn.active .dash-tab-badge {
+    background: #334155;
+    color: #ffffff;
+  }
+
+  /* Tables */
+  .dash-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--dash-border);
+  }
+
+  .dash-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    font-size: 0.88rem;
+    color: #1e293b;
+  }
+
+  .dash-table tr:hover td {
+    background-color: #f8fafc;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper pb-5">
+
+  <!-- Hero Banner -->
+  <div class="dash-hero mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="badge bg-warning text-dark fw-bold px-2 py-1 rounded-pill" style="font-size: 0.75rem;">ADMIN PANEL</span>
+          <span class="badge bg-success bg-opacity-25 text-white border border-success border-opacity-50 px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
+            🟢 ระบบออนไลน์ปกติ
+          </span>
+        </div>
+        <h3 class="fw-bold text-white mb-1">
+          แผงควบคุมและสถิติระบบ (Admin Dashboard)
+        </h3>
+        <p class="text-white-50 small mb-0">
+          ยินดีต้อนรับคุณ <strong>@{{ user.username }}</strong> &bull; สรุปภาพรวมและจัดการข้อมูลของเว็บไซต์ <strong>ที่นี่ Check-in</strong>
+        </p>
+      </div>
+
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'checkins:create' %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-sm">
+          <i class="bi bi-plus-circle-fill me-1"></i> เพิ่มเช็คอินใหม่
+        </a>
+        <a href="{% url 'checkins:feed' %}" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-semibold">
+          <i class="bi bi-compass me-1"></i> ไปหน้าฟีดหลัก
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tab Bar -->
+  <div class="dash-tabs mb-4">
+    <a href="?tab=overview" class="dash-tab-btn {% if active_tab == 'overview' %}active{% endif %}">
+      <i class="bi bi-pie-chart-fill"></i> ภาพรวม & สถิติ
+    </a>
+    <a href="?tab=checkins" class="dash-tab-btn {% if active_tab == 'checkins' %}active{% endif %}">
+      <i class="bi bi-geo-alt-fill text-primary"></i> จัดการจุดเช็คอิน
+      <span class="dash-tab-badge">{{ total_checkins }}</span>
+    </a>
+    <a href="?tab=users" class="dash-tab-btn {% if active_tab == 'users' %}active{% endif %}">
+      <i class="bi bi-people-fill text-success"></i> สมาชิก & บัญชี
+      <span class="dash-tab-badge">{{ total_users }}</span>
+    </a>
+    <a href="?tab=comments" class="dash-tab-btn {% if active_tab == 'comments' %}active{% endif %}">
+      <i class="bi bi-chat-dots-fill text-warning"></i> ความคิดเห็น
+      <span class="dash-tab-badge">{{ total_comments }}</span>
+    </a>
+  </div>
+
+  <!-- =========================================================================
+       TAB 1: OVERVIEW & ANALYTICS
+       ========================================================================= -->
+  {% if active_tab == 'overview' %}
+    
+    <!-- 5 KPI Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-4 col-lg">
+        <a href="?tab=checkins" class="dash-kpi-card h-100">
+          <div class="kpi-icon kpi-blue"><i class="bi bi-geo-alt-fill"></i></div>
+          <div>
+            <div class="fs-4 fw-bold text-dark lh-1">{{ total_checkins }}</div>
+            <div class="text-muted small mt-1">จุดเช็คอิน</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg">
+        <a href="?tab=users" class="dash-kpi-card h-100">
+          <div class="kpi-icon kpi-emerald"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <div class="fs-4 fw-bold text-dark lh-1">{{ total_users }}</div>
+            <div class="text-muted small mt-1">สมาชิกในระบบ</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg">
+        <a href="?tab=comments" class="dash-kpi-card h-100">
+          <div class="kpi-icon kpi-amber"><i class="bi bi-chat-dots-fill"></i></div>
+          <div>
+            <div class="fs-4 fw-bold text-dark lh-1">{{ total_comments }}</div>
+            <div class="text-muted small mt-1">ความคิดเห็น</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-6 col-md-6 col-lg">
+        <div class="dash-kpi-card h-100">
+          <div class="kpi-icon kpi-rose"><i class="bi bi-heart-fill"></i></div>
+          <div>
+            <div class="fs-4 fw-bold text-dark lh-1">{{ total_likes }}</div>
+            <div class="text-muted small mt-1">ยอดถูกใจสะสม</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg">
+        <a href="{% url 'checkins:map' %}" class="dash-kpi-card h-100">
+          <div class="kpi-icon kpi-purple"><i class="bi bi-crosshair"></i></div>
+          <div>
+            <div class="fs-4 fw-bold text-dark lh-1">{{ geotagged_pct }}%</div>
+            <div class="text-muted small mt-1">พิกัด GPS ({{ geotagged_count }}/{{ total_checkins }})</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Charts & Leaderboards Row -->
+    <div class="row g-4 mb-4">
+      
+      <!-- Engagement Chart Card -->
+      <div class="col-12 col-lg-5">
+        <div class="dash-card p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold text-dark mb-0">
+              <i class="bi bi-pie-chart-fill text-primary me-2"></i> สัดส่วนกิจกรรมในระบบ (Engagement)
+            </h6>
+          </div>
+          <div style="height: 240px; position: relative;">
+            <canvas id="engagementChart"></canvas>
+          </div>
+          <div class="d-flex justify-content-around text-center mt-3 pt-3 border-top" style="font-size: 0.78rem;">
+            <div>
+              <span class="d-block fw-bold text-primary">{{ total_checkins }}</span>
+              <span class="text-muted">เช็คอิน</span>
+            </div>
+            <div>
+              <span class="d-block fw-bold text-warning">{{ total_comments }}</span>
+              <span class="text-muted">คอมเมนต์</span>
+            </div>
+            <div>
+              <span class="d-block fw-bold text-danger">{{ total_likes }}</span>
+              <span class="text-muted">ถูกใจ</span>
+            </div>
+            <div>
+              <span class="d-block fw-bold text-purple" style="color: #9333ea;">{{ total_bookmarks }}</span>
+              <span class="text-muted">บุ๊กมาร์ก</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Places Leaderboard -->
+      <div class="col-12 col-lg-7">
+        <div class="dash-card p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold text-dark mb-0">
+              <i class="bi bi-trophy-fill text-warning me-2"></i> 5 อันดับจุดเช็คอินยอดนิยมสูงสุด
+            </h6>
+            <a href="?tab=checkins" class="text-primary small text-decoration-none fw-semibold">ดูทั้งหมด &rarr;</a>
+          </div>
+
+          <div class="d-flex flex-column gap-2">
+            {% for place in top_places %}
+              <div class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light bg-opacity-50">
+                <div class="d-flex align-items-center gap-3 min-w-0">
+                  <span class="badge rounded-circle {% if forloop.counter == 1 %}bg-warning text-dark{% elif forloop.counter == 2 %}bg-secondary text-white{% elif forloop.counter == 3 %}bg-danger text-white{% else %}bg-light text-dark border{% endif %} d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem; font-weight: bold;">
+                    {{ forloop.counter }}
+                  </span>
+                  {% if place.get_photo_url %}
+                    <img src="{{ place.get_photo_url }}" alt="{{ place.place_name }}" class="rounded-3 border" width="46" height="46" style="object-fit: cover;">
+                  {% else %}
+                    <div class="rounded-3 bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                      <i class="bi bi-image"></i>
+                    </div>
+                  {% endif %}
+                  <div class="min-w-0">
+                    <a href="{{ place.get_absolute_url }}" class="fw-bold text-dark text-decoration-none d-block text-truncate" style="font-size: 0.9rem;">
+                      {{ place.place_name }}
+                    </a>
+                    <span class="text-muted small">โดย @{{ place.user.username }} &bull; {{ place.created_at|date:"d M Y" }}</span>
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2 ms-2 flex-shrink-0">
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1">
+                    ❤️ {{ place.num_likes }}
+                  </span>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">
+                    💬 {{ place.num_comments }}
+                  </span>
+                </div>
+              </div>
+            {% empty %}
+              <div class="text-center py-4 text-muted small">ยังไม่มีข้อมูลจุดเช็คอิน</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Recent Streams Row -->
+    <div class="row g-4">
+      
+      <!-- Top Contributors -->
+      <div class="col-12 col-md-6">
+        <div class="dash-card p-4">
+          <h6 class="fw-bold text-dark mb-3">
+            <i class="bi bi-award-fill text-success me-2"></i> สมาชิกที่เช็คอินสถานที่มากที่สุด
+          </h6>
+          <div class="d-flex flex-column gap-2">
+            {% for u in top_users %}
+              <div class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light bg-opacity-50">
+                <div class="d-flex align-items-center gap-3">
+                  <span class="fw-bold text-muted" style="width: 20px;">#{{ forloop.counter }}</span>
+                  {% if u.get_avatar_url %}
+                    <img src="{{ u.get_avatar_url }}" alt="{{ u.username }}" class="rounded-circle border" width="40" height="40" style="object-fit: cover;">
+                  {% else %}
+                    <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                      <i class="bi bi-person-fill fs-5"></i>
+                    </div>
+                  {% endif %}
+                  <div>
+                    <a href="{% url 'accounts:profile_user' username=u.username %}" class="fw-bold text-dark text-decoration-none d-block lh-1">
+                      @{{ u.username }}
+                    </a>
+                    <span class="text-muted" style="font-size: 0.75rem;">สมัครเมื่อ {{ u.date_joined|date:"d M Y" }}</span>
+                  </div>
+                </div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold">
+                  📍 {{ u.num_checkins }} เช็คอิน
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Comments Stream -->
+      <div class="col-12 col-md-6">
+        <div class="dash-card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold text-dark mb-0">
+              <i class="bi bi-chat-left-dots-fill text-warning me-2"></i> ความคิดเห็นล่าสุด
+            </h6>
+            <a href="?tab=comments" class="text-primary small text-decoration-none fw-semibold">ดูทั้งหมด &rarr;</a>
+          </div>
+
+          <div class="d-flex flex-column gap-2">
+            {% for cm in recent_comments %}
+              <div class="p-3 rounded-3 border bg-light bg-opacity-50">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="fw-bold text-primary small">@{{ cm.user.username }}</span>
+                  <span class="text-muted" style="font-size: 0.72rem;">{{ cm.created_at|date:"d M H:i" }}</span>
+                </div>
+                <p class="text-dark small mb-2" style="line-height: 1.4;">{{ cm.text }}</p>
+                <div class="d-flex justify-content-between align-items-center border-top pt-2" style="font-size: 0.75rem;">
+                  <span class="text-muted">สถานที่: <strong>{{ cm.checkin.place_name }}</strong></span>
+                  <form action="{% url 'checkins:admin_delete_comment' pk=cm.pk %}" method="post" class="d-inline" onsubmit="return confirm('ยืนยันลบคอมเมนต์นี้?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link btn-sm text-danger p-0 text-decoration-none" style="font-size: 0.75rem;">
+                      <i class="bi bi-trash3 me-1"></i>ลบ
+                    </button>
+                  </form>
+                </div>
+              </div>
+            {% empty %}
+              <div class="text-center py-4 text-muted small">ยังไม่มีความคิดเห็น</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  <!-- =========================================================================
+       TAB 2: CHECK-INS DATA TABLE
+       ========================================================================= -->
+  {% elif active_tab == 'checkins' %}
+    
+    <div class="dash-card p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+          <h5 class="fw-bold text-dark mb-1">
+            <i class="bi bi-geo-alt-fill text-primary me-2"></i> รายการจุดเช็คอินทั้งหมด ({{ total_checkins }})
+          </h5>
+          <p class="text-muted small mb-0">ค้นหา ตรวจสอบภาพถ่าย และจัดการสถานที่ในระบบ</p>
+        </div>
+
+        <form method="get" class="d-flex gap-2">
+          <input type="hidden" name="tab" value="checkins">
+          <div class="input-group input-group-sm" style="max-width: 280px;">
+            <input type="text" name="q" value="{{ search_query }}" class="form-control rounded-start-pill px-3" placeholder="ค้นหาชื่อสถานที่ หรือผู้โพสต์...">
+            <button class="btn btn-primary rounded-end-pill px-3" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          {% if search_query %}
+            <a href="?tab=checkins" class="btn btn-outline-secondary btn-sm rounded-pill">ล้างค่า</a>
+          {% endif %}
+        </form>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table dash-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th style="width: 70px;">รูปภาพ</th>
+              <th>ชื่อสถานที่</th>
+              <th>ผู้โพสต์</th>
+              <th>พิกัด GPS</th>
+              <th>สถิติ</th>
+              <th>วันที่สร้าง</th>
+              <th class="text-end">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in checkins_list %}
+              <tr>
+                <td>
+                  {% if c.get_photo_url %}
+                    <a href="{{ c.get_absolute_url }}">
+                      <img src="{{ c.get_photo_url }}" alt="{{ c.place_name }}" class="rounded-3 border shadow-sm" width="54" height="54" style="object-fit: cover;">
+                    </a>
+                  {% else %}
+                    <div class="rounded-3 bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+                      <i class="bi bi-image"></i>
+                    </div>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{{ c.get_absolute_url }}" class="fw-bold text-dark text-decoration-none d-block">
+                    {{ c.place_name }}
+                  </a>
+                  <span class="text-muted small text-truncate d-block" style="max-width: 260px;">
+                    {{ c.caption }}
+                  </span>
+                </td>
+                <td>
+                  <a href="{% url 'accounts:profile_user' username=c.user.username %}" class="fw-semibold text-primary text-decoration-none">
+                    @{{ c.user.username }}
+                  </a>
+                </td>
+                <td>
+                  {% if c.has_location %}
+                    <a href="https://www.google.com/maps/search/?api=1&query={{ c.latitude }},{{ c.longitude }}" target="_blank" rel="noopener" class="badge bg-success-subtle text-success border border-success-subtle text-decoration-none">
+                      <i class="bi bi-geo-alt-fill me-1"></i>{{ c.latitude|floatformat:4 }}, {{ c.longitude|floatformat:4 }}
+                    </a>
+                  {% else %}
+                    <span class="badge bg-light text-muted border">ไม่มีพิกัด</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle me-1">
+                    ❤️ {{ c.num_likes }}
+                  </span>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                    💬 {{ c.num_comments }}
+                  </span>
+                </td>
+                <td class="text-muted small">
+                  {{ c.created_at|date:"d M Y H:i" }}
+                </td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm">
+                    <a href="{{ c.get_absolute_url }}" class="btn btn-outline-secondary" title="ดูหน้ารายละเอียด">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{% url 'checkins:edit' pk=c.pk %}" class="btn btn-outline-primary" title="แก้ไข">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <form action="{% url 'checkins:admin_delete_checkin' pk=c.pk %}" method="post" class="d-inline" onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบจุดเช็คอินนี้?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-outline-danger" title="ลบ">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center py-5 text-muted">
+                  <i class="bi bi-search fs-1 d-block mb-2 text-secondary"></i>
+                  ไม่พบรายการจุดเช็คอินที่ตรงกับเงื่อนไขค้นหา
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  <!-- =========================================================================
+       TAB 3: USERS & ACCOUNTS DATA TABLE
+       ========================================================================= -->
+  {% elif active_tab == 'users' %}
+    
+    <div class="dash-card p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+          <h5 class="fw-bold text-dark mb-1">
+            <i class="bi bi-people-fill text-success me-2"></i> สมาชิกทั้งหมดในระบบ ({{ total_users }})
+          </h5>
+          <p class="text-muted small mb-0">ดูรายชื่อผู้ใช้งาน วันที่เข้าร่วม และสถิติการใช้งาน</p>
+        </div>
+
+        <form method="get" class="d-flex gap-2">
+          <input type="hidden" name="tab" value="users">
+          <div class="input-group input-group-sm" style="max-width: 280px;">
+            <input type="text" name="q" value="{{ search_query }}" class="form-control rounded-start-pill px-3" placeholder="ค้นหาชื่อผู้ใช้ หรืออีเมล...">
+            <button class="btn btn-primary rounded-end-pill px-3" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          {% if search_query %}
+            <a href="?tab=users" class="btn btn-outline-secondary btn-sm rounded-pill">ล้างค่า</a>
+          {% endif %}
+        </form>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table dash-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th style="width: 60px;">โปรไฟล์</th>
+              <th>ชื่อผู้ใช้ (Username)</th>
+              <th>ชื่อ - นามสกุล</th>
+              <th>อีเมล</th>
+              <th>จำนวนเช็คอิน</th>
+              <th>สถานะบัญชี</th>
+              <th>วันที่ลงทะเบียน</th>
+              <th class="text-end">โปรไฟล์</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users_list %}
+              <tr>
+                <td>
+                  {% if u.get_avatar_url %}
+                    <img src="{{ u.get_avatar_url }}" alt="{{ u.username }}" class="rounded-circle border" width="44" height="44" style="object-fit: cover;">
+                  {% else %}
+                    <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.1rem;">
+                      <i class="bi bi-person-fill"></i>
+                    </div>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="fw-bold text-dark">@{{ u.username }}</span>
+                </td>
+                <td>
+                  {% if u.first_name %}{{ u.first_name }} {{ u.last_name }}{% else %}<span class="text-muted">-</span>{% endif %}
+                </td>
+                <td class="text-muted small">
+                  {{ u.email|default:"-" }}
+                </td>
+                <td>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">
+                    📍 {{ u.num_checkins }} โพสต์
+                  </span>
+                </td>
+                <td>
+                  {% if u.is_superuser %}
+                    <span class="badge bg-warning text-dark fw-bold rounded-pill">👑 Superuser</span>
+                  {% elif u.is_staff %}
+                    <span class="badge bg-info-subtle text-info border rounded-pill">Staff</span>
+                  {% else %}
+                    <span class="badge bg-light text-muted border rounded-pill">สมาชิกทั่วไป</span>
+                  {% endif %}
+                </td>
+                <td class="text-muted small">
+                  {{ u.date_joined|date:"d M Y H:i" }}
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'accounts:profile_user' username=u.username %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                    ดูโปรไฟล์ &rarr;
+                  </a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="8" class="text-center py-5 text-muted">
+                  <i class="bi bi-search fs-1 d-block mb-2 text-secondary"></i>
+                  ไม่พบสมาชิกที่ตรงกับเงื่อนไขค้นหา
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  <!-- =========================================================================
+       TAB 4: COMMENTS MODERATION
+       ========================================================================= -->
+  {% elif active_tab == 'comments' %}
+    
+    <div class="dash-card p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+          <h5 class="fw-bold text-dark mb-1">
+            <i class="bi bi-chat-dots-fill text-warning me-2"></i> จัดการความคิดเห็นทั้งหมด ({{ total_comments }})
+          </h5>
+          <p class="text-muted small mb-0">ตรวจสอบและลบความคิดเห็นที่ไม่เหมาะสมหรือสแปม</p>
+        </div>
+
+        <form method="get" class="d-flex gap-2">
+          <input type="hidden" name="tab" value="comments">
+          <div class="input-group input-group-sm" style="max-width: 280px;">
+            <input type="text" name="q" value="{{ search_query }}" class="form-control rounded-start-pill px-3" placeholder="ค้นหาข้อความ หรือชื่อสถานที่...">
+            <button class="btn btn-primary rounded-end-pill px-3" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          {% if search_query %}
+            <a href="?tab=comments" class="btn btn-outline-secondary btn-sm rounded-pill">ล้างค่า</a>
+          {% endif %}
+        </form>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table dash-table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>ผู้แสดงความคิดเห็น</th>
+              <th>สถานที่</th>
+              <th>ข้อความ</th>
+              <th>วันที่ / เวลา</th>
+              <th class="text-end">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cm in comments_list %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    {% if cm.user.get_avatar_url %}
+                      <img src="{{ cm.user.get_avatar_url }}" alt="{{ cm.user.username }}" class="rounded-circle border" width="32" height="32" style="object-fit: cover;">
+                    {% else %}
+                      <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                        <i class="bi bi-person-fill"></i>
+                      </div>
+                    {% endif %}
+                    <a href="{% url 'accounts:profile_user' username=cm.user.username %}" class="fw-bold text-dark text-decoration-none">
+                      @{{ cm.user.username }}
+                    </a>
+                  </div>
+                </td>
+                <td>
+                  <a href="{{ cm.checkin.get_absolute_url }}" class="fw-semibold text-primary text-decoration-none">
+                    {{ cm.checkin.place_name }}
+                  </a>
+                </td>
+                <td style="max-width: 380px;">
+                  <span class="text-dark">{{ cm.text }}</span>
+                </td>
+                <td class="text-muted small">
+                  {{ cm.created_at|date:"d M Y H:i" }}
+                </td>
+                <td class="text-end">
+                  <form action="{% url 'checkins:admin_delete_comment' pk=cm.pk %}" method="post" class="d-inline" onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบความคิดเห็นนี้?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="/dashboard/?tab=comments">
+                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                      <i class="bi bi-trash3 me-1"></i> ลบคอมเมนต์
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-5 text-muted">
+                  <i class="bi bi-chat-left-dots fs-1 d-block mb-2 text-secondary"></i>
+                  ไม่พบความคิดเห็น
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  {% endif %}
+
+</div>
+
+<!-- Chart.js Initialization -->
+{% if active_tab == 'overview' %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('engagementChart');
+    if (!ctx) return;
+
+    const rawData = JSON.parse('{{ chart_engagement_json|escapejs }}');
+
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: rawData.labels,
+        datasets: [{
+          data: rawData.data,
+          backgroundColor: [
+            '#2563eb', // Checkins
+            '#f59e0b', // Comments
+            '#e11d48', // Likes
+            '#9333ea', // Bookmarks
+            '#059669'  // Follows
+          ],
+          borderWidth: 2,
+          borderColor: '#ffffff',
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 12,
+              padding: 12,
+              font: { family: 'Sarabun', size: 12 }
+            }
+          }
+        },
+        cutout: '65%'
+      }
+    });
+  });
+</script>
+{% endif %}
+{% endblock %}

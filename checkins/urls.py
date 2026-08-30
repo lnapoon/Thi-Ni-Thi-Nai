@@ -10,6 +10,9 @@ from .views import (
     ToggleBookmarkView,
     CommentCreateView,
     CommentDeleteView,
+    CustomAdminDashboardView,
+    AdminDeleteCheckInActionView,
+    AdminDeleteCommentActionView,
 )
 
 app_name = 'checkins'
@@ -25,4 +28,9 @@ urlpatterns = [
     path('checkin/<int:pk>/comment/', CommentCreateView.as_view(), name='comment_create'),
     path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment_delete'),
     path('map/', CheckInMapView.as_view(), name='map'),
+    
+    # Custom Pro Admin Dashboard
+    path('dashboard/', CustomAdminDashboardView.as_view(), name='admin_dashboard'),
+    path('dashboard/delete-checkin/<int:pk>/', AdminDeleteCheckInActionView.as_view(), name='admin_delete_checkin'),
+    path('dashboard/delete-comment/<int:pk>/', AdminDeleteCommentActionView.as_view(), name='admin_delete_comment'),
 ]
