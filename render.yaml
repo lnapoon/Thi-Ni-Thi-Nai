@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: thi-ni-thi-nai-rue
+    runtime: python
+    buildCommand: "./build_files.sh && python manage.py migrate"
+    startCommand: "gunicorn config.wsgi:application"
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: checkin-db
+          property: connectionString
+      - key: STORAGE_BACKEND
+        value: "cloudinary"
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+databases:
+  - name: checkin-db
+    plan: free

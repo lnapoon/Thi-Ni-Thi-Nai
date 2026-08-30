@@ -93,7 +93,42 @@ python manage.py runserver 8000
 
 ---
 
+## 🌐 คู่มือการ Deploy ขึ้นระบบคลาวด์ (Cloud Deployment)
+
+โปรเจกต์นี้ได้รับการกำหนดค่าพร้อม deploy ไปยังแพลตฟอร์มต่างๆ ได้ทันที:
+
+### 1. Deploy บน Vercel ⚡
+1. Push โค้ดทั้งหมดขึ้น GitHub
+2. ไปที่ [Vercel Dashboard](https://vercel.com/dashboard) &rarr; **Add New Project** &rarr; เลือก Repository ของคุณ
+3. ในส่วน **Environment Variables** ให้เพิ่มตัวแปรดังนี้:
+   - `DEBUG` = `False`
+   - `SECRET_KEY` = (สุ่มคีย์ เช่น `django-insecure-prod-key-xyz123`)
+   - `DATABASE_URL` = (Connection string จาก [Neon.tech](https://neon.tech) หรือ [Supabase](https://supabase.com))
+   - `STORAGE_BACKEND` = `cloudinary`
+   - `CLOUDINARY_CLOUD_NAME` = (จาก Cloudinary Dashboard)
+   - `CLOUDINARY_API_KEY` = (จาก Cloudinary Dashboard)
+   - `CLOUDINARY_API_SECRET` = (จาก Cloudinary Dashboard)
+4. กด **Deploy** &rarr; Vercel จะใช้ `vercel.json` และ `build_files.sh` ในการ build อัตโนมัติ
+
+---
+
+### 2. Deploy บน Render.com 🚀 (แนะนำ สะดวกที่สุด มี Free Database ในตัว)
+1. ไปที่ [Render Dashboard](https://dashboard.render.com/) &rarr; **New** &rarr; **Blueprint**
+2. เลือก Repository นี้ &rarr; Render จะอ่านไฟล์ `render.yaml` เพื่อสร้างทั้ง **Web Service** และ **PostgreSQL Database** ให้อัตโนมัติในคลิกเดียว
+3. กรอกเพียง `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, และ `CLOUDINARY_API_SECRET` ใน Render Dashboard
+
+---
+
+### 3. Deploy บน Railway.app 🚂
+1. ไปที่ [Railway Dashboard](https://railway.app/) &rarr; **New Project** &rarr; **Deploy from GitHub repo**
+2. เพิ่ม **PostgreSQL Database** ในโปรเจกต์ของ Railway
+3. กำหนดตัวแปร `STORAGE_BACKEND=cloudinary` พร้อม Cloudinary Keys ใน Variables
+4. Railway จะตรวจพบ `Procfile` และรันคำสั่ง `gunicorn` + `migrate` ให้อัตโนมัติ
+
+---
+
 ## ☁️ กลยุทธ์การจัดเก็บรูปภาพบนคลาวด์ (Cloud Storage Strategy)
+
 
 โปรเจกต์นี้ใช้โครงสร้าง **Pluggable Storage** ผ่าน `django-storages` และการตั้งค่า `STORAGES` ของ Django ทำให้สามารถสลับผู้ให้บริการจัดเก็บไฟล์ (Cloud Storage Providers) ได้อย่างง่ายดายผ่านไฟล์ `.env` **โดยไม่ต้องแก้ไขโค้ดของแอปพลิเคชันแม้แต่บรรทัดเดียว**:
 
