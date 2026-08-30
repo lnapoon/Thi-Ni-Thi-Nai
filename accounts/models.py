@@ -19,16 +19,13 @@ class Profile(models.Model):
     def get_avatar_url(self):
         if not self.avatar:
             return ""
-        try:
-            url = self.avatar.url
-            if url.startswith("http://") or url.startswith("https://"):
-                return url
-        except Exception:
-            pass
-        clean_name = str(self.avatar.name).lstrip('/')
-        if not clean_name.startswith('media/'):
-            clean_name = f'media/{clean_name}'
-        return f"https://res.cloudinary.com/pkxxxmpn/image/upload/v1/{clean_name}"
+        name_str = str(self.avatar.name).lstrip('/')
+        if name_str.startswith('http://') or name_str.startswith('https://'):
+            return name_str
+        if not name_str.startswith('media/'):
+            name_str = f'media/{name_str}'
+        return f"https://res.cloudinary.com/pkxxxmpn/image/upload/v1/{name_str}"
+
 
     def __str__(self):
         return f"โปรไฟล์ของ {self.user.username}"
