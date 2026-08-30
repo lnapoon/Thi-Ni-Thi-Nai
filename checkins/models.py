@@ -34,9 +34,12 @@ class CheckIn(models.Model):
     def save(self, *args, **kwargs):
         # Optimize image with Pillow prior to saving to storage
         if self.photo and hasattr(self.photo, 'file') and not getattr(self, '_photo_optimized', False):
+            if hasattr(self.photo, 'seek'):
+                self.photo.seek(0)
             self.photo = optimize_checkin_image(self.photo)
             self._photo_optimized = True
         super().save(*args, **kwargs)
+
 
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked_checkins')

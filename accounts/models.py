@@ -52,3 +52,14 @@ class Profile(models.Model):
                 pass
 
         super().save(*args, **kwargs)
+
+def _user_get_avatar_url(user):
+    try:
+        if hasattr(user, 'profile') and user.profile and user.profile.avatar:
+            return user.profile.avatar.url
+    except Exception:
+        pass
+    return None
+
+User.add_to_class('get_avatar_url', property(_user_get_avatar_url))
+

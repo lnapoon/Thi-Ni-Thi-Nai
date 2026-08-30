@@ -79,8 +79,8 @@
         <!-- Author Footer Card -->
         <div class="d-flex align-items-center justify-content-between">
           <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="d-flex align-items-center text-decoration-none text-dark gap-3">
-            {% if checkin.user.profile.avatar %}
-              <img src="{{ checkin.user.profile.avatar.url }}" alt="{{ checkin.user.username }}" class="rounded-circle border" width="48" height="48" style="object-fit: cover;">
+            {% if checkin.user.get_avatar_url %}
+              <img src="{{ checkin.user.get_avatar_url }}" alt="{{ checkin.user.username }}" class="rounded-circle border" width="48" height="48" style="object-fit: cover;">
             {% else %}
               <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
                 <i class="bi bi-person-fill fs-4"></i>
@@ -88,6 +88,7 @@
             {% endif %}
             <div>
               <span class="fw-bold d-block">
+
                 {% if checkin.user.first_name %}
                   {{ checkin.user.first_name }} {{ checkin.user.last_name }}
                 {% else %}

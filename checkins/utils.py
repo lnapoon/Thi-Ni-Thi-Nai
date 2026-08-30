@@ -12,7 +12,10 @@ def optimize_checkin_image(image_file, max_dimension=1600, quality=85):
         return image_file
 
     try:
+        if hasattr(image_file, 'seek'):
+            image_file.seek(0)
         img = Image.open(image_file)
+
         img = ImageOps.exif_transpose(img)
 
         # Convert RGBA / P mode images to RGB for JPEG encoding

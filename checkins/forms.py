@@ -53,14 +53,23 @@ class CheckInForm(forms.ModelForm):
 
             # Validate that it is a genuine image
             try:
+                if hasattr(photo, 'seek'):
+                    photo.seek(0)
                 img = Image.open(photo)
                 valid_formats = ['JPEG', 'PNG', 'WEBP', 'GIF', 'MPO', 'HEIF']
                 if img.format not in valid_formats:
                     raise forms.ValidationError('รูปแบบไฟล์รูปภาพไม่ถูกต้อง รองรับเฉพาะ JPG, PNG, WEBP, GIF เท่านั้น')
-            except Exception as e:
+                if hasattr(photo, 'seek'):
+                    photo.seek(0)
+            except forms.ValidationError:
+                raise
+            except Exception:
+                if hasattr(photo, 'seek'):
+                    photo.seek(0)
                 raise forms.ValidationError('ไฟล์ที่อัปโหลดไม่ใช่ไฟล์รูปภาพที่ถูกต้อง')
 
         return photo
+
 
     def clean_caption(self):
         caption = self.cleaned_data.get('caption', '').strip()
