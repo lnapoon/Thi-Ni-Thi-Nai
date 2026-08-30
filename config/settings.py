@@ -9,6 +9,8 @@ import os
 from decouple import config, Csv
 import dj_database_url
 from django.contrib.messages import constants as messages
+
+# pyrefly: ignore [missing-import]
 import cloudinary
 
 
@@ -16,27 +18,31 @@ import cloudinary
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
-_raw_secret_key = config('SECRET_KEY', default='').strip()
-SECRET_KEY = _raw_secret_key if _raw_secret_key else 'django-insecure-thi-ni-thi-nai-rue-prod-secret-key-2026-xyz'
-DEBUG = config('DEBUG', default=False, cast=bool)
+_raw_secret_key = config("SECRET_KEY", default="").strip()
+SECRET_KEY = (
+    _raw_secret_key
+    if _raw_secret_key
+    else "django-insecure-thi-ni-thi-nai-rue-prod-secret-key-2026-xyz"
+)
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 
 # Allow all hosts in production/serverless environments
-raw_allowed_hosts = config('ALLOWED_HOSTS', default='*', cast=Csv())
-ALLOWED_HOSTS = list(raw_allowed_hosts) if raw_allowed_hosts else ['*']
-if '*' not in ALLOWED_HOSTS and '.vercel.app' not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.extend(['.vercel.app', 'localhost', '127.0.0.1', '*'])
+raw_allowed_hosts = config("ALLOWED_HOSTS", default="*", cast=Csv())
+ALLOWED_HOSTS = list(raw_allowed_hosts) if raw_allowed_hosts else ["*"]
+if "*" not in ALLOWED_HOSTS and ".vercel.app" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.extend([".vercel.app", "localhost", "127.0.0.1", "*"])
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.vercel.app',
-    'https://*.onrender.com',
-    'https://*.railway.app',
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
+    "https://*.vercel.app",
+    "https://*.onrender.com",
+    "https://*.railway.app",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
-extra_csrf = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
+extra_csrf = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
 if extra_csrf:
     CSRF_TRUSTED_ORIGINS.extend(extra_csrf)
 
@@ -46,7 +52,9 @@ if extra_csrf:
 # ─────────────────────────────────────────────────────────────
 _cloud_name = config("CLOUDINARY_CLOUD_NAME", default="").strip() or "pkxxxmpn"
 _api_key = config("CLOUDINARY_API_KEY", default="").strip() or "213872343661713"
-_api_secret = config("CLOUDINARY_API_SECRET", default="").strip() or "Homv6qBkjPWUiI8X-qcSAWFZ60c"
+_api_secret = (
+    config("CLOUDINARY_API_SECRET", default="").strip() or "Homv6qBkjPWUiI8X-qcSAWFZ60c"
+)
 
 cloudinary.config(
     cloud_name=_cloud_name,
