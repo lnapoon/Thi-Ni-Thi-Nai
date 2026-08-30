@@ -39,8 +39,25 @@ if extra_csrf:
     CSRF_TRUSTED_ORIGINS.extend(extra_csrf)
 
 
+import cloudinary
+
+STORAGE_BACKEND = config("STORAGE_BACKEND", default="cloudinary").lower()
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default="pkxxxmpn"),
+    "API_KEY": config("CLOUDINARY_API_KEY", default="213872343661713"),
+    "API_SECRET": config("CLOUDINARY_API_SECRET", default="Homv6qBkjPWUiI8X-qcSAWFZ60c"),
+}
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
+    api_key=CLOUDINARY_STORAGE["API_KEY"],
+    api_secret=CLOUDINARY_STORAGE["API_SECRET"],
+    secure=True,
+)
+
 # Application definition
 INSTALLED_APPS = [
+    "cloudinary_storage",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -48,19 +65,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "cloudinary",
     # Third-party apps
     "storages",
     # Local apps
     "accounts.apps.AccountsConfig",
     "checkins.apps.CheckinsConfig",
 ]
-
-# Conditionally insert cloudinary apps if available/configured
-STORAGE_BACKEND = config("STORAGE_BACKEND", default="cloudinary").lower()
-if STORAGE_BACKEND == "cloudinary":
-    # Cloudinary storage needs to be before staticfiles in some configs or media only
-    INSTALLED_APPS.insert(0, "cloudinary_storage")
-    INSTALLED_APPS.append("cloudinary")
 
 
 MIDDLEWARE = [
