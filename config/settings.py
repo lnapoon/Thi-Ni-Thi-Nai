@@ -153,7 +153,10 @@ DATABASES = {
 
 
 # Media files & Pluggable Storage configuration
-MEDIA_URL = "/media/"
+if STORAGE_BACKEND == "cloudinary":
+    MEDIA_URL = f"https://res.cloudinary.com/{_cloud_name}/image/upload/v1/"
+else:
+    MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Configure STORAGES (Django 4.2+)
@@ -184,6 +187,7 @@ if STORAGE_BACKEND == "cloudinary":
             "BACKEND": STATICFILES_STORAGE_BACKEND,
         },
     }
+
 
 
 elif STORAGE_BACKEND == "s3":
