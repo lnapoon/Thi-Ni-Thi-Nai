@@ -9,6 +9,7 @@ import os
 from decouple import config, Csv
 import dj_database_url
 from django.contrib.messages import constants as messages
+import cloudinary
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,7 +23,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 
-# Allow all hosts in production/serverless environments to avoid 400 Bad Request
+# Allow all hosts in production/serverless environments
 raw_allowed_hosts = config('ALLOWED_HOSTS', default='*', cast=Csv())
 ALLOWED_HOSTS = list(raw_allowed_hosts) if raw_allowed_hosts else ['*']
 if '*' not in ALLOWED_HOSTS and '.vercel.app' not in ALLOWED_HOSTS:
@@ -41,22 +42,11 @@ if extra_csrf:
 
 
 # ─────────────────────────────────────────────────────────────
-# Cloudinary configuration — set BEFORE INSTALLED_APPS
+# Cloudinary SDK configuration (direct — NO django-cloudinary-storage)
 # ─────────────────────────────────────────────────────────────
-import cloudinary
-
 _cloud_name = config("CLOUDINARY_CLOUD_NAME", default="").strip() or "pkxxxmpn"
 _api_key = config("CLOUDINARY_API_KEY", default="").strip() or "213872343661713"
 _api_secret = config("CLOUDINARY_API_SECRET", default="").strip() or "Homv6qBkjPWUiI8X-qcSAWFZ60c"
-
-# django-cloudinary-storage needs CLOUDINARY_URL in environment
-os.environ["CLOUDINARY_URL"] = f"cloudinary://{_api_key}:{_api_secret}@{_cloud_name}"
-
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": _cloud_name,
-    "API_KEY": _api_key,
-    "API_SECRET": _api_secret,
-}
 
 cloudinary.config(
     cloud_name=_cloud_name,
@@ -65,10 +55,11 @@ cloudinary.config(
     secure=True,
 )
 
+CLOUDINARY_CLOUD_NAME = _cloud_name
 
-# Application definition
+
+# Application definition — no cloudinary_storage needed
 INSTALLED_APPS = [
-    "cloudinary_storage",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -76,9 +67,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
-    "cloudinary",
-    # Third-party apps
-    "storages",
     # Local apps
     "accounts.apps.AccountsConfig",
     "checkins.apps.CheckinsConfig",
@@ -98,7 +86,6 @@ MIDDLEWARE = [
 ]
 
 
-
 ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
@@ -112,7 +99,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "django.template.context_processors.media",
             ],
         },
     },
@@ -138,7 +124,6 @@ NEON_FALLBACK_DB = "postgresql://neondb_owner:npg_SL6FjAmClNi1@ep-dark-waterfall
 _raw_db_url = config("DATABASE_URL", default=NEON_FALLBACK_DB).strip()
 DATABASE_URL = _raw_db_url if _raw_db_url else NEON_FALLBACK_DB
 
-# Strip channel_binding if present to prevent libpq SCRAM-PLUS compatibility errors on AWS Lambda / Vercel
 clean_db_url = (
     DATABASE_URL.replace("&channel_binding=require", "")
     .replace("?channel_binding=require&", "?")
@@ -156,28 +141,10 @@ DATABASES = {
 
 
 # ─────────────────────────────────────────────────────────────
-# Media files — always Cloudinary on this project
+# Media — Cloudinary handles all media, no local filesystem
 # ─────────────────────────────────────────────────────────────
-MEDIA_URL = f"https://res.cloudinary.com/{_cloud_name}/image/upload/v1/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
-
-# ─────────────────────────────────────────────────────────────
-# Storage backends (Django 4.2+ STORAGES dict)
-# django-cloudinary-storage also reads STATICFILES_STORAGE
-# (legacy attribute) during collectstatic — we must define it.
-# ─────────────────────────────────────────────────────────────
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
 
 
 # Default primary key field type

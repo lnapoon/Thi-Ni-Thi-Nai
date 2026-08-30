@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from cloudinary.models import CloudinaryField
 from .utils import optimize_checkin_image
 
 def checkin_photo_path(instance, filename):
@@ -12,7 +13,7 @@ class CheckIn(models.Model):
     latitude = models.FloatField(null=True, blank=True, verbose_name="ละติจูด")
     longitude = models.FloatField(null=True, blank=True, verbose_name="ลองจิจูด")
     caption = models.TextField(max_length=500, verbose_name="ข้อความบรรยาย")
-    photo = models.ImageField(upload_to=checkin_photo_path, verbose_name="รูปภาพสถานที่")
+    photo = CloudinaryField('รูปภาพสถานที่', folder='checkins')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="สร้างเมื่อ")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="แก้ไขล่าสุด")
 
@@ -26,27 +27,34 @@ class CheckIn(models.Model):
 
     @property
     def get_photo_url(self):
+        """Return full Cloudinary URL for the photo."""
         if not self.photo:
             return ""
-        name_str = str(self.photo.name).lstrip('/')
-        if name_str.startswith('http://') or name_str.startswith('https://'):
-            return name_str
-        if not name_str.startswith('media/'):
-            name_str = f'media/{name_str}'
-        return f"https://res.cloudinary.com/pkxxxmpn/image/upload/v1/{name_str}"
-
+        # CloudinaryField stores public_id; .url gives full URL
+        try:
+            url = self.photo.url
+            if url:
+                return url
+        except Exception:
+            pass
+        # Fallback: build URL manually from the stored value
+        val = str(self.photo)
+        if val.startswith('http'):
+            return val
+        from django.conf import settings
+        cloud = getattr(settings, 'CLOUDINARY_CLOUD_NAME', 'pkxxxmpn')
+        return f"https://res.cloudinary.com/{cloud}/image/upload/{val}"
 
     def get_absolute_url(self):
         return reverse('checkins:detail', kwargs={'pk': self.pk})
-
 
     @property
     def has_location(self):
         return self.latitude is not None and self.longitude is not None
 
     def save(self, *args, **kwargs):
-        # Optimize image with Pillow prior to saving to storage
-        if self.photo and hasattr(self.photo, 'file') and not getattr(self, '_photo_optimized', False):
+        # Optimize image with Pillow prior to uploading to Cloudinary
+        if self.pk is None and self.photo and hasattr(self.photo, 'file') and not getattr(self, '_photo_optimized', False):
             if hasattr(self.photo, 'seek'):
                 self.photo.seek(0)
             self.photo = optimize_checkin_image(self.photo)
