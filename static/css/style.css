@@ -298,6 +298,17 @@ body {
   100% { transform: scale(1); }
 }
 
+.scale-pop {
+  display: inline-block;
+  animation: scalePopAnim 0.25s ease forwards;
+}
+
+@keyframes scalePopAnim {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); color: #ef4444; }
+  100% { transform: scale(1); }
+}
+
 /* Quick Comment Input in Feed */
 .quick-comment-box {
   display: flex;

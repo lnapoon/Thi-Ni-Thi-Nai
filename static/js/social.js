@@ -1,9 +1,9 @@
 /**
  * Social interactions for "Thi Ni Thi Nai Rue"
- * - Instagram-style double tap to like
- * - Animated like / bookmark toggles
- * - Inline & detail AJAX comments
- * - Follow / Unfollow with dynamic count update
+ * - Instagram-style double tap to like with instant heart burst
+ * - Super-fast Optimistic UI Likes & Bookmarks (Instant Visual Feedback)
+ * - Real-time AJAX comments
+ * - Follow / Unfollow with instant count update
  * - Web Share API & Share Modal
  * - Followers / Following user list modals
  */
@@ -17,56 +17,59 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   /* ----------------------------------------------------
-   * 1. DOUBLE TAP TO LIKE (Instagram Style)
+   * 1. OPTIMISTIC LIKE HANDLER (Instant Heart & Counter)
    * ---------------------------------------------------- */
-  document.querySelectorAll('.double-tap-like-area').forEach(wrapper => {
-    let lastTap = 0;
-    wrapper.addEventListener('pointerup', function (e) {
-      const now = new Date().getTime();
-      const timesince = now - lastTap;
-      if (timesince < 300 && timesince > 0) {
-        // Double tap triggered
-        e.preventDefault();
-        const checkinId = wrapper.dataset.checkinId;
-        const likeBtn = document.querySelector(`.btn-like[data-checkin-id="${checkinId}"]`);
-        
-        // Show big animated bursting heart on image
-        triggerHeartBurst(wrapper);
+  const likeInFlight = new Set();
 
-        // If not already liked, trigger like
-        if (likeBtn && !likeBtn.classList.contains('liked')) {
-          likeBtn.click();
-        }
+  function updateLikeUI(checkinId, isLiked, count) {
+    // 1. Update all like buttons matching this checkin
+    const buttons = document.querySelectorAll(`.btn-like[data-checkin-id="${checkinId}"]`);
+    buttons.forEach(b => {
+      const icon = b.querySelector('i');
+      if (isLiked) {
+        b.classList.add('liked');
+        b.classList.add('heart-pulse');
+        setTimeout(() => b.classList.remove('heart-pulse'), 400);
+        if (icon) icon.className = 'bi bi-heart-fill text-danger';
+      } else {
+        b.classList.remove('liked');
+        if (icon) icon.className = 'bi bi-heart text-dark';
       }
-      lastTap = now;
     });
-  });
 
-  function triggerHeartBurst(container) {
-    const heart = document.createElement('div');
-    heart.className = 'insta-heart-burst';
-    heart.innerHTML = '<i class="bi bi-heart-fill"></i>';
-    container.appendChild(heart);
-
-    setTimeout(() => {
-      heart.remove();
-    }, 900);
+    // 2. Update all like count labels across the page
+    const countSpans = document.querySelectorAll(`.like-count[data-checkin-id="${checkinId}"]`);
+    countSpans.forEach(span => {
+      if (count !== undefined && count !== null) {
+        span.textContent = count;
+        span.classList.add('scale-pop');
+        setTimeout(() => span.classList.remove('scale-pop'), 300);
+      }
+    });
   }
 
-  /* ----------------------------------------------------
-   * 2. AJAX LIKE BUTTON WITH POP ANIMATION
-   * ---------------------------------------------------- */
-  document.body.addEventListener('click', function (e) {
-    const btn = e.target.closest('.btn-like');
-    if (!btn) return;
+  function handleToggleLike(checkinId, url, forceLikeOnly = false) {
+    if (!url || likeInFlight.has(checkinId)) return;
 
-    e.preventDefault();
-    const url = btn.dataset.url || btn.getAttribute('href') || (btn.form && btn.form.action);
-    if (!url) return;
+    // Find any like button for this checkin to read current state
+    const btn = document.querySelector(`.btn-like[data-checkin-id="${checkinId}"]`);
+    const countSpan = document.querySelector(`.like-count[data-checkin-id="${checkinId}"]`);
+    
+    const wasLiked = btn ? btn.classList.contains('liked') : false;
+    let currentCount = countSpan ? parseInt(countSpan.textContent.trim(), 10) || 0 : 0;
 
-    // Trigger local animation immediately
-    btn.classList.add('heart-pulse');
-    setTimeout(() => btn.classList.remove('heart-pulse'), 400);
+    // If forceLikeOnly is requested (e.g. from double tap) and already liked, skip network
+    if (forceLikeOnly && wasLiked) {
+      return;
+    }
+
+    const optimisticLiked = forceLikeOnly ? true : !wasLiked;
+    const optimisticCount = Math.max(0, currentCount + (optimisticLiked ? 1 : -1));
+
+    // INSTANT OPTIMISTIC UI UPDATE (Zero Lag!)
+    updateLikeUI(checkinId, optimisticLiked, optimisticCount);
+
+    likeInFlight.add(checkinId);
 
     fetch(url, {
       method: 'POST',
@@ -77,38 +80,83 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .then(res => res.json())
     .then(data => {
+      likeInFlight.delete(checkinId);
       if (data.success || data.liked !== undefined) {
-        const isLiked = data.liked;
-        const count = data.likes_count;
-
-        // Update all like buttons matching this checkin
-        const checkinId = btn.dataset.checkinId;
-        const targets = checkinId ? document.querySelectorAll(`.btn-like[data-checkin-id="${checkinId}"]`) : [btn];
-
-        targets.forEach(b => {
-          const icon = b.querySelector('i');
-          const countSpan = b.querySelector('.like-count');
-
-          if (isLiked) {
-            b.classList.add('liked');
-            if (icon) {
-              icon.className = 'bi bi-heart-fill text-danger';
-            }
-          } else {
-            b.classList.remove('liked');
-            if (icon) {
-              icon.className = 'bi bi-heart text-dark';
-            }
-          }
-
-          if (countSpan) {
-            countSpan.textContent = count;
-          }
-        });
+        // Sync exact server count
+        updateLikeUI(checkinId, data.liked, data.likes_count);
+      } else {
+        // Revert on error
+        updateLikeUI(checkinId, wasLiked, currentCount);
+        showToast('เกิดข้อผิดพลาดในการกดถูกใจ', 'danger');
       }
     })
-    .catch(err => console.error('Like error:', err));
+    .catch(err => {
+      likeInFlight.delete(checkinId);
+      console.error('Like error:', err);
+      // Revert on network failure
+      updateLikeUI(checkinId, wasLiked, currentCount);
+      showToast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'danger');
+    });
+  }
+
+  // Click on Like Button
+  document.body.addEventListener('click', function (e) {
+    const btn = e.target.closest('.btn-like');
+    if (!btn) return;
+
+    e.preventDefault();
+    const checkinId = btn.dataset.checkinId;
+    const url = btn.dataset.url || btn.getAttribute('href') || (btn.form && btn.form.action);
+    if (checkinId && url) {
+      handleToggleLike(checkinId, url, false);
+    }
   });
+
+  /* ----------------------------------------------------
+   * 2. DOUBLE TAP TO LIKE (Instagram Style)
+   * ---------------------------------------------------- */
+  document.querySelectorAll('.double-tap-like-area').forEach(wrapper => {
+    let lastTapTime = 0;
+    let tapTimeout = null;
+
+    wrapper.addEventListener('pointerup', function (e) {
+      const now = Date.now();
+      const diff = now - lastTapTime;
+
+      if (diff < 350 && diff > 40) {
+        // Double tap confirmed
+        clearTimeout(tapTimeout);
+        e.preventDefault();
+
+        const checkinId = wrapper.dataset.checkinId;
+        const btn = document.querySelector(`.btn-like[data-checkin-id="${checkinId}"]`);
+        const url = btn ? (btn.dataset.url || btn.getAttribute('href')) : null;
+
+        // Big bursting heart animation
+        triggerHeartBurst(wrapper, e);
+
+        // Optimistically like if not liked
+        if (checkinId && url) {
+          handleToggleLike(checkinId, url, true);
+        }
+        lastTapTime = 0;
+      } else {
+        lastTapTime = now;
+      }
+    });
+  });
+
+  function triggerHeartBurst(container, event) {
+    const heart = document.createElement('div');
+    heart.className = 'insta-heart-burst';
+    heart.innerHTML = '<i class="bi bi-heart-fill"></i>';
+
+    container.appendChild(heart);
+
+    setTimeout(() => {
+      heart.remove();
+    }, 850);
+  }
 
   /* ----------------------------------------------------
    * 3. AJAX BOOKMARK (SAVE) BUTTON
@@ -119,7 +167,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     e.preventDefault();
     const url = btn.dataset.url;
+    const checkinId = btn.dataset.checkinId;
     if (!url) return;
+
+    const wasBookmarked = btn.classList.contains('bookmarked');
+    const newBookmarked = !wasBookmarked;
+
+    // Optimistic UI
+    const targets = checkinId ? document.querySelectorAll(`.btn-bookmark[data-checkin-id="${checkinId}"]`) : [btn];
+    targets.forEach(b => {
+      const icon = b.querySelector('i');
+      if (newBookmarked) {
+        b.classList.add('bookmarked');
+        if (icon) icon.className = 'bi bi-bookmark-fill text-warning';
+      } else {
+        b.classList.remove('bookmarked');
+        if (icon) icon.className = 'bi bi-bookmark text-dark';
+      }
+    });
+
+    showToast(newBookmarked ? 'บันทึกไปยังคอลเลกชันแล้ว 🔖' : 'นำออกจากรายการบันทึกแล้ว');
 
     fetch(url, {
       method: 'POST',
@@ -131,20 +198,14 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        const isBookmarked = data.bookmarked;
-        const checkinId = btn.dataset.checkinId;
-        const targets = checkinId ? document.querySelectorAll(`.btn-bookmark[data-checkin-id="${checkinId}"]`) : [btn];
-
         targets.forEach(b => {
           const icon = b.querySelector('i');
-          if (isBookmarked) {
+          if (data.bookmarked) {
             b.classList.add('bookmarked');
             if (icon) icon.className = 'bi bi-bookmark-fill text-warning';
-            showToast('บันทึกไปยังคอลเลกชันแล้ว 🔖');
           } else {
             b.classList.remove('bookmarked');
             if (icon) icon.className = 'bi bi-bookmark text-dark';
-            showToast('นำออกจากรายการบันทึกแล้ว');
           }
         });
       }
@@ -198,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
           el.textContent = data.comments_count;
         });
 
-        // Hide "No comments yet" placeholder if present
+        // Hide empty placeholder
         const emptyPlaceholder = document.querySelector(`.empty-comments-placeholder[data-checkin-id="${checkinId}"]`);
         if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
 
@@ -281,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /* ----------------------------------------------------
-   * 6. FOLLOW / UNFOLLOW SYSTEM
+   * 6. FOLLOW / UNFOLLOW SYSTEM (Instant Optimistic UI)
    * ---------------------------------------------------- */
   document.body.addEventListener('click', function (e) {
     const btn = e.target.closest('.btn-toggle-follow');
@@ -292,7 +353,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const username = btn.dataset.username;
     if (!url) return;
 
-    btn.disabled = true;
+    const wasFollowing = btn.classList.contains('following');
+    const newFollowing = !wasFollowing;
+
+    // Optimistic Update
+    document.querySelectorAll(`.btn-toggle-follow[data-username="${username}"]`).forEach(b => {
+      if (newFollowing) {
+        b.className = 'btn btn-light border btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow following';
+        b.innerHTML = '<i class="bi bi-check2 me-1 text-success"></i> กำลังติดตาม';
+      } else {
+        b.className = 'btn btn-primary btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow';
+        b.innerHTML = '<i class="bi bi-person-plus-fill me-1"></i> ติดตาม';
+      }
+    });
+
+    const followersCountEl = document.getElementById('profile-followers-count');
+    if (followersCountEl) {
+      let cur = parseInt(followersCountEl.textContent.trim(), 10) || 0;
+      followersCountEl.textContent = Math.max(0, cur + (newFollowing ? 1 : -1));
+    }
+
+    showToast(newFollowing ? `ติดตาม @${username} แล้ว ✨` : `เลิกติดตาม @${username} แล้ว`);
 
     fetch(url, {
       method: 'POST',
@@ -303,34 +384,13 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .then(res => res.json())
     .then(data => {
-      btn.disabled = false;
       if (data.success) {
-        const isFollowing = data.following;
-        
-        // Update all buttons for this username
-        document.querySelectorAll(`.btn-toggle-follow[data-username="${username}"]`).forEach(b => {
-          if (isFollowing) {
-            b.className = 'btn btn-light border btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow following';
-            b.innerHTML = '<i class="bi bi-check2 me-1 text-success"></i> กำลังติดตาม';
-          } else {
-            b.className = 'btn btn-primary btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow';
-            b.innerHTML = '<i class="bi bi-person-plus-fill me-1"></i> ติดตาม';
-          }
-        });
-
-        // Update profile follower counters
-        const followersCountEl = document.getElementById('profile-followers-count');
         if (followersCountEl && data.followers_count !== undefined) {
           followersCountEl.textContent = data.followers_count;
         }
-
-        showToast(isFollowing ? `ติดตาม @${username} แล้ว ✨` : `เลิกติดตาม @${username} แล้ว`);
       }
     })
-    .catch(err => {
-      btn.disabled = false;
-      console.error('Follow error:', err);
-    });
+    .catch(err => console.error('Follow error:', err));
   });
 
   /* ----------------------------------------------------
@@ -345,7 +405,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const text = btn.dataset.text || 'ดูจุดเช็คอินนี้บน ที่นี้ที่ไหนหรือ';
     const url = btn.dataset.url || window.location.href;
 
-    // Use Web Share API if available (Mobile browsers)
     if (navigator.share) {
       navigator.share({
         title: title,
@@ -369,7 +428,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const linkInput = document.getElementById('shareModalLinkInput');
     if (linkInput) linkInput.value = url;
 
-    // Update social direct links
     const encUrl = encodeURIComponent(url);
     const encText = encodeURIComponent(title + ' - ที่นี้ที่ไหนหรือ');
 
@@ -386,7 +444,6 @@ document.addEventListener('DOMContentLoaded', function () {
     modal.show();
   }
 
-  // Copy share link button
   const copyShareBtn = document.getElementById('copyShareLinkBtn');
   if (copyShareBtn) {
     copyShareBtn.addEventListener('click', function () {
@@ -495,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
 
     container.appendChild(toast);
-    const bsToast = new bootstrap.Toast(toast, { delay: 2500 });
+    const bsToast = new bootstrap.Toast(toast, { delay: 2000 });
     bsToast.show();
 
     toast.addEventListener('hidden.bs.toast', () => toast.remove());
