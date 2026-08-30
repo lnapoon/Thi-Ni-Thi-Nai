@@ -68,6 +68,11 @@ class FeedView(LoginRequiredMixin, ListView):
                 ).values_list('following_id', flat=True)
             )
 
+        # Featured Active Travelers for Top Stories Bar
+        context['featured_creators'] = User.objects.exclude(id=self.request.user.id).select_related('profile').annotate(
+            post_count=Count('checkins')
+        ).filter(post_count__gt=0).order_by('-post_count')[:10]
+
         context['active_tab'] = self.request.GET.get('tab', 'all')
         return context
 

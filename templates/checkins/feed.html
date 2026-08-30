@@ -6,15 +6,50 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-8 col-lg-6">
 
-    <!-- Instagram-Style Feed Tabs -->
-    <div class="feed-tabs-nav">
-      <a href="{% url 'checkins:feed' %}?tab=all" class="feed-tab-btn {% if active_tab != 'following' %}active{% endif %}">
-        <i class="bi bi-compass-fill"></i> สำรวจทั้งหมด
-      </a>
-      <a href="{% url 'checkins:feed' %}?tab=following" class="feed-tab-btn {% if active_tab == 'following' %}active{% endif %}">
-        <i class="bi bi-people-fill"></i> กำลังติดตาม
-      </a>
-    </div>
+    <!-- Top Featured Travelers / Stories Carousel -->
+    {% if featured_creators %}
+      <div class="stories-carousel-card">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="fw-bold text-dark small">
+            <i class="bi bi-compass-fill text-primary me-1"></i> นักเดินทางแนะนำ (Top Travelers)
+          </span>
+          <a href="{% url 'accounts:search' %}" class="small text-primary text-decoration-none fw-semibold">
+            ค้นหาเพิ่ม &rarr;
+          </a>
+        </div>
+        <div class="stories-scroll-wrapper">
+          <!-- Current User Profile Bubble -->
+          <a href="{% url 'accounts:profile_me' %}" class="story-item">
+            <div class="story-avatar-ring" style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);">
+              {% if user.get_avatar_url %}
+                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="story-avatar-img">
+              {% else %}
+                <div class="story-avatar-img bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+              {% endif %}
+            </div>
+            <span class="story-username text-primary fw-bold">คุณ</span>
+          </a>
+
+          <!-- Active Creators Bubbles -->
+          {% for creator in featured_creators %}
+            <a href="{% url 'accounts:profile_user' username=creator.username %}" class="story-item" title="@{{ creator.username }}">
+              <div class="story-avatar-ring">
+                {% if creator.get_avatar_url %}
+                  <img src="{{ creator.get_avatar_url }}" alt="{{ creator.username }}" class="story-avatar-img">
+                {% else %}
+                  <div class="story-avatar-img bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                    <i class="bi bi-person-fill"></i>
+                  </div>
+                {% endif %}
+              </div>
+              <span class="story-username">@{{ creator.username }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
 
     <!-- Feed Content List -->
     {% if checkins %}
@@ -34,142 +69,173 @@
                 {% endif %}
               </a>
               <div>
-                <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="fw-bold text-dark text-decoration-none d-block lh-1" style="font-size: 0.92rem;">
-                  @{{ checkin.user.username }}
-                </a>
-                <span class="text-muted" style="font-size: 0.72rem;">
-                  <i class="bi bi-clock me-1"></i>{{ checkin.created_at|timesince }} ที่แล้ว
-                </span>
+                <div class="d-flex align-items-center gap-1">
+                  <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="fw-bold text-dark text-decoration-none lh-1" style="font-size: 0.92rem;">
+                    @{{ checkin.user.username }}
+                  </a>
+                  {% if checkin.user.is_staff or checkin.user.is_superuser %}
+                    <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.75rem;" title="แอดมิน"></i>
+                  {% endif %}
+                </div>
+                
+                <!-- Location Chip with Radar Dot -->
+                <div class="d-flex align-items-center mt-1" style="font-size: 0.75rem;">
+                  <span class="radar-dot"></span>
+                  <a href="{% url 'checkins:detail' pk=checkin.pk %}" class="text-secondary fw-semibold text-decoration-none text-truncate" style="max-width: 180px;">
+                    {{ checkin.place_name }}
+                  </a>
+                </div>
               </div>
             </div>
 
-            <!-- Follow Button or Dropdown Menu -->
+            <!-- Header Options / Timestamp -->
             <div class="d-flex align-items-center gap-2">
-              {% if user != checkin.user %}
-                {% if checkin.user.id in user_following_ids %}
-                  <button class="btn btn-light border btn-sm rounded-pill px-2 py-0 fw-semibold btn-toggle-follow following" data-username="{{ checkin.user.username }}" data-url="{% url 'accounts:toggle_follow' username=checkin.user.username %}" style="font-size: 0.75rem;">
-                    <i class="bi bi-check2 text-success"></i> ติดตามแล้ว
-                  </button>
-                {% else %}
-                  <button class="btn btn-outline-primary btn-sm rounded-pill px-2 py-0 fw-semibold btn-toggle-follow" data-username="{{ checkin.user.username }}" data-url="{% url 'accounts:toggle_follow' username=checkin.user.username %}" style="font-size: 0.75rem;">
-                    <i class="bi bi-plus"></i> ติดตาม
-                  </button>
-                {% endif %}
-              {% endif %}
-
+              <span class="text-muted" style="font-size: 0.72rem;">{{ checkin.created_at|timesince }} ที่แล้ว</span>
               <div class="dropdown">
-                <button class="btn btn-link text-muted p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="bi bi-three-dots"></i>
+                <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-three-dots fs-5"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius: 12px;">
-                  <li>
-                    <button type="button" class="dropdown-item small btn-share-post" data-title="{{ checkin.place_name }}" data-url="{{ request.scheme }}://{{ request.get_host }}{{ checkin.get_absolute_url }}">
-                      <i class="bi bi-share me-2 text-primary"></i> แชร์จุดเช็คอิน
-                    </button>
-                  </li>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                  <li><a class="dropdown-item small" href="{% url 'checkins:detail' pk=checkin.pk %}"><i class="bi bi-eye me-2"></i>ดูรายละเอียด</a></li>
                   {% if checkin.has_location %}
                     <li>
                       <a class="dropdown-item small" href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener">
-                        <i class="bi bi-map me-2 text-success"></i> เปิด Google Maps
+                        <i class="bi bi-geo-alt me-2 text-danger"></i>เปิด Google Maps
                       </a>
                     </li>
                   {% endif %}
-                  {% if checkin.user == user %}
+                  {% if checkin.user == user or user.is_staff %}
                     <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <a class="dropdown-item small" href="{% url 'checkins:edit' pk=checkin.pk %}">
-                        <i class="bi bi-pencil me-2 text-primary"></i> แก้ไข
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item small text-danger" href="{% url 'checkins:delete' pk=checkin.pk %}">
-                        <i class="bi bi-trash3 me-2"></i> ลบ
-                      </a>
-                    </li>
+                    <li><a class="dropdown-item small text-primary" href="{% url 'checkins:edit' pk=checkin.pk %}"><i class="bi bi-pencil me-2"></i>แก้ไข</a></li>
+                    <li><a class="dropdown-item small text-danger" href="{% url 'checkins:delete' pk=checkin.pk %}"><i class="bi bi-trash3 me-2"></i>ลบโพสต์</a></li>
                   {% endif %}
                 </ul>
               </div>
             </div>
           </div>
 
-          <!-- Photo Container with Double Tap to Like -->
-          <div class="double-tap-like-area card-img-wrapper" data-checkin-id="{{ checkin.id }}">
-            <img src="{{ checkin.get_photo_url }}" alt="{{ checkin.place_name }}" class="card-img-top checkin-photo" loading="lazy">
-            <div class="place-badge shadow-sm">
-              <i class="bi bi-geo-alt-fill text-warning me-1"></i>{{ checkin.place_name }}
-            </div>
+          <!-- Card Photo with Double Tap Heart Animation -->
+          <div class="card-img-wrapper" data-checkin-id="{{ checkin.id }}">
+            <img src="{{ checkin.get_photo_url }}" alt="{{ checkin.place_name }}" loading="lazy">
+            <i class="bi bi-heart-fill double-tap-heart"></i>
           </div>
 
-          <!-- Instagram-Style Action Bar (Like, Comment, Share, Bookmark) -->
-          <div class="ig-action-bar">
-            <div class="ig-action-left">
+          <!-- Action Bar (Like, Comment, Share, Bookmark) -->
+          <div class="card-actions-bar">
+            <div class="d-flex align-items-center gap-2">
               <!-- Like Button -->
-              <button type="button" class="ig-action-btn btn-like {% if checkin.id in user_liked_ids %}liked{% endif %}" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:like' pk=checkin.pk %}" title="ถูกใจ">
-                <i class="bi {% if checkin.id in user_liked_ids %}bi-heart-fill text-danger{% else %}bi-heart{% endif %}"></i>
+              <button 
+                type="button" 
+                class="btn-action-icon btn-like {% if checkin.id in user_liked_ids %}liked text-danger{% endif %}" 
+                data-checkin-id="{{ checkin.id }}"
+                data-url="{% url 'checkins:like' pk=checkin.pk %}"
+                title="ถูกใจ"
+              >
+                <i class="bi {% if checkin.id in user_liked_ids %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
               </button>
 
-              <!-- Comment Button (Navigates to detail or focuses input) -->
-              <a href="{{ checkin.get_absolute_url }}#comments-section" class="ig-action-btn" title="แสดงความคิดเห็น">
+              <!-- Comment Button -->
+              <button 
+                type="button" 
+                class="btn-action-icon btn-comment-focus" 
+                data-checkin-id="{{ checkin.id }}"
+                title="ความคิดเห็น"
+              >
                 <i class="bi bi-chat"></i>
-              </a>
+              </button>
 
               <!-- Share Button -->
-              <button type="button" class="ig-action-btn btn-share-post" data-title="{{ checkin.place_name }}" data-url="{{ request.scheme }}://{{ request.get_host }}{{ checkin.get_absolute_url }}" title="แชร์">
+              <button 
+                type="button" 
+                class="btn-action-icon btn-share" 
+                data-title="{{ checkin.place_name }}"
+                data-text="ดูจุดเช็คอิน {{ checkin.place_name }} บน ที่นี่ Check-in"
+                data-url="{{ request.scheme }}://{{ request.get_host }}{% url 'checkins:detail' pk=checkin.pk %}"
+                title="แชร์จุดเช็คอิน"
+              >
                 <i class="bi bi-send"></i>
               </button>
             </div>
 
             <!-- Bookmark Button -->
             <div>
-              <button type="button" class="ig-action-btn btn-bookmark {% if checkin.id in user_bookmarked_ids %}bookmarked{% endif %}" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:bookmark' pk=checkin.pk %}" title="บันทึก">
-                <i class="bi {% if checkin.id in user_bookmarked_ids %}bi-bookmark-fill text-warning{% else %}bi-bookmark{% endif %}"></i>
+              <button 
+                type="button" 
+                class="btn-action-icon btn-bookmark {% if checkin.id in user_bookmarked_ids %}bookmarked text-primary{% endif %}" 
+                data-checkin-id="{{ checkin.id }}"
+                data-url="{% url 'checkins:bookmark' pk=checkin.pk %}"
+                title="บันทึกสถานที่"
+              >
+                <i class="bi {% if checkin.id in user_bookmarked_ids %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
               </button>
             </div>
           </div>
 
-          <!-- Likes Count & Content Body -->
-          <div class="px-3 pb-3">
+          <!-- Card Body (Likes Count, Caption, Comments Preview) -->
+          <div class="card-body pt-0 pb-2 px-3">
+            
+            <!-- Likes Counter -->
             <div class="fw-bold mb-1" style="font-size: 0.88rem;">
-              ถูกใจ <span class="like-count" data-checkin-id="{{ checkin.id }}">{{ checkin.likes.count }}</span> คน
+              <span class="like-count" data-checkin-id="{{ checkin.id }}">{{ checkin.likes.count }}</span> ถูกใจ
             </div>
 
             <!-- Caption -->
-            <div class="mb-2" style="font-size: 0.9rem; line-height: 1.5;">
-              <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="fw-bold text-dark text-decoration-none me-1">@{{ checkin.user.username }}</a>
-              <span class="text-dark">{{ checkin.caption|linebreaksbr }}</span>
-            </div>
-
-            <!-- Comments Preview -->
-            <div class="comments-preview mt-2">
-              {% if checkin.comments.count > 0 %}
-                <a href="{{ checkin.get_absolute_url }}#comments-section" class="text-muted small text-decoration-none d-block mb-1">
-                  ดูความคิดเห็นทั้งหมด <span class="comment-count" data-checkin-id="{{ checkin.id }}">{{ checkin.comments.count }}</span> รายการ
+            {% if checkin.caption %}
+              <div class="card-text mb-2" style="font-size: 0.88rem; line-height: 1.45;">
+                <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="fw-bold text-dark text-decoration-none me-1">
+                  @{{ checkin.user.username }}
                 </a>
-              {% endif %}
+                <span>{{ checkin.caption }}</span>
+              </div>
+            {% endif %}
 
-              <!-- Dynamic Comments List Container for AJAX comments -->
-              <div class="comments-list" data-checkin-id="{{ checkin.id }}">
-                {% for comment in checkin.comments.all|slice:":2" %}
-                  <div class="d-flex align-items-start gap-1 py-1 comment-item" data-comment-id="{{ comment.id }}" style="font-size: 0.82rem;">
-                    <a href="{% url 'accounts:profile_user' username=comment.user.username %}" class="fw-bold text-dark text-decoration-none me-1">@{{ comment.user.username }}</a>
+            <!-- Comments Count Link -->
+            {% with c_count=checkin.comments.count %}
+              {% if c_count > 0 %}
+                <div class="mb-2">
+                  <a href="{% url 'checkins:detail' pk=checkin.pk %}" class="text-muted small text-decoration-none">
+                    ดูความคิดเห็นทั้งหมด <span class="comments-count-badge" data-checkin-id="{{ checkin.id }}">{{ c_count }}</span> รายการ
+                  </a>
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <!-- Inline Latest Comments Snippet -->
+            <div class="inline-comments-stream mb-2" data-checkin-id="{{ checkin.id }}">
+              {% for comment in checkin.comments.all|slice:":2" %}
+                <div class="d-flex align-items-center justify-content-between mb-1" id="comment-item-{{ comment.id }}">
+                  <div class="small text-truncate" style="font-size: 0.82rem;">
+                    <a href="{% url 'accounts:profile_user' username=comment.user.username %}" class="fw-bold text-dark text-decoration-none me-1">
+                      @{{ comment.user.username }}
+                    </a>
                     <span class="text-secondary">{{ comment.text }}</span>
                   </div>
-                {% endfor %}
-              </div>
+                  {% if comment.user == user or checkin.user == user or user.is_staff %}
+                    <button type="button" class="btn btn-link btn-sm text-muted p-0 ms-2 btn-delete-comment text-decoration-none" data-comment-id="{{ comment.id }}" data-url="{% url 'checkins:comment_delete' pk=comment.pk %}" title="ลบคอมเมนต์" style="font-size: 0.7rem;">
+                      <i class="bi bi-x"></i>
+                    </button>
+                  {% endif %}
+                </div>
+              {% endfor %}
             </div>
 
-            <!-- Inline Quick Comment Input -->
-            <form action="{% url 'checkins:comment_create' pk=checkin.pk %}" method="post" class="ajax-comment-form mt-2" data-checkin-id="{{ checkin.id }}">
-              {% csrf_token %}
-              <div class="quick-comment-box">
-                <input type="text" name="text" placeholder="เพิ่มความคิดเห็นในฐานะ @{{ user.username }}..." autocomplete="off" required>
-                <button type="submit" title="ส่งความคิดเห็น">
-                  <i class="bi bi-arrow-up"></i>
-                </button>
-              </div>
-            </form>
-
           </div>
+
+          <!-- Quick Comment Input Box -->
+          <form class="feed-quick-comment-box" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:comment_create' pk=checkin.pk %}">
+            {% csrf_token %}
+            <input 
+              type="text" 
+              name="text" 
+              class="quick-comment-input feed-comment-input-{{ checkin.id }}" 
+              placeholder="เพิ่มความคิดเห็นในฐานะ @{{ user.username }}..."
+              autocomplete="off"
+              required
+            >
+            <button type="submit" class="btn-quick-comment-submit">
+              โพสต์
+            </button>
+          </form>
 
         </div>
       {% endfor %}
@@ -180,31 +246,23 @@
           <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
               <li class="page-item">
-                <a class="page-link rounded-start-pill" href="?tab={{ active_tab }}&page={{ page_obj.previous_page_number }}">
-                  <i class="bi bi-chevron-left me-1"></i> ก่อนหน้า
+                <a class="page-link rounded-pill px-3 me-2 border-0 shadow-sm" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                  &laquo; ก่อนหน้า
                 </a>
-              </li>
-            {% else %}
-              <li class="page-item disabled">
-                <span class="page-link rounded-start-pill"><i class="bi bi-chevron-left me-1"></i> ก่อนหน้า</span>
               </li>
             {% endif %}
 
             <li class="page-item active">
-              <span class="page-link bg-primary border-primary">
-                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+              <span class="page-link rounded-pill px-3 border-0 shadow-sm">
+                หน้า {{ page_obj.number }} จาก {{ page_obj.paginator.num_pages }}
               </span>
             </li>
 
             {% if page_obj.has_next %}
               <li class="page-item">
-                <a class="page-link rounded-end-pill" href="?tab={{ active_tab }}&page={{ page_obj.next_page_number }}">
-                  ถัดไป <i class="bi bi-chevron-right ms-1"></i>
+                <a class="page-link rounded-pill px-3 ms-2 border-0 shadow-sm" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                  ถัดไป &raquo;
                 </a>
-              </li>
-            {% else %}
-              <li class="page-item disabled">
-                <span class="page-link rounded-end-pill">ถัดไป <i class="bi bi-chevron-right ms-1"></i></span>
               </li>
             {% endif %}
           </ul>
@@ -212,22 +270,18 @@
       {% endif %}
 
     {% else %}
-      <!-- Empty Feed State -->
-      <div class="empty-state py-5 my-4">
-        <i class="bi bi-compass"></i>
-        {% if active_tab == 'following' %}
-          <h5 class="fw-bold text-secondary">ยังไม่มีโพสต์จากคนที่คุณติดตาม</h5>
-          <p class="text-muted small">ลองติดตามเพื่อนๆ เพื่อดูจุดเช็คอินใหม่ๆ ที่นี่</p>
-          <a href="{% url 'checkins:feed' %}?tab=all" class="btn btn-outline-primary btn-sm rounded-pill px-3 mt-2">
-            <i class="bi bi-compass me-1"></i> ไปสำรวจจุดเช็คอินทั้งหมด
-          </a>
-        {% else %}
-          <h5 class="fw-bold text-secondary">ยังไม่มีจุดเช็คอิน</h5>
-          <p class="text-muted small">เป็นคนแรกที่แชร์ภาพสถานที่ท่องเที่ยวสุดประทับใจเลย!</p>
-          <a href="{% url 'checkins:create' %}" class="btn btn-primary btn-sm rounded-pill px-4 mt-2">
-            <i class="bi bi-plus-circle me-1"></i> เช็คอินสถานที่แรก
-          </a>
-        {% endif %}
+      <!-- Empty State with Animated Illustration -->
+      <div class="empty-state shadow-sm rounded-4 p-5 text-center bg-white my-4">
+        <div class="mb-3 animate__animated animate__bounceIn">
+          <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle shadow-sm" style="width: 80px; height: 80px;">
+            <i class="bi bi-geo-alt fs-1"></i>
+          </div>
+        </div>
+        <h5 class="fw-bold text-dark">ยังไม่มีจุดเช็คอินในขณะนี้</h5>
+        <p class="text-muted small mb-4">มาเป็นคนแรกที่เริ่มบันทึกและแชร์ภาพถ่ายสถานที่สวยๆ กันเถอะ!</p>
+        <a href="{% url 'checkins:create' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow">
+          <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินสถานที่แรกเลย
+        </a>
       </div>
     {% endif %}
 

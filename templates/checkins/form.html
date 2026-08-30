@@ -6,15 +6,15 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-8 col-lg-6">
 
-    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white animate__animated animate__fadeIn">
       <!-- Form Header -->
       <div class="d-flex align-items-center mb-3">
-        <a href="{% if is_edit %}{% url 'checkins:detail' pk=object.pk %}{% else %}{% url 'checkins:feed' %}{% endif %}" class="btn btn-light btn-sm rounded-circle me-2">
-          <i class="bi bi-arrow-left"></i>
+        <a href="{% if is_edit %}{% url 'checkins:detail' pk=object.pk %}{% else %}{% url 'checkins:feed' %}{% endif %}" class="btn btn-light btn-sm rounded-circle me-3 shadow-sm" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
+          <i class="bi bi-arrow-left fs-6"></i>
         </a>
         <div>
-          <h4 class="fw-bold mb-0">{{ page_title }}</h4>
-          <span class="text-muted small">แชร์ภาพและสถานที่ที่คุณประทับใจ</span>
+          <h4 class="fw-bold mb-0 text-dark">{{ page_title }}</h4>
+          <span class="text-muted small">แชร์ภาพและสถานที่ที่คุณประทับใจให้เพื่อนๆ ได้ชม</span>
         </div>
       </div>
 
@@ -41,17 +41,17 @@
         </div>
 
         <!-- Geolocation Widget / Status -->
-        <div class="mb-3 p-3 bg-light rounded-3 border">
+        <div class="mb-3 p-3 bg-light rounded-4 border">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <label class="form-label small fw-semibold mb-0 text-secondary">
-              <i class="bi bi-crosshair me-1"></i>พิกัดตำแหน่ง (GPS Geolocation)
+            <label class="form-label small fw-semibold mb-0 text-dark">
+              <i class="bi bi-crosshair text-primary me-1"></i>พิกัดตำแหน่ง (GPS Geolocation)
             </label>
-            <button type="button" id="btn-get-location" class="btn btn-outline-primary btn-sm rounded-pill py-0 px-2" style="font-size: 0.75rem;">
+            <button type="button" id="btn-get-location" class="btn btn-outline-primary btn-sm rounded-pill py-1 px-3 shadow-sm" style="font-size: 0.75rem; font-weight: 600;">
               <i class="bi bi-arrow-clockwise me-1"></i>จับพิกัดใหม่
             </button>
           </div>
           <div id="geo-status" class="small">
-            <span class="badge bg-secondary-subtle text-secondary py-2 px-3">
+            <span class="badge bg-secondary-subtle text-secondary py-2 px-3 rounded-pill">
               <span class="spinner-border spinner-border-sm me-1" role="status"></span> กำลังค้นหาพิกัด GPS ของคุณ...
             </span>
           </div>
