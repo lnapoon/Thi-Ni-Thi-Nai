@@ -147,7 +147,8 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Configure STORAGES (Django 4.2+)
-STATICFILES_STORAGE_BACKEND = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE_BACKEND = "whitenoise.storage.CompressedStaticFilesStorage"
+WHITENOISE_USE_FINDERS = True
 
 if STORAGE_BACKEND == "cloudinary":
     CLOUDINARY_STORAGE = {
@@ -163,6 +164,7 @@ if STORAGE_BACKEND == "cloudinary":
             "BACKEND": STATICFILES_STORAGE_BACKEND,
         },
     }
+
 elif STORAGE_BACKEND == "s3":
     # AWS S3 / Cloudflare R2 / Backblaze B2 support
     AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="")
