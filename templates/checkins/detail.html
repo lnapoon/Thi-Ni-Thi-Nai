@@ -26,9 +26,9 @@
 
     <!-- Main Detail Card -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
-      <!-- Full Image -->
-      <div class="position-relative bg-dark text-center">
-        <img src="{{ checkin.photo.url }}" alt="{{ checkin.place_name }}" class="img-fluid w-100" style="max-height: 550px; object-fit: contain;">
+      <!-- Image Display -->
+      <div class="position-relative">
+        <img src="{{ checkin.get_photo_url }}" alt="{{ checkin.place_name }}" class="card-img-top" style="max-height: 520px; object-fit: cover;">
       </div>
 
       <div class="card-body p-4">

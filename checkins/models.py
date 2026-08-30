@@ -24,8 +24,24 @@ class CheckIn(models.Model):
     def __str__(self):
         return f"{self.place_name} โดย {self.user.username}"
 
+    @property
+    def get_photo_url(self):
+        if not self.photo:
+            return ""
+        try:
+            url = self.photo.url
+            if url.startswith("http://") or url.startswith("https://"):
+                return url
+        except Exception:
+            pass
+        clean_name = str(self.photo.name).lstrip('/')
+        if not clean_name.startswith('media/'):
+            clean_name = f'media/{clean_name}'
+        return f"https://res.cloudinary.com/pkxxxmpn/image/upload/v1/{clean_name}"
+
     def get_absolute_url(self):
         return reverse('checkins:detail', kwargs={'pk': self.pk})
+
 
     @property
     def has_location(self):

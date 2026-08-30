@@ -50,12 +50,13 @@
         const marker_{{ item.pk }} = L.marker([{{ item.latitude }}, {{ item.longitude }}]).addTo(map);
         const popupContent_{{ item.pk }} = `
           <div style="max-width: 200px; text-align: center;">
-            <img src="{{ item.photo.url }}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" alt="{{ item.place_name }}">
+            <img src="{{ item.get_photo_url }}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" alt="{{ item.place_name }}">
             <h6 style="font-weight: 700; margin-bottom: 2px; font-size: 14px;">{{ item.place_name|escapejs }}</h6>
             <p style="color: #666; font-size: 12px; margin-bottom: 6px;">โดย @{{ item.user.username|escapejs }}</p>
             <a href="{% url 'checkins:detail' pk=item.pk %}" class="btn btn-primary btn-sm rounded-pill text-white py-1 px-3" style="font-size: 11px; text-decoration: none;">ดูรายละเอียด</a>
           </div>
         `;
+
         marker_{{ item.pk }}.bindPopup(popupContent_{{ item.pk }});
         markers.push([{{ item.latitude }}, {{ item.longitude }}]);
       {% endif %}

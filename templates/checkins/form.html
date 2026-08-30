@@ -70,13 +70,14 @@
 
           <!-- Image Preview Container -->
           <div class="image-preview-container mb-2 text-center" id="photo-preview-box">
-            {% if is_edit and object.photo %}
-              <img id="photo-preview-img" src="{{ object.photo.url }}" alt="Preview" class="img-fluid rounded-3">
+            {% if is_edit and object.get_photo_url %}
+              <img id="photo-preview-img" src="{{ object.get_photo_url }}" alt="Preview" class="img-fluid rounded-3">
               <div id="photo-preview-placeholder" class="text-muted p-4 d-none">
                 <i class="bi bi-image fs-1 d-block mb-1 text-secondary"></i>
                 <span class="small">แตะเลือกรูปภาพเพื่อแสดงตัวอย่าง</span>
               </div>
             {% else %}
+
               <img id="photo-preview-img" src="" alt="Preview" class="img-fluid rounded-3 d-none">
               <div id="photo-preview-placeholder" class="text-muted p-4">
                 <i class="bi bi-image fs-1 d-block mb-1 text-secondary"></i>

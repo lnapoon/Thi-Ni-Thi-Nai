@@ -72,13 +72,14 @@
           </div>
 
           <!-- Photo Container -->
-          <div class="card-img-wrapper">
-            <a href="{{ checkin.get_absolute_url }}">
-              <img src="{{ checkin.photo.url }}" alt="{{ checkin.place_name }}" loading="lazy">
-            </a>
-            <div class="place-badge shadow-sm">
-              <i class="bi bi-geo-alt-fill text-warning me-1"></i>{{ checkin.place_name }}
+          <!-- Card Image with Click to Detail -->
+          <a href="{{ checkin.get_absolute_url }}" class="d-block text-decoration-none">
+            <div class="card-image-wrapper">
+              <img src="{{ checkin.get_photo_url }}" alt="{{ checkin.place_name }}" class="card-img-top checkin-photo" loading="lazy">
             </div>
+          </a>
+          <div class="place-badge shadow-sm">
+            <i class="bi bi-geo-alt-fill text-warning me-1"></i>{{ checkin.place_name }}
           </div>
 
           <!-- Card Body & Interactions -->
