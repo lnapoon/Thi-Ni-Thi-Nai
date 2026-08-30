@@ -4,8 +4,9 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.views.generic import View, DetailView
+from django.views.generic import View
 from django.utils.decorators import method_decorator
+
 from .forms import SignUpForm, UserUpdateForm, ProfileEditForm
 from .models import Profile
 

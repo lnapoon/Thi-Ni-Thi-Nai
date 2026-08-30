@@ -3,10 +3,10 @@ Django settings for "Thi Ni Thi Nai Rue" (ที่นี้ที่ไหน�
 """
 
 from pathlib import Path
-import os
 from decouple import config, Csv
 import dj_database_url
 from django.contrib.messages import constants as messages
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
