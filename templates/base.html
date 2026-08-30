@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>{% block title %}ที่นี้ที่ไหนหรือ - Thi Ni Thi Nai Rue{% endblock %}</title>
+  <title>{% block title %}ที่นี่ Check-in - บันทึกและแชร์จุดเช็คอินสถานที่ท่องเที่ยว{% endblock %}</title>
 
   <!-- PWA & Mobile Meta Tags -->
   <meta name="theme-color" content="#1e3a8a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="ที่นี้ที่ไหนหรือ">
+  <meta name="apple-mobile-web-app-title" content="ที่นี่ Check-in">
   <link rel="manifest" href="{% static 'manifest.json' %}">
 
   <!-- Bootstrap 5 CSS CDN -->
@@ -32,10 +32,11 @@
   <header class="app-navbar py-2 mb-3 text-white sticky-top">
     <div class="container-fluid container-md d-flex justify-content-between align-items-center">
       <a href="{% url 'checkins:feed' %}" class="text-white text-decoration-none d-flex align-items-center gap-2">
-        <i class="bi bi-geo-alt-fill fs-4 text-warning"></i>
+        <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 36px; height: 36px;">
+          <i class="bi bi-geo-alt-fill fs-5 text-dark"></i>
+        </div>
         <div>
-          <span class="fs-5 brand-title">ที่นี้ที่ไหนหรือ</span>
-          <span class="badge bg-white text-primary rounded-pill d-none d-sm-inline-block ms-1" style="font-size: 0.65rem;">Check-in</span>
+          <span class="fs-5 brand-title">ที่นี่ <span class="text-warning">Check-in</span></span>
         </div>
       </a>
 

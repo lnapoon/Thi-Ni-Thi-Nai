@@ -1,5 +1,5 @@
 """
-Django settings for "Thi Ni Thi Nai Rue" (ที่นี้ที่ไหนหรือ) project.
+Django settings for "ที่นี่ Check-in" (Tee Nee Check-in) project.
 """
 
 from pathlib import Path

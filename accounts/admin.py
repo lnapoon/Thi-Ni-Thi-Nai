@@ -5,8 +5,8 @@ from django.utils.html import format_html
 from .models import Profile, Follow
 
 # Custom Admin Site Branding
-admin.site.site_header = "ระบบจัดการหลังบ้าน - ที่นี้ที่ไหนหรือ"
-admin.site.site_title = "Admin ที่นี้ที่ไหนหรือ"
+admin.site.site_header = "ระบบจัดการหลังบ้าน - ที่นี่ Check-in"
+admin.site.site_title = "Admin ที่นี่ Check-in"
 admin.site.index_title = "แดชบอร์ดจัดการระบบและข้อมูลผู้ใช้"
 
 class ProfileInline(admin.StackedInline):

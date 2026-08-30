@@ -1,7 +1,7 @@
-# ที่นี้ที่ไหนหรือ (Thi Ni Thi Nai Rue) 📍📸
+# ที่นี่ Check-in (Tee Nee Check-in) 📍📸
 ### Location Check-In Social Web Application (Django & Bootstrap 5)
 
-**"ที่นี้ที่ไหนหรือ" (Thi Ni Thi Nai Rue)** เป็นเว็บแอปพลิเคชัน Social Check-in แบบ Mobile-First พัฒนาด้วย **Django** และ **Bootstrap 5** ช่วยให้ผู้ใช้สามารถบันทึกและแบ่งปันจุดเช็คอินสถานที่ต่างๆ พร้อมรูปถ่าย คำบรรยาย และพิกัดตำแหน่งทางภูมิศาสตร์ (GPS Geolocation) ผ่าน HTML5 Geolocation API โดยมีหน้าฟีดรวมสาธารณะสำหรับให้ผู้ใช้ที่ล็อกอินสามารถเข้ามาดู กดถูกใจ และดูพิกัดบนแผนที่แบบ Interactive Map ได้
+**"ที่นี่ Check-in" (Tee Nee Check-in)** เป็นเว็บแอปพลิเคชัน Social Check-in แบบ Mobile-First สไตล์ Instagram พัฒนาด้วย **Django** และ **Bootstrap 5** ช่วยให้ผู้ใช้สามารถบันทึกและแบ่งปันจุดเช็คอินสถานที่ต่างๆ พร้อมรูปถ่าย คำบรรยาย พิกัด GPS คอมเมนต์ กดไลก์ และติดตามเพื่อนๆ
 
 ---
 

@@ -1,5 +1,5 @@
 """
-URL configuration for "Thi Ni Thi Nai Rue" (ที่นี้ที่ไหนหรือ) project.
+URL configuration for "ที่นี่ Check-in" (Tee Nee Check-in) project.
 """
 
 from django.contrib import admin

@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     e.preventDefault();
     const title = btn.dataset.title || 'เช็คอินสถานที่ท่องเที่ยว';
-    const text = btn.dataset.text || 'ดูจุดเช็คอินนี้บน ที่นี้ที่ไหนหรือ';
+    const text = btn.dataset.text || 'ดูจุดเช็คอินนี้บน ที่นี่ Check-in';
     const url = btn.dataset.url || window.location.href;
 
     if (navigator.share) {
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (linkInput) linkInput.value = url;
 
     const encUrl = encodeURIComponent(url);
-    const encText = encodeURIComponent(title + ' - ที่นี้ที่ไหนหรือ');
+    const encText = encodeURIComponent(title + ' - ที่นี่ Check-in');
 
     const lineBtn = document.getElementById('shareLineBtn');
     if (lineBtn) lineBtn.href = `https://social-plugins.line.me/lineit/share?url=${encUrl}`;

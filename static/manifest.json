@@ -1,7 +1,7 @@
 {
-  "name": "Thi Ni Thi Nai Rue (ที่นี้ที่ไหนหรือ)",
-  "short_name": "ที่นี้ที่ไหนหรือ",
-  "description": "แอปพลิเคชันโซเชียลเช็คอินสถานที่พร้อมภาพถ่ายและพิกัด GPS",
+  "name": "ที่นี่ Check-in (Tee Nee Check-in)",
+  "short_name": "ที่นี่ Check-in",
+  "description": "แอปพลิเคชันโซเชียลเช็คอินสถานที่ท่องเที่ยวพร้อมภาพถ่ายและพิกัด GPS",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8f9fc",
