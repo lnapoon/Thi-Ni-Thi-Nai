@@ -3,6 +3,7 @@ Django settings for "Thi Ni Thi Nai Rue" (ที่นี้ที่ไหน�
 """
 
 from pathlib import Path
+import os
 
 # pyrefly: ignore [missing-import]
 from decouple import config, Csv
@@ -39,22 +40,17 @@ if extra_csrf:
     CSRF_TRUSTED_ORIGINS.extend(extra_csrf)
 
 
-import os
+# ─────────────────────────────────────────────────────────────
+# Cloudinary configuration — set BEFORE INSTALLED_APPS
+# ─────────────────────────────────────────────────────────────
 import cloudinary
 
-STORAGE_BACKEND = "cloudinary"
+_cloud_name = config("CLOUDINARY_CLOUD_NAME", default="").strip() or "pkxxxmpn"
+_api_key = config("CLOUDINARY_API_KEY", default="").strip() or "213872343661713"
+_api_secret = config("CLOUDINARY_API_SECRET", default="").strip() or "Homv6qBkjPWUiI8X-qcSAWFZ60c"
 
-_raw_cloud_name = config("CLOUDINARY_CLOUD_NAME", default="").strip()
-_cloud_name = _raw_cloud_name if _raw_cloud_name else "pkxxxmpn"
-
-_raw_api_key = config("CLOUDINARY_API_KEY", default="").strip()
-_api_key = _raw_api_key if _raw_api_key else "213872343661713"
-
-_raw_api_secret = config("CLOUDINARY_API_SECRET", default="").strip()
-_api_secret = _raw_api_secret if _raw_api_secret else "Homv6qBkjPWUiI8X-qcSAWFZ60c"
-
-_cloudinary_url = f"cloudinary://{_api_key}:{_api_secret}@{_cloud_name}"
-os.environ["CLOUDINARY_URL"] = _cloudinary_url
+# django-cloudinary-storage needs CLOUDINARY_URL in environment
+os.environ["CLOUDINARY_URL"] = f"cloudinary://{_api_key}:{_api_secret}@{_cloud_name}"
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": _cloud_name,
@@ -68,7 +64,6 @@ cloudinary.config(
     api_secret=_api_secret,
     secure=True,
 )
-
 
 
 # Application definition
@@ -126,15 +121,19 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-import os
 
+# ─────────────────────────────────────────────────────────────
 # Static files (CSS, JavaScript, Images)
+# ─────────────────────────────────────────────────────────────
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 os.makedirs(STATIC_ROOT, exist_ok=True)
 
-# Database configuration
+
+# ─────────────────────────────────────────────────────────────
+# Database configuration (Neon PostgreSQL)
+# ─────────────────────────────────────────────────────────────
 NEON_FALLBACK_DB = "postgresql://neondb_owner:npg_SL6FjAmClNi1@ep-dark-waterfall-azi5el2q-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
 _raw_db_url = config("DATABASE_URL", default=NEON_FALLBACK_DB).strip()
 DATABASE_URL = _raw_db_url if _raw_db_url else NEON_FALLBACK_DB
@@ -156,77 +155,29 @@ DATABASES = {
 }
 
 
-
-# Media files & Pluggable Storage configuration
-if STORAGE_BACKEND == "cloudinary":
-    MEDIA_URL = f"https://res.cloudinary.com/{_cloud_name}/image/upload/v1/"
-else:
-    MEDIA_URL = "/media/"
+# ─────────────────────────────────────────────────────────────
+# Media files — always Cloudinary on this project
+# ─────────────────────────────────────────────────────────────
+MEDIA_URL = f"https://res.cloudinary.com/{_cloud_name}/image/upload/v1/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Configure STORAGES (Django 4.2+)
+
+# ─────────────────────────────────────────────────────────────
+# Storage backends (Django 4.2+ STORAGES dict)
+# django-cloudinary-storage also reads STATICFILES_STORAGE
+# (legacy attribute) during collectstatic — we must define it.
+# ─────────────────────────────────────────────────────────────
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
-STATICFILES_STORAGE_BACKEND = "django.contrib.staticfiles.storage.StaticFilesStorage"
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-
-
-import cloudinary
-
-if STORAGE_BACKEND == "cloudinary":
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": _cloud_name,
-        "API_KEY": _api_key,
-        "API_SECRET": _api_secret,
-    }
-    cloudinary.config(
-        cloud_name=_cloud_name,
-        api_key=_api_key,
-        api_secret=_api_secret,
-        secure=True,
-    )
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": STATICFILES_STORAGE_BACKEND,
-        },
-    }
-
-
-
-elif STORAGE_BACKEND == "s3":
-    # AWS S3 / Cloudflare R2 / Backblaze B2 support
-    AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="")
-    AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default="")
-    AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default="")
-    AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME", default=None)
-    AWS_S3_ENDPOINT_URL = config("AWS_S3_ENDPOINT_URL", default=None)
-    AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN", default=None)
-    AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = None
-    AWS_QUERYSTRING_AUTH = False
-
-    STORAGES = {
-        "default": {
-            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-        },
-        "staticfiles": {
-            "BACKEND": STATICFILES_STORAGE_BACKEND,
-        },
-    }
-else:
-    # Local filesystem storage (Default)
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": STATICFILES_STORAGE_BACKEND,
-        },
-    }
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 
 # Default primary key field type
