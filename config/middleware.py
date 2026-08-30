@@ -7,12 +7,15 @@ class DebugExceptionMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        return self.get_response(request)
-
-    def process_exception(self, request, exception):
-        tb = traceback.format_exc()
-        print("=== UNCAUGHT SERVERLESS EXCEPTION ===", file=sys.stderr)
-        print(tb, file=sys.stderr)
-        if request.GET.get('debug') == '1':
-            return HttpResponse(f"<pre style='color:red; font-size:14px; padding:20px;'>{tb}</pre>", status=500)
-        return None
+        try:
+            return self.get_response(request)
+        except Exception:
+            tb = traceback.format_exc()
+            print("=== UNCAUGHT SERVERLESS EXCEPTION ===", file=sys.stderr)
+            print(tb, file=sys.stderr)
+            return HttpResponse(
+                f"<html><body style='font-family:sans-serif; background:#111; color:#ff6b6b; padding:20px;'>"
+                f"<h2>Server Error Traceback:</h2><pre style='background:#222; color:#eee; padding:15px; border-radius:8px;'>{tb}</pre>"
+                f"</body></html>",
+                status=500
+            )
