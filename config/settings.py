@@ -107,13 +107,21 @@ os.makedirs(STATIC_ROOT, exist_ok=True)
 # Database configuration
 DATABASE_URL = config("DATABASE_URL", default="")
 if DATABASE_URL:
+    # Strip channel_binding if present to prevent libpq SCRAM-PLUS compatibility errors on AWS Lambda / Vercel
+    clean_db_url = (
+        DATABASE_URL.replace("&channel_binding=require", "")
+        .replace("?channel_binding=require&", "?")
+        .replace("?channel_binding=require", "")
+        .replace("channel_binding=require", "")
+    )
     DATABASES = {
         "default": dj_database_url.config(
-            default=DATABASE_URL,
+            default=clean_db_url,
             conn_max_age=0,
             ssl_require=True,
         )
     }
+
 else:
     DATABASES = {
         "default": {
