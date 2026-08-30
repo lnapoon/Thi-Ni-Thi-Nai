@@ -56,11 +56,12 @@ INSTALLED_APPS = [
 ]
 
 # Conditionally insert cloudinary apps if available/configured
-STORAGE_BACKEND = config("STORAGE_BACKEND", default="local").lower()
+STORAGE_BACKEND = config("STORAGE_BACKEND", default="cloudinary").lower()
 if STORAGE_BACKEND == "cloudinary":
     # Cloudinary storage needs to be before staticfiles in some configs or media only
     INSTALLED_APPS.insert(0, "cloudinary_storage")
     INSTALLED_APPS.append("cloudinary")
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -107,7 +108,10 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 os.makedirs(STATIC_ROOT, exist_ok=True)
 
 # Database configuration
-DATABASE_URL = config("DATABASE_URL", default="")
+NEON_FALLBACK_DB = "postgresql://neondb_owner:npg_SL6FjAmClNi1@ep-dark-waterfall-azi5el2q-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+_raw_db_url = config("DATABASE_URL", default=NEON_FALLBACK_DB).strip()
+DATABASE_URL = _raw_db_url if _raw_db_url else NEON_FALLBACK_DB
+
 if DATABASE_URL:
     # Strip channel_binding if present to prevent libpq SCRAM-PLUS compatibility errors on AWS Lambda / Vercel
     clean_db_url = (
@@ -143,9 +147,9 @@ WHITENOISE_USE_FINDERS = True
 
 if STORAGE_BACKEND == "cloudinary":
     CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default=""),
-        "API_KEY": config("CLOUDINARY_API_KEY", default=""),
-        "API_SECRET": config("CLOUDINARY_API_SECRET", default=""),
+        "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default="pkxxxmpn"),
+        "API_KEY": config("CLOUDINARY_API_KEY", default="213872343661713"),
+        "API_SECRET": config("CLOUDINARY_API_SECRET", default="Homv6qBkjPWUiI8X-qcSAWFZ60c"),
     }
     STORAGES = {
         "default": {
