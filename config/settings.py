@@ -39,6 +39,7 @@ if extra_csrf:
     CSRF_TRUSTED_ORIGINS.extend(extra_csrf)
 
 
+import os
 import cloudinary
 
 STORAGE_BACKEND = "cloudinary"
@@ -52,6 +53,9 @@ _api_key = _raw_api_key if _raw_api_key else "213872343661713"
 _raw_api_secret = config("CLOUDINARY_API_SECRET", default="").strip()
 _api_secret = _raw_api_secret if _raw_api_secret else "Homv6qBkjPWUiI8X-qcSAWFZ60c"
 
+_cloudinary_url = f"cloudinary://{_api_key}:{_api_secret}@{_cloud_name}"
+os.environ["CLOUDINARY_URL"] = _cloudinary_url
+
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": _cloud_name,
     "API_KEY": _api_key,
@@ -64,6 +68,7 @@ cloudinary.config(
     api_secret=_api_secret,
     secure=True,
 )
+
 
 
 # Application definition
