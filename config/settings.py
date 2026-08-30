@@ -42,6 +42,9 @@ if extra_csrf:
 import cloudinary
 
 STORAGE_BACKEND = config("STORAGE_BACKEND", default="cloudinary").lower()
+if STORAGE_BACKEND not in ("s3", "cloudinary"):
+    STORAGE_BACKEND = "cloudinary"
+
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default="pkxxxmpn"),
