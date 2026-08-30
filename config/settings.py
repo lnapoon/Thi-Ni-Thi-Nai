@@ -165,8 +165,10 @@ else:
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Configure STORAGES (Django 4.2+)
-STATICFILES_STORAGE_BACKEND = "whitenoise.storage.CompressedStaticFilesStorage"
-WHITENOISE_USE_FINDERS = True
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+STATICFILES_STORAGE_BACKEND = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
+
 
 import cloudinary
 
