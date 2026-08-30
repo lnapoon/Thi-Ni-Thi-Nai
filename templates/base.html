@@ -64,6 +64,10 @@
             <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
               <li><a class="dropdown-item" href="{% url 'accounts:profile_me' %}"><i class="bi bi-person me-2"></i> โปรไฟล์ของฉัน</a></li>
               <li><a class="dropdown-item" href="{% url 'accounts:profile_edit' %}"><i class="bi bi-gear me-2"></i> ตั้งค่าโปรไฟล์</a></li>
+              {% if user.is_staff %}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-primary fw-semibold" href="/admin/" target="_blank"><i class="bi bi-speedometer2 me-2"></i> จัดการหลังบ้าน (Admin)</a></li>
+              {% endif %}
               <li><hr class="dropdown-divider"></li>
               <li>
                 <form action="{% url 'accounts:logout' %}" method="post" class="px-2 py-1">
