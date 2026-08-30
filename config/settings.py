@@ -41,22 +41,30 @@ if extra_csrf:
 
 import cloudinary
 
-STORAGE_BACKEND = config("STORAGE_BACKEND", default="cloudinary").lower()
-if STORAGE_BACKEND not in ("s3", "cloudinary"):
-    STORAGE_BACKEND = "cloudinary"
+STORAGE_BACKEND = "cloudinary"
 
+_raw_cloud_name = config("CLOUDINARY_CLOUD_NAME", default="").strip()
+_cloud_name = _raw_cloud_name if _raw_cloud_name else "pkxxxmpn"
+
+_raw_api_key = config("CLOUDINARY_API_KEY", default="").strip()
+_api_key = _raw_api_key if _raw_api_key else "213872343661713"
+
+_raw_api_secret = config("CLOUDINARY_API_SECRET", default="").strip()
+_api_secret = _raw_api_secret if _raw_api_secret else "Homv6qBkjPWUiI8X-qcSAWFZ60c"
 
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default="pkxxxmpn"),
-    "API_KEY": config("CLOUDINARY_API_KEY", default="213872343661713"),
-    "API_SECRET": config("CLOUDINARY_API_SECRET", default="Homv6qBkjPWUiI8X-qcSAWFZ60c"),
+    "CLOUD_NAME": _cloud_name,
+    "API_KEY": _api_key,
+    "API_SECRET": _api_secret,
 }
+
 cloudinary.config(
-    cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
-    api_key=CLOUDINARY_STORAGE["API_KEY"],
-    api_secret=CLOUDINARY_STORAGE["API_SECRET"],
+    cloud_name=_cloud_name,
+    api_key=_api_key,
+    api_secret=_api_secret,
     secure=True,
 )
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -156,17 +164,18 @@ import cloudinary
 
 if STORAGE_BACKEND == "cloudinary":
     CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default="pkxxxmpn"),
-        "API_KEY": config("CLOUDINARY_API_KEY", default="213872343661713"),
-        "API_SECRET": config("CLOUDINARY_API_SECRET", default="Homv6qBkjPWUiI8X-qcSAWFZ60c"),
+        "CLOUD_NAME": _cloud_name,
+        "API_KEY": _api_key,
+        "API_SECRET": _api_secret,
     }
     cloudinary.config(
-        cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
-        api_key=CLOUDINARY_STORAGE["API_KEY"],
-        api_secret=CLOUDINARY_STORAGE["API_SECRET"],
+        cloud_name=_cloud_name,
+        api_key=_api_key,
+        api_secret=_api_secret,
         secure=True,
     )
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
     STORAGES = {
         "default": {
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
