@@ -7,11 +7,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from config.views import media_redirect_view
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls', namespace='accounts')),
+    path('media/<path:path>', media_redirect_view, name='media_redirect'),
     path('', include('checkins.urls', namespace='checkins')),
 ]
+
 
 handler500 = 'config.views.custom_500_view'
 handler403 = 'config.views.custom_403_view'

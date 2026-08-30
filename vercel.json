@@ -19,6 +19,10 @@
       "dest": "/$1"
     },
     {
+      "src": "/media/(.*)",
+      "dest": "https://res.cloudinary.com/pkxxxmpn/image/upload/v1/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "config/wsgi.py"
     }

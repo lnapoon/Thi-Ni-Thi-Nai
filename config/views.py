@@ -1,6 +1,11 @@
-import sys
-import traceback
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+
+def media_redirect_view(request, path):
+    clean_path = path.lstrip('/')
+    if not clean_path.startswith('media/'):
+        clean_path = f'media/{clean_path}'
+    return redirect(f'https://res.cloudinary.com/pkxxxmpn/image/upload/v1/{clean_path}', permanent=False)
+
 
 def custom_500_view(request):
     exc_type, exc_value, exc_traceback = sys.exc_info()
