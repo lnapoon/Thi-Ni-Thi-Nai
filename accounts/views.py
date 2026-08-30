@@ -256,3 +256,52 @@ class UserFollowingListView(LoginRequiredMixin, View):
                 "users": data,
             }
         )
+
+
+class UserSearchView(LoginRequiredMixin, View):
+    def get(self, request):
+        from django.db.models import Q, Count
+        query = request.GET.get('q', '').strip()
+
+        if query:
+            users_qs = User.objects.filter(
+                Q(username__icontains=query)
+                | Q(first_name__icontains=query)
+                | Q(last_name__icontains=query)
+                | Q(profile__bio__icontains=query)
+            ).exclude(id=request.user.id).select_related('profile').annotate(
+                num_checkins=Count('checkins', distinct=True),
+                num_followers=Count('follower_relations', distinct=True)
+            ).order_by('-num_followers', '-num_checkins')[:50]
+        else:
+            # Suggested users (Active users with checkins, excluding self)
+            users_qs = User.objects.exclude(id=request.user.id).select_related('profile').annotate(
+                num_checkins=Count('checkins', distinct=True),
+                num_followers=Count('follower_relations', distinct=True)
+            ).order_by('-num_checkins', '-num_followers', '-date_joined')[:30]
+
+        user_following_ids = set(
+            Follow.objects.filter(follower=request.user).values_list('following_id', flat=True)
+        )
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+            users_data = []
+            for u in users_qs:
+                users_data.append({
+                    'id': u.id,
+                    'username': u.username,
+                    'display_name': u.get_full_name() or u.username,
+                    'avatar_url': u.get_avatar_url,
+                    'bio': u.profile.bio if hasattr(u, 'profile') else '',
+                    'num_checkins': getattr(u, 'num_checkins', 0),
+                    'num_followers': getattr(u, 'num_followers', 0),
+                    'is_following': u.id in user_following_ids,
+                    'profile_url': reverse('accounts:profile_user', kwargs={'username': u.username}),
+                })
+            return JsonResponse({'success': True, 'users': users_data, 'query': query})
+
+        return render(request, 'accounts/user_search.html', {
+            'users': users_qs,
+            'query': query,
+            'user_following_ids': user_following_ids,
+        })

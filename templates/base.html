@@ -44,10 +44,13 @@
       <div class="d-none d-md-flex align-items-center gap-3">
         {% if user.is_authenticated %}
           <a href="{% url 'checkins:feed' %}" class="text-white text-decoration-none {% if request.resolver_match.url_name == 'feed' %}fw-bold{% endif %}">
-            <i class="bi bi-house-door me-1"></i> ฟีด
+            <i class="bi bi-house-door me-1"></i> หน้าหลัก
           </a>
           <a href="{% url 'checkins:map' %}" class="text-white text-decoration-none {% if request.resolver_match.url_name == 'map' %}fw-bold{% endif %}">
             <i class="bi bi-map me-1"></i> แผนที่
+          </a>
+          <a href="{% url 'accounts:search' %}" class="text-white text-decoration-none {% if request.resolver_match.url_name == 'search' %}fw-bold{% endif %}">
+            <i class="bi bi-search me-1"></i> ค้นหาเพื่อน
           </a>
           <a href="{% url 'checkins:create' %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-sm">
             <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินใหม่
@@ -132,29 +135,38 @@
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Mobile Bottom Navigation Bar (Visible only when logged in) -->
+  <!-- Mobile Bottom Navigation Bar (5 Items: หน้าหลัก, แผนที่, +สร้าง, ค้นหา, โปรไฟล์) -->
   {% if user.is_authenticated %}
     <nav class="bottom-nav d-md-none">
+      <!-- 1. หน้าหลัก -->
       <a href="{% url 'checkins:feed' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
         <i class="bi {% if request.resolver_match.url_name == 'feed' %}bi-house-door-fill{% else %}bi-house-door{% endif %}"></i>
-        <span>ฟีด</span>
+        <span>หน้าหลัก</span>
       </a>
+
+      <!-- 2. แผนที่ -->
       <a href="{% url 'checkins:map' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
         <i class="bi {% if request.resolver_match.url_name == 'map' %}bi-map-fill{% else %}bi-map{% endif %}"></i>
         <span>แผนที่</span>
       </a>
+
+      <!-- 3. ปุ่ม + สร้าง ปกติ -->
       <div class="nav-center-action">
         <a href="{% url 'checkins:create' %}" class="nav-center-btn shadow" title="สร้างจุดเช็คอิน">
           <i class="bi bi-plus-lg"></i>
         </a>
       </div>
+
+      <!-- 4. ค้นหาผู้ใช้งาน -->
+      <a href="{% url 'accounts:search' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'search' %}active{% endif %}">
+        <i class="bi {% if request.resolver_match.url_name == 'search' %}bi-search-heart-fill{% else %}bi-search{% endif %}"></i>
+        <span>ค้นหา</span>
+      </a>
+
+      <!-- 5. โปรไฟล์ -->
       <a href="{% url 'accounts:profile_me' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'profile_me' or request.resolver_match.url_name == 'profile_user' %}active{% endif %}">
         <i class="bi {% if request.resolver_match.url_name == 'profile_me' %}bi-person-fill{% else %}bi-person{% endif %}"></i>
         <span>โปรไฟล์</span>
-      </a>
-      <a href="{% url 'accounts:profile_edit' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'profile_edit' %}active{% endif %}">
-        <i class="bi bi-gear"></i>
-        <span>ตั้งค่า</span>
       </a>
     </nav>
   {% endif %}

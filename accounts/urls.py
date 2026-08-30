@@ -8,6 +8,7 @@ from .views import (
     ToggleFollowView,
     UserFollowersListView,
     UserFollowingListView,
+    UserSearchView,
 )
 
 app_name = 'accounts'
@@ -22,4 +23,5 @@ urlpatterns = [
     path('follow/<str:username>/', ToggleFollowView.as_view(), name='toggle_follow'),
     path('users/<str:username>/followers/', UserFollowersListView.as_view(), name='followers_list'),
     path('users/<str:username>/following/', UserFollowingListView.as_view(), name='following_list'),
+    path('search/', UserSearchView.as_view(), name='search'),
 ]
