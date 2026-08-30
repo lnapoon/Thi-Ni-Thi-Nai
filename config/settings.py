@@ -138,12 +138,21 @@ MEDIA_ROOT = BASE_DIR / "media"
 STATICFILES_STORAGE_BACKEND = "whitenoise.storage.CompressedStaticFilesStorage"
 WHITENOISE_USE_FINDERS = True
 
+import cloudinary
+
 if STORAGE_BACKEND == "cloudinary":
     CLOUDINARY_STORAGE = {
         "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default="pkxxxmpn"),
         "API_KEY": config("CLOUDINARY_API_KEY", default="213872343661713"),
         "API_SECRET": config("CLOUDINARY_API_SECRET", default="Homv6qBkjPWUiI8X-qcSAWFZ60c"),
     }
+    cloudinary.config(
+        cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
+        api_key=CLOUDINARY_STORAGE["API_KEY"],
+        api_secret=CLOUDINARY_STORAGE["API_SECRET"],
+        secure=True,
+    )
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
     STORAGES = {
         "default": {
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -152,6 +161,7 @@ if STORAGE_BACKEND == "cloudinary":
             "BACKEND": STATICFILES_STORAGE_BACKEND,
         },
     }
+
 
 elif STORAGE_BACKEND == "s3":
     # AWS S3 / Cloudflare R2 / Backblaze B2 support
