@@ -6,132 +6,161 @@
 
   {% get_admin_stats as stats %}
 
-  <!-- Top Hero Welcome & Quick Navigation Bar -->
-  <div class="admin-hero-header">
-    <div class="admin-hero-left">
-      <h2>
-        <i class="bi bi-shield-lock-fill" style="color: #fbbf24; margin-right: 6px;"></i>
-        แผงควบคุมระบบ (Admin Dashboard)
-      </h2>
-      <p>
-        ยินดีต้อนรับคุณ <strong>{{ user.username }}</strong> &bull; จัดการข้อมูลและตรวจสอบระบบของเว็บไซต์ <strong>ที่นี่ Check-in</strong>
+  <!-- Pro Hero Banner -->
+  <div class="pro-hero-banner">
+    <div>
+      <h1 class="pro-hero-title">
+        <i class="bi bi-speedometer2" style="color: #fbbf24; margin-right: 10px;"></i>
+        แผงควบคุมและสถิติระบบ (Admin Dashboard)
+      </h1>
+      <p class="pro-hero-subtitle">
+        เว็บไซต์ <strong>ที่นี่ Check-in</strong> &bull; ผู้ดูแลระบบ: <strong>@{{ user.username }}</strong> &bull; <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); padding: 3px 8px; border-radius: 20px; font-weight: 700;">🟢 ระบบออนไลน์ปกติ</span>
       </p>
     </div>
 
-    <div class="admin-hero-right">
-      <a href="{% url 'admin:checkins_checkin_add' %}" class="hero-btn yellow">
-        <i class="bi bi-plus-circle-fill"></i> เพิ่มจุดเช็คอิน
+    <div class="pro-hero-actions">
+      <a href="{% url 'admin:checkins_checkin_add' %}" class="pro-btn pro-btn-gold">
+        <i class="bi bi-plus-circle-fill"></i> เพิ่มจุดเช็คอินใหม่
       </a>
-      <a href="{% url 'admin:auth_user_add' %}" class="hero-btn outline">
+      <a href="{% url 'admin:auth_user_add' %}" class="pro-btn pro-btn-glass">
         <i class="bi bi-person-plus-fill"></i> เพิ่มสมาชิก
       </a>
-      <a href="{% url 'checkins:feed' %}" class="hero-btn outline">
-        <i class="bi bi-compass-fill"></i> หน้าฟีดหลัก
+      <a href="{% url 'checkins:feed' %}" class="pro-btn pro-btn-glass">
+        <i class="bi bi-compass-fill"></i> สลับไปหน้าเว็บหลัก
       </a>
     </div>
   </div>
 
-  <!-- Live Metrics Stat Grid -->
-  <div class="admin-stats-grid">
-    <!-- Checkins -->
-    <a href="{% url 'admin:checkins_checkin_changelist' %}" class="admin-stat-card text-decoration-none">
-      <div class="admin-stat-icon blue">
+  <!-- Pro Navigation Menu Bar (Direct Tab Switcher) -->
+  <div class="pro-nav-tabs">
+    <a href="{% url 'admin:index' %}" class="pro-tab-item active">
+      <i class="bi bi-grid-1x2-fill"></i> ภาพรวมระบบ
+    </a>
+    <a href="{% url 'admin:checkins_checkin_changelist' %}" class="pro-tab-item">
+      <i class="bi bi-geo-alt-fill text-primary"></i> จัดการจุดเช็คอิน
+      <span class="pro-tab-badge">{{ stats.checkins_count }}</span>
+    </a>
+    <a href="{% url 'admin:auth_user_changelist' %}" class="pro-tab-item">
+      <i class="bi bi-people-fill text-success"></i> สมาชิก & บัญชี
+      <span class="pro-tab-badge">{{ stats.users_count }}</span>
+    </a>
+    <a href="{% url 'admin:checkins_comment_changelist' %}" class="pro-tab-item">
+      <i class="bi bi-chat-dots-fill text-warning"></i> ความคิดเห็น
+      <span class="pro-tab-badge">{{ stats.comments_count }}</span>
+    </a>
+    <a href="{% url 'admin:checkins_like_changelist' %}" class="pro-tab-item">
+      <i class="bi bi-heart-fill text-danger"></i> ยอดไลก์
+      <span class="pro-tab-badge">{{ stats.likes_count }}</span>
+    </a>
+    <a href="{% url 'admin:checkins_bookmark_changelist' %}" class="pro-tab-item">
+      <i class="bi bi-bookmark-fill" style="color: #9333ea;"></i> บุ๊กมาร์ก
+      <span class="pro-tab-badge">{{ stats.bookmarks_count }}</span>
+    </a>
+    <a href="{% url 'admin:accounts_follow_changelist' %}" class="pro-tab-item">
+      <i class="bi bi-link-45deg text-info"></i> การติดตาม
+      <span class="pro-tab-badge">{{ stats.follows_count }}</span>
+    </a>
+  </div>
+
+  <!-- KPI Stats Grid -->
+  <div class="pro-kpi-grid">
+    <!-- 1. Checkins -->
+    <a href="{% url 'admin:checkins_checkin_changelist' %}" class="pro-kpi-card">
+      <div class="pro-kpi-icon-box icon-blue">
         <i class="bi bi-geo-alt-fill"></i>
       </div>
-      <div class="admin-stat-info">
-        <h3>{{ stats.checkins_count }}</h3>
-        <p>จุดเช็คอินทั้งหมด</p>
+      <div>
+        <div class="pro-kpi-num">{{ stats.checkins_count }}</div>
+        <div class="pro-kpi-label">จุดเช็คอินทั้งหมด</div>
       </div>
     </a>
 
-    <!-- Users -->
-    <a href="{% url 'admin:auth_user_changelist' %}" class="admin-stat-card text-decoration-none">
-      <div class="admin-stat-icon emerald">
+    <!-- 2. Users -->
+    <a href="{% url 'admin:auth_user_changelist' %}" class="pro-kpi-card">
+      <div class="pro-kpi-icon-box icon-emerald">
         <i class="bi bi-people-fill"></i>
       </div>
-      <div class="admin-stat-info">
-        <h3>{{ stats.users_count }}</h3>
-        <p>สมาชิกในระบบ</p>
+      <div>
+        <div class="pro-kpi-num">{{ stats.users_count }}</div>
+        <div class="pro-kpi-label">สมาชิกที่ลงทะเบียน</div>
       </div>
     </a>
 
-    <!-- Comments -->
-    <a href="{% url 'admin:checkins_comment_changelist' %}" class="admin-stat-card text-decoration-none">
-      <div class="admin-stat-icon amber">
+    <!-- 3. Comments -->
+    <a href="{% url 'admin:checkins_comment_changelist' %}" class="pro-kpi-card">
+      <div class="pro-kpi-icon-box icon-amber">
         <i class="bi bi-chat-dots-fill"></i>
       </div>
-      <div class="admin-stat-info">
-        <h3>{{ stats.comments_count }}</h3>
-        <p>ความคิดเห็น</p>
+      <div>
+        <div class="pro-kpi-num">{{ stats.comments_count }}</div>
+        <div class="pro-kpi-label">ความคิดเห็นทั้งหมด</div>
       </div>
     </a>
 
-    <!-- Likes -->
-    <a href="{% url 'admin:checkins_like_changelist' %}" class="admin-stat-card text-decoration-none">
-      <div class="admin-stat-icon rose">
+    <!-- 4. Likes -->
+    <a href="{% url 'admin:checkins_like_changelist' %}" class="pro-kpi-card">
+      <div class="pro-kpi-icon-box icon-rose">
         <i class="bi bi-heart-fill"></i>
       </div>
-      <div class="admin-stat-info">
-        <h3>{{ stats.likes_count }}</h3>
-        <p>ยอดกดถูกใจ</p>
+      <div>
+        <div class="pro-kpi-num">{{ stats.likes_count }}</div>
+        <div class="pro-kpi-label">ยอดกดถูกใจรวม</div>
       </div>
     </a>
 
-    <!-- Bookmarks -->
-    <a href="{% url 'admin:checkins_bookmark_changelist' %}" class="admin-stat-card text-decoration-none">
-      <div class="admin-stat-icon purple">
-        <i class="bi bi-bookmark-fill"></i>
+    <!-- 5. GPS Geotagged Ratio -->
+    <a href="{% url 'checkins:map' %}" class="pro-kpi-card">
+      <div class="pro-kpi-icon-box icon-purple">
+        <i class="bi bi-crosshair"></i>
       </div>
-      <div class="admin-stat-info">
-        <h3>{{ stats.bookmarks_count }}</h3>
-        <p>บันทึกสถานที่</p>
+      <div>
+        <div class="pro-kpi-num">{{ stats.geotagged_percent }}%</div>
+        <div class="pro-kpi-label">มีพิกัด GPS ({{ stats.geotagged_count }}/{{ stats.checkins_count }})</div>
       </div>
     </a>
   </div>
 
-  <!-- Main 2-Column Dashboard Grid -->
-  <div class="admin-main-grid">
+  <!-- 2-Column Dashboard Grid -->
+  <div class="pro-dashboard-grid">
     
-    <!-- Left Column: Organized App Modules -->
-    <div class="admin-col-left">
-      <div class="admin-panel-card">
-        <div class="panel-header">
-          <h4><i class="bi bi-grid-fill text-primary"></i> จัดการฐานข้อมูล (Database Modules)</h4>
-        </div>
-        <div class="panel-body">
-          {% include "admin/app_list.html" with app_list=app_list %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Column: Recent Activities Stream -->
-    <div class="admin-col-right">
+    <!-- Left Column -->
+    <div>
       
-      <!-- Recent Checkins Card -->
-      <div class="admin-panel-card mb-4">
-        <div class="panel-header d-flex justify-content-between align-items-center">
-          <h4 class="m-0"><i class="bi bi-pin-map-fill text-danger"></i> จุดเช็คอินล่าสุด</h4>
+      <!-- Top Most Liked Checkins Leaderboard -->
+      <div class="pro-card">
+        <div class="pro-card-header">
+          <h3 class="pro-card-title">
+            <i class="bi bi-trophy-fill text-warning"></i> 5 อันดับจุดเช็คอินยอดนิยมสูงสุด
+          </h3>
           <a href="{% url 'admin:checkins_checkin_changelist' %}" class="small-link">ดูทั้งหมด &rarr;</a>
         </div>
-        <div class="panel-body p-2">
-          {% for c in stats.recent_checkins %}
-            <div class="activity-item">
+        <div class="pro-card-body p-3">
+          {% for c in stats.top_checkins %}
+            <div class="ranked-item">
+              <div class="rank-badge {% if forloop.counter == 1 %}top-1{% elif forloop.counter == 2 %}top-2{% elif forloop.counter == 3 %}top-3{% endif %}">
+                {{ forloop.counter }}
+              </div>
               {% if c.get_photo_url %}
-                <img src="{{ c.get_photo_url }}" alt="{{ c.place_name }}" class="activity-thumb">
+                <img src="{{ c.get_photo_url }}" alt="{{ c.place_name }}" class="ranked-thumb">
               {% else %}
                 <div class="activity-thumb-placeholder"><i class="bi bi-image"></i></div>
               {% endif %}
-              <div class="activity-details">
-                <a href="{% url 'admin:checkins_checkin_change' c.id %}" class="activity-title">
+              <div class="ranked-info">
+                <a href="{% url 'admin:checkins_checkin_change' c.id %}" class="ranked-title">
                   {{ c.place_name }}
                 </a>
-                <span class="activity-meta">
-                  โดย <strong>@{{ c.user.username }}</strong> &bull; {{ c.created_at|date:"d M H:i" }}
+                <div class="ranked-meta">
+                  โพสต์โดย <strong>@{{ c.user.username }}</strong> &bull; {{ c.created_at|date:"d M Y" }}
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="metric-pill pill-red">
+                  <i class="bi bi-heart-fill"></i> {{ c.num_likes }}
+                </span>
+                <span class="metric-pill pill-blue">
+                  <i class="bi bi-chat-fill"></i> {{ c.num_comments }}
                 </span>
               </div>
-              <a href="{% url 'admin:checkins_checkin_change' c.id %}" class="activity-action-btn" title="แก้ไข">
-                <i class="bi bi-pencil-fill"></i>
-              </a>
             </div>
           {% empty %}
             <div class="text-center py-4 text-muted small">ยังไม่มีรายการเช็คอิน</div>
@@ -139,27 +168,158 @@
         </div>
       </div>
 
-      <!-- Recent Comments Card -->
-      <div class="admin-panel-card">
-        <div class="panel-header d-flex justify-content-between align-items-center">
-          <h4 class="m-0"><i class="bi bi-chat-left-text-fill text-warning"></i> ความคิดเห็นล่าสุด</h4>
+      <!-- Top Active Contributors Leaderboard -->
+      <div class="pro-card">
+        <div class="pro-card-header">
+          <h3 class="pro-card-title">
+            <i class="bi bi-award-fill text-primary"></i> สมาชิกที่มีผลงานเช็คอินสูงสุด
+          </h3>
+          <a href="{% url 'admin:auth_user_changelist' %}" class="small-link">ดูสมาชิกทั้งหมด &rarr;</a>
+        </div>
+        <div class="pro-card-body p-3">
+          {% for u in stats.top_users %}
+            <div class="ranked-item">
+              <div class="rank-badge {% if forloop.counter == 1 %}top-1{% elif forloop.counter == 2 %}top-2{% elif forloop.counter == 3 %}top-3{% endif %}">
+                {{ forloop.counter }}
+              </div>
+              {% if u.get_avatar_url %}
+                <img src="{{ u.get_avatar_url }}" alt="{{ u.username }}" class="rounded-circle border" width="44" height="44" style="object-fit: cover; flex-shrink: 0;">
+              {% else %}
+                <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; font-size: 1.1rem;">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+              {% endif %}
+              <div class="ranked-info">
+                <a href="{% url 'admin:auth_user_change' u.id %}" class="ranked-title">
+                  {% if u.get_full_name %}{{ u.get_full_name }} (@{{ u.username }}){% else %}@{{ u.username }}{% endif %}
+                </a>
+                <div class="ranked-meta">
+                  สมัครเมื่อ {{ u.date_joined|date:"d M Y" }}
+                </div>
+              </div>
+              <div>
+                <span class="metric-pill pill-emerald">
+                  <i class="bi bi-pin-map-fill"></i> {{ u.num_checkins }} เช็คอิน
+                </span>
+              </div>
+            </div>
+          {% empty %}
+            <div class="text-center py-4 text-muted small">ยังไม่มีสมาชิก</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- App List Core Modules -->
+      <div class="pro-card">
+        <div class="pro-card-header">
+          <h3 class="pro-card-title">
+            <i class="bi bi-database-fill-gear text-secondary"></i> ตารางฐานข้อมูลทั้งหมด (Database Tables)
+          </h3>
+        </div>
+        <div class="pro-card-body p-0">
+          {% include "admin/app_list.html" with app_list=app_list %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column (Live Streams) -->
+    <div>
+      
+      <!-- Recent Check-ins -->
+      <div class="pro-card">
+        <div class="pro-card-header">
+          <h3 class="pro-card-title">
+            <i class="bi bi-pin-map-fill text-danger"></i> เช็คอินล่าสุด
+          </h3>
+          <a href="{% url 'admin:checkins_checkin_changelist' %}" class="small-link">ดูทั้งหมด &rarr;</a>
+        </div>
+        <div class="pro-card-body p-2">
+          {% for c in stats.recent_checkins %}
+            <div class="ranked-item" style="padding: 10px;">
+              {% if c.get_photo_url %}
+                <img src="{{ c.get_photo_url }}" alt="{{ c.place_name }}" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; flex-shrink: 0;">
+              {% else %}
+                <div class="activity-thumb-placeholder"><i class="bi bi-image"></i></div>
+              {% endif %}
+              <div class="ranked-info">
+                <a href="{% url 'admin:checkins_checkin_change' c.id %}" class="ranked-title" style="font-size: 0.88rem;">
+                  {{ c.place_name }}
+                </a>
+                <div class="ranked-meta">
+                  @{{ c.user.username }} &bull; {{ c.created_at|date:"d M H:i" }}
+                </div>
+              </div>
+              <a href="{% url 'admin:checkins_checkin_change' c.id %}" class="activity-action-btn" title="แก้ไข">
+                <i class="bi bi-pencil"></i>
+              </a>
+            </div>
+          {% empty %}
+            <div class="text-center py-4 text-muted small">ยังไม่มีเช็คอิน</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Recent Comments Stream -->
+      <div class="pro-card">
+        <div class="pro-card-header">
+          <h3 class="pro-card-title">
+            <i class="bi bi-chat-left-dots-fill text-warning"></i> ความคิดเห็นล่าสุด
+          </h3>
           <a href="{% url 'admin:checkins_comment_changelist' %}" class="small-link">ดูทั้งหมด &rarr;</a>
         </div>
-        <div class="panel-body p-2">
+        <div class="pro-card-body p-3">
           {% for cm in stats.recent_comments %}
-            <div class="comment-activity-item">
-              <div class="comment-top">
-                <span class="comment-user">@{{ cm.user.username }}</span>
-                <span class="comment-time">{{ cm.created_at|date:"d M H:i" }}</span>
+            <div class="comment-card-item">
+              <div class="comment-card-top">
+                <a href="{% url 'admin:auth_user_change' cm.user.id %}" class="comment-author">
+                  @{{ cm.user.username }}
+                </a>
+                <span class="comment-time" style="font-size: 0.72rem; color: #94a3b8;">
+                  {{ cm.created_at|date:"d M H:i" }}
+                </span>
               </div>
-              <p class="comment-text">{{ cm.text|truncatechars:70 }}</p>
-              <div class="comment-footer">
+              <p class="comment-body-text">{{ cm.text }}</p>
+              <div class="comment-target-footer">
                 <span>ที่: <strong>{{ cm.checkin.place_name }}</strong></span>
-                <a href="{% url 'admin:checkins_comment_change' cm.id %}" class="small-link">จัดการ</a>
+                <a href="{% url 'admin:checkins_comment_change' cm.id %}" class="small-link" style="font-weight: 700; color: #e11d48;">
+                  จัดการ / ลบ
+                </a>
               </div>
             </div>
           {% empty %}
             <div class="text-center py-4 text-muted small">ยังไม่มีความคิดเห็น</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Recent Registered Users -->
+      <div class="pro-card">
+        <div class="pro-card-header">
+          <h3 class="pro-card-title">
+            <i class="bi bi-person-plus-fill text-success"></i> สมาชิกใหม่ล่าสุด
+          </h3>
+          <a href="{% url 'admin:auth_user_changelist' %}" class="small-link">ดูทั้งหมด &rarr;</a>
+        </div>
+        <div class="pro-card-body p-2">
+          {% for u in stats.recent_users %}
+            <div class="ranked-item" style="padding: 8px 10px;">
+              {% if u.get_avatar_url %}
+                <img src="{{ u.get_avatar_url }}" alt="{{ u.username }}" class="rounded-circle border" width="36" height="36" style="object-fit: cover; flex-shrink: 0;">
+              {% else %}
+                <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+              {% endif %}
+              <div class="ranked-info">
+                <a href="{% url 'admin:auth_user_change' u.id %}" class="ranked-title" style="font-size: 0.85rem;">
+                  @{{ u.username }}
+                </a>
+                <div class="ranked-meta">
+                  สมัครเมื่อ {{ u.date_joined|date:"d M H:i" }}
+                </div>
+              </div>
+            </div>
           {% endfor %}
         </div>
       </div>
