@@ -1,13 +1,15 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
-from .models import CheckIn, Like
+from django.utils.timesince import timesince
+from .models import CheckIn, Like, Comment, Bookmark
 from .forms import CheckInForm
+from accounts.models import Follow
+
 
 class FeedView(LoginRequiredMixin, ListView):
     model = CheckIn
@@ -16,20 +18,53 @@ class FeedView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return CheckIn.objects.select_related('user', 'user__profile').prefetch_related('likes').order_by('-created_at')
+        tab = self.request.GET.get('tab', 'all')
+        qs = CheckIn.objects.select_related('user', 'user__profile').prefetch_related(
+            'likes',
+            'bookmarks',
+            'comments',
+            'comments__user',
+            'comments__user__profile'
+        )
+
+        if tab == 'following' and self.request.user.is_authenticated:
+            following_user_ids = Follow.objects.filter(
+                follower=self.request.user
+            ).values_list('following_id', flat=True)
+            # Include checkins from followed users or own checkins
+            qs = qs.filter(user_id__in=list(following_user_ids) + [self.request.user.id])
+
+        return qs.order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        checkins_list = context.get('checkins', [])
+
         if self.request.user.is_authenticated:
-            # Set of check-in IDs liked by current user for fast lookup in template
-            user_liked_ids = set(
+            # Set of check-in IDs liked by current user
+            context['user_liked_ids'] = set(
                 Like.objects.filter(
                     user=self.request.user,
-                    checkin__in=context['checkins']
+                    checkin__in=checkins_list
                 ).values_list('checkin_id', flat=True)
             )
-            context['user_liked_ids'] = user_liked_ids
+            # Set of check-in IDs bookmarked by current user
+            context['user_bookmarked_ids'] = set(
+                Bookmark.objects.filter(
+                    user=self.request.user,
+                    checkin__in=checkins_list
+                ).values_list('checkin_id', flat=True)
+            )
+            # Set of user IDs followed by current user
+            context['user_following_ids'] = set(
+                Follow.objects.filter(
+                    follower=self.request.user
+                ).values_list('following_id', flat=True)
+            )
+
+        context['active_tab'] = self.request.GET.get('tab', 'all')
         return context
+
 
 class CheckInDetailView(LoginRequiredMixin, DetailView):
     model = CheckIn
@@ -39,13 +74,28 @@ class CheckInDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         checkin = self.get_object()
+        user = self.request.user
+
         is_liked = False
-        if self.request.user.is_authenticated:
-            is_liked = checkin.likes.filter(user=self.request.user).exists()
+        is_bookmarked = False
+        is_following_author = False
+
+        if user.is_authenticated:
+            is_liked = checkin.likes.filter(user=user).exists()
+            is_bookmarked = checkin.bookmarks.filter(user=user).exists()
+            if checkin.user != user:
+                is_following_author = Follow.objects.filter(follower=user, following=checkin.user).exists()
+
         context['is_liked'] = is_liked
+        context['is_bookmarked'] = is_bookmarked
+        context['is_following_author'] = is_following_author
         context['likes_count'] = checkin.likes.count()
-        context['is_owner'] = (checkin.user == self.request.user)
+        context['bookmarks_count'] = checkin.bookmarks.count()
+        context['comments_count'] = checkin.comments.count()
+        context['comments'] = checkin.comments.select_related('user', 'user__profile').order_by('created_at')
+        context['is_owner'] = (checkin.user == user)
         return context
+
 
 class CheckInCreateView(LoginRequiredMixin, CreateView):
     model = CheckIn
@@ -66,6 +116,7 @@ class CheckInCreateView(LoginRequiredMixin, CreateView):
         context['page_title'] = 'สร้างจุดเช็คอินใหม่'
         context['button_text'] = 'โพสต์เช็คอิน'
         return context
+
 
 class CheckInUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = CheckIn
@@ -96,6 +147,7 @@ class CheckInUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         context['is_edit'] = True
         return context
 
+
 class CheckInDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = CheckIn
     template_name = 'checkins/confirm_delete.html'
@@ -117,12 +169,12 @@ class CheckInDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.info(request, f'🗑️ ลบเช็คอิน "{place_name}" เรียบร้อยแล้ว')
         return super().delete(request, *args, **kwargs)
 
+
 class CheckInMapView(LoginRequiredMixin, TemplateView):
     template_name = 'checkins/map.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Select all checkins with valid lat/long
         geotagged_checkins = CheckIn.objects.filter(
             latitude__isnull=False,
             longitude__isnull=False
@@ -130,13 +182,13 @@ class CheckInMapView(LoginRequiredMixin, TemplateView):
         context['geotagged_checkins'] = geotagged_checkins
         return context
 
+
 class ToggleLikeView(LoginRequiredMixin, View):
     def post(self, request, pk):
         checkin = get_object_or_404(CheckIn, pk=pk)
         like_obj, created = Like.objects.get_or_create(user=request.user, checkin=checkin)
 
         if not created:
-            # Already liked -> unlike
             like_obj.delete()
             liked = False
         else:
@@ -146,10 +198,96 @@ class ToggleLikeView(LoginRequiredMixin, View):
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
             return JsonResponse({
+                'success': True,
                 'liked': liked,
                 'likes_count': likes_count
             })
 
-        # Regular form fallback
         next_url = request.POST.get('next', reverse('checkins:detail', kwargs={'pk': pk}))
+        return redirect(next_url)
+
+
+class ToggleBookmarkView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        checkin = get_object_or_404(CheckIn, pk=pk)
+        bm_obj, created = Bookmark.objects.get_or_create(user=request.user, checkin=checkin)
+
+        if not created:
+            bm_obj.delete()
+            bookmarked = False
+        else:
+            bookmarked = True
+
+        bookmarks_count = checkin.bookmarks.count()
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+            return JsonResponse({
+                'success': True,
+                'bookmarked': bookmarked,
+                'bookmarks_count': bookmarks_count
+            })
+
+        next_url = request.POST.get('next', reverse('checkins:detail', kwargs={'pk': pk}))
+        return redirect(next_url)
+
+
+class CommentCreateView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        checkin = get_object_or_404(CheckIn, pk=pk)
+        text = request.POST.get('text', '').strip()
+
+        if not text:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': 'กรุณากรอกข้อความความคิดเห็น'}, status=400)
+            messages.error(request, 'กรุณากรอกข้อความความคิดเห็น')
+            return redirect('checkins:detail', pk=pk)
+
+        comment = Comment.objects.create(
+            checkin=checkin,
+            user=request.user,
+            text=text
+        )
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+            user_avatar = request.user.get_avatar_url
+            return JsonResponse({
+                'success': True,
+                'comment': {
+                    'id': comment.id,
+                    'username': request.user.username,
+                    'user_display': request.user.get_full_name() or request.user.username,
+                    'avatar_url': user_avatar,
+                    'text': comment.text,
+                    'created_at_text': 'เมื่อสักครู่',
+                    'can_delete': True,
+                },
+                'comments_count': checkin.comments.count(),
+            })
+
+        messages.success(request, 'ส่งความคิดเห็นเรียบร้อยแล้ว')
+        next_url = request.POST.get('next', reverse('checkins:detail', kwargs={'pk': pk}))
+        return redirect(next_url)
+
+
+class CommentDeleteView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        comment = get_object_or_404(Comment, pk=pk)
+        checkin = comment.checkin
+
+        # Only comment owner or checkin owner can delete
+        if comment.user != request.user and checkin.user != request.user:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': 'คุณไม่มีสิทธิ์ลบคอมเมนต์นี้'}, status=403)
+            raise PermissionDenied("คุณไม่มีสิทธิ์ลบคอมเมนต์นี้")
+
+        comment.delete()
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+            return JsonResponse({
+                'success': True,
+                'comments_count': checkin.comments.count(),
+            })
+
+        messages.info(request, 'ลบความคิดเห็นเรียบร้อยแล้ว')
+        next_url = request.POST.get('next', reverse('checkins:detail', kwargs={'pk': checkin.pk}))
         return redirect(next_url)

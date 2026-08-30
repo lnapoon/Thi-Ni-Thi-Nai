@@ -90,7 +90,6 @@
             {% endif %}
           </a>
         {% else %}
-
           <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-light rounded-pill px-2">เข้าสู่ระบบ</a>
         {% endif %}
       </div>
@@ -155,10 +154,60 @@
     </nav>
   {% endif %}
 
+  <!-- Global Share Modal -->
+  <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header border-0 pb-0">
+          <h6 class="modal-title fw-bold" id="shareModalTitle">แชร์จุดเช็คอิน</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center p-4">
+          <p class="text-muted small mb-3">ส่งต่อสถานที่สวยๆ ให้เพื่อนๆ ของคุณ</p>
+          
+          <div class="d-flex justify-content-center gap-3 mb-4">
+            <a href="#" id="shareLineBtn" target="_blank" rel="noopener" class="btn btn-success rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; font-size: 1.3rem;" title="แชร์เข้า Line">
+              <i class="bi bi-line"></i>
+            </a>
+            <a href="#" id="shareFbBtn" target="_blank" rel="noopener" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; font-size: 1.3rem;" title="แชร์เข้า Facebook">
+              <i class="bi bi-facebook"></i>
+            </a>
+            <a href="#" id="shareTwitterBtn" target="_blank" rel="noopener" class="btn btn-dark rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; font-size: 1.3rem;" title="แชร์เข้า X (Twitter)">
+              <i class="bi bi-twitter-x"></i>
+            </a>
+          </div>
+
+          <div class="input-group input-group-sm">
+            <input type="text" id="shareModalLinkInput" class="form-control" readonly style="font-size: 0.8rem;">
+            <button class="btn btn-primary" type="button" id="copyShareLinkBtn">
+              <i class="bi bi-clipboard me-1"></i> คัดลอก
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Users List Modal (Followers / Following) -->
+  <div class="modal fade" id="usersListModal" tabindex="-1" aria-labelledby="usersListModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header border-bottom border-light pb-2">
+          <h6 class="modal-title fw-bold" id="usersListModalTitle">รายชื่อ</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-3" id="usersListModalBody" style="max-height: 400px; overflow-y: auto;">
+          <!-- Loaded via AJAX -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap 5 JS Bundle CDN -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-  <!-- Geolocation & Custom JS -->
+  <!-- Geolocation & Social JS -->
   <script src="{% static 'js/geolocation.js' %}"></script>
+  <script src="{% static 'js/social.js' %}"></script>
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>

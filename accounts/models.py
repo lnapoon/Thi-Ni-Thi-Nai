@@ -31,6 +31,14 @@ class Profile(models.Model):
         cloud = getattr(settings, 'CLOUDINARY_CLOUD_NAME', 'pkxxxmpn')
         return f"https://res.cloudinary.com/{cloud}/image/upload/{val}"
 
+    @property
+    def followers_count(self):
+        return self.user.follower_relations.count()
+
+    @property
+    def following_count(self):
+        return self.user.following_relations.count()
+
     def __str__(self):
         return f"โปรไฟล์ของ {self.user.username}"
 
@@ -62,6 +70,22 @@ class Profile(models.Model):
 
         super().save(*args, **kwargs)
 
+
+class Follow(models.Model):
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following_relations', verbose_name='ผู้ติดตาม')
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follower_relations', verbose_name='กำลังติดตาม')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='ติดตามเมื่อ')
+
+    class Meta:
+        unique_together = ('follower', 'following')
+        ordering = ['-created_at']
+        verbose_name = 'การติดตาม'
+        verbose_name_plural = 'การติดตามทั้งหมด'
+
+    def __str__(self):
+        return f"{self.follower.username} ติดตาม {self.following.username}"
+
+
 def _user_get_avatar_url(user):
     try:
         if hasattr(user, 'profile') and user.profile:
@@ -70,4 +94,10 @@ def _user_get_avatar_url(user):
         pass
     return ""
 
+def _user_is_following(user, target_user):
+    if not user.is_authenticated or not target_user:
+        return False
+    return Follow.objects.filter(follower=user, following=target_user).exists()
+
 User.add_to_class('get_avatar_url', property(_user_get_avatar_url))
+User.add_to_class('is_following', _user_is_following)

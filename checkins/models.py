@@ -30,14 +30,12 @@ class CheckIn(models.Model):
         """Return full Cloudinary URL for the photo."""
         if not self.photo:
             return ""
-        # CloudinaryField stores public_id; .url gives full URL
         try:
             url = self.photo.url
             if url:
                 return url
         except Exception:
             pass
-        # Fallback: build URL manually from the stored value
         val = str(self.photo)
         if val.startswith('http'):
             return val
@@ -51,6 +49,14 @@ class CheckIn(models.Model):
     @property
     def has_location(self):
         return self.latitude is not None and self.longitude is not None
+
+    @property
+    def comments_count(self):
+        return self.comments.count()
+
+    @property
+    def likes_count(self):
+        return self.likes.count()
 
     def save(self, *args, **kwargs):
         # Optimize image with Pillow prior to uploading to Cloudinary
@@ -73,3 +79,34 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user.username} ถูกใจ {self.checkin.place_name}"
+
+
+class Comment(models.Model):
+    checkin = models.ForeignKey(CheckIn, on_delete=models.CASCADE, related_name='comments', verbose_name='เช็คอิน')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', verbose_name='ผู้แสดงความคิดเห็น')
+    text = models.TextField(max_length=500, verbose_name='ข้อความความคิดเห็น')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='สร้างเมื่อ')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='แก้ไขล่าสุด')
+
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'ความคิดเห็น'
+        verbose_name_plural = 'ความคิดเห็นทั้งหมด'
+
+    def __str__(self):
+        return f"{self.user.username}: {self.text[:30]}"
+
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarked_checkins', verbose_name='ผู้บันทึก')
+    checkin = models.ForeignKey(CheckIn, on_delete=models.CASCADE, related_name='bookmarks', verbose_name='เช็คอินที่บันทึก')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='บันทึกเมื่อ')
+
+    class Meta:
+        unique_together = ('user', 'checkin')
+        ordering = ['-created_at']
+        verbose_name = 'บันทึกโพสต์'
+        verbose_name_plural = 'โพสต์ที่บันทึกไว้'
+
+    def __str__(self):
+        return f"{self.user.username} บันทึก {self.checkin.place_name}"
