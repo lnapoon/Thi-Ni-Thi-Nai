@@ -4,13 +4,37 @@
 
 {% block content %}
 <div class="row justify-content-center mt-4">
-  <div class="col-12 col-md-6 text-center">
+  <div class="col-12 col-md-8 text-center">
     <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
       <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle mx-auto mb-3" style="width: 80px; height: 80px;">
         <i class="bi bi-gear-wide-connected fs-1"></i>
       </div>
       <h3 class="fw-bold text-dark mb-2">500 - เกิดข้อผิดพลาดของเซิร์ฟเวอร์</h3>
-      <p class="text-muted mb-4">ระบบพบปัญหาชั่วคราวในการประมวลผล กรุณาลองใหม่อีกครั้งในภายหลัง</p>
+      <p class="text-muted mb-3">ระบบพบปัญหาชั่วคราวในการประมวลผล กรุณาลองใหม่อีกครั้งในภายหลัง</p>
+
+      {% if error_message and error_message != 'None' and error_message != 'ไม่ทราบสาเหตุ' %}
+        <div class="alert alert-danger text-start small font-monospace mb-3">
+          <strong>Error Details:</strong> {{ error_message }}
+        </div>
+      {% endif %}
+
+      {% if error_traceback %}
+        <div class="accordion mb-4 text-start" id="debugAccordion">
+          <div class="accordion-item border-danger">
+            <h2 class="accordion-header" id="headingOne">
+              <button class="accordion-button collapsed bg-danger-subtle text-danger small py-2 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                <i class="bi bi-bug-fill me-2"></i> ดูสาเหตุของข้อผิดพลาด (Debug Traceback)
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#debugAccordion">
+              <div class="accordion-body bg-dark text-light p-3 rounded-bottom">
+                <pre class="small text-danger-emphasis mb-0 font-monospace" style="color: #ff8787 !important; white-space: pre-wrap; word-break: break-word;">{{ error_traceback }}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
       <div>
         <a href="{% url 'checkins:feed' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
           <i class="bi bi-house-door me-1"></i> กลับสู่หน้าหลัก

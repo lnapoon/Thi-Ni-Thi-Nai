@@ -13,6 +13,10 @@ urlpatterns = [
     path('', include('checkins.urls', namespace='checkins')),
 ]
 
+handler500 = 'config.views.custom_500_view'
+handler403 = 'config.views.custom_403_view'
+handler404 = 'config.views.custom_404_view'
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
