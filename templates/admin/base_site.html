@@ -5,10 +5,11 @@
 
 {% block extrahead %}
   {{ block.super }}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Google Fonts Sarabun & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Bootstrap Icons CDN -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Custom Modern Admin CSS -->
@@ -18,18 +19,20 @@
 {% block branding %}
   <div id="site-name">
     <a href="{% url 'admin:index' %}">
-      <i class="bi bi-geo-alt-fill" style="color: #fbbf24; font-size: 1.4rem;"></i>
-      <span>ที่นี่ Check-in</span>
-      <span style="font-size: 0.65rem; background: rgba(59, 130, 246, 0.4); color: #93c5fd; padding: 2px 8px; border-radius: 12px; font-weight: 600; letter-spacing: 0.5px; margin-left: 6px;">
-        ADMIN PRO
+      <div style="width: 34px; height: 34px; background: #fbbf24; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #1e293b; box-shadow: 0 3px 8px rgba(251, 191, 36, 0.4);">
+        <i class="bi bi-geo-alt-fill" style="font-size: 1.1rem;"></i>
+      </div>
+      <span style="font-weight: 700; font-size: 1.15rem; letter-spacing: -0.3px;">ที่นี่ <span style="color: #fbbf24;">Check-in</span></span>
+      <span style="font-size: 0.65rem; background: rgba(59, 130, 246, 0.35); color: #93c5fd; padding: 3px 8px; border-radius: 20px; font-weight: 700; letter-spacing: 0.5px; border: 1px solid rgba(147, 197, 253, 0.3);">
+        ADMIN
       </span>
     </a>
   </div>
 {% endblock %}
 
 {% block userlinks %}
-  <a href="{% url 'checkins:feed' %}" target="_blank" style="background: rgba(37, 99, 235, 0.4) !important; color: #ffffff !important;">
-    <i class="bi bi-box-arrow-up-right me-1"></i> ไปยังหน้าเว็บ
+  <a href="{% url 'checkins:feed' %}" class="btn-return-web" title="กลับไปยังหน้าหลักของเว็บ">
+    <i class="bi bi-house-door-fill" style="color: #fbbf24;"></i> กลับสู่หน้าเว็บ
   </a>
   {{ block.super }}
 {% endblock %}
