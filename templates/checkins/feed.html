@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}ฟีดจุดเช็คอิน - ที่นี้ที่ไหนหรือ{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+
+    <!-- Mobile Quick Post Prompt -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-3 bg-white d-flex flex-row align-items-center gap-3">
+      {% if user.profile.avatar %}
+        <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="rounded-circle border" width="44" height="44" style="object-fit: cover;">
+      {% else %}
+        <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+          <i class="bi bi-person-fill fs-5"></i>
+        </div>
+      {% endif %}
+      <a href="{% url 'checkins:create' %}" class="btn btn-light bg-light-subtle rounded-pill text-start text-muted flex-grow-1 py-2 px-3 border">
+        <i class="bi bi-geo-alt-fill text-danger me-1"></i> ตอนนี้คุณอยู่ที่ไหน...?
+      </a>
+      <a href="{% url 'checkins:create' %}" class="btn btn-warning rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
+        <i class="bi bi-camera-fill fs-5"></i>
+      </a>
+    </div>
+
+    <!-- Feed Items List -->
+    {% if checkins %}
+      {% for checkin in checkins %}
+        <div class="card checkin-card">
+          <!-- Card Header (Author info) -->
+          <div class="card-header bg-white border-0 p-3 d-flex justify-content-between align-items-center">
+            <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="d-flex align-items-center text-decoration-none text-dark gap-2">
+              {% if checkin.user.profile.avatar %}
+                <img src="{{ checkin.user.profile.avatar.url }}" alt="{{ checkin.user.username }}" class="card-author-avatar">
+              {% else %}
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center border" style="width: 42px; height: 42px;">
+                  <i class="bi bi-person text-muted fs-5"></i>
+                </div>
+              {% endif %}
+              <div>
+                <span class="fw-bold d-block" style="font-size: 0.95rem;">
+                  {% if checkin.user.first_name %}
+                    {{ checkin.user.first_name }} {{ checkin.user.last_name }}
+                  {% else %}
+                    {{ checkin.user.username }}
+                  {% endif %}
+                </span>
+                <span class="text-muted small" style="font-size: 0.75rem;">@{{ checkin.user.username }} &bull; {{ checkin.created_at|timesince }} ที่แล้ว</span>
+              </div>
+            </a>
+
+            {% if checkin.user == request.user %}
+              <div class="dropdown">
+                <button class="btn btn-light btn-sm rounded-circle p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 32px; height: 32px;">
+                  <i class="bi bi-three-dots-vertical text-muted"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                  <li>
+                    <a class="dropdown-item small" href="{% url 'checkins:edit' pk=checkin.pk %}">
+                      <i class="bi bi-pencil me-2 text-primary"></i> แก้ไข
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item small text-danger" href="{% url 'checkins:delete' pk=checkin.pk %}">
+                      <i class="bi bi-trash3 me-2"></i> ลบ
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Photo Container -->
+          <div class="card-img-wrapper">
+            <a href="{{ checkin.get_absolute_url }}">
+              <img src="{{ checkin.photo.url }}" alt="{{ checkin.place_name }}" loading="lazy">
+            </a>
+            <div class="place-badge shadow-sm">
+              <i class="bi bi-geo-alt-fill text-warning me-1"></i>{{ checkin.place_name }}
+            </div>
+          </div>
+
+          <!-- Card Body & Interactions -->
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <form action="{% url 'checkins:like' pk=checkin.pk %}" method="post" class="ajax-like-form d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-like {% if checkin.id in user_liked_ids %}liked{% endif %}" title="ถูกใจ">
+                    <i class="bi {% if checkin.id in user_liked_ids %}bi-heart-fill text-danger{% else %}bi-heart{% endif %}"></i>
+                    <span class="small fw-semibold ms-1 like-count text-dark">{{ checkin.likes.count }}</span>
+                  </button>
+                </form>
+              </div>
+
+              {% if checkin.has_location %}
+                <a href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener" class="badge bg-light text-primary border text-decoration-none py-2 px-2" style="font-size: 0.75rem;">
+                  <i class="bi bi-map-fill me-1"></i> เปิดแผนที่
+                </a>
+              {% endif %}
+            </div>
+
+            <!-- Caption -->
+            <p class="card-text mb-2 text-dark" style="font-size: 0.95rem; line-height: 1.5;">
+              {{ checkin.caption|linebreaksbr }}
+            </p>
+
+            <div class="text-end">
+              <a href="{{ checkin.get_absolute_url }}" class="small text-muted text-decoration-none">
+                ดูหน้ารายละเอียด &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+
+      <!-- Pagination -->
+      {% if is_paginated %}
+        <nav aria-label="Page navigation" class="mt-4 mb-5">
+          <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link rounded-start-pill" href="?page={{ page_obj.previous_page_number }}">
+                  <i class="bi bi-chevron-left me-1"></i> ก่อนหน้า
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link rounded-start-pill"><i class="bi bi-chevron-left me-1"></i> ก่อนหน้า</span>
+              </li>
+            {% endif %}
+
+            <li class="page-item active">
+              <span class="page-link bg-primary border-primary">
+                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+              </span>
+            </li>
+
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link rounded-end-pill" href="?page={{ page_obj.next_page_number }}">
+                  ถัดไป <i class="bi bi-chevron-right ms-1"></i>
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link rounded-end-pill">ถัดไป <i class="bi bi-chevron-right ms-1"></i></span>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
+
+    {% else %}
+      <!-- Empty Feed State -->
+      <div class="empty-state mt-4">
+        <i class="bi bi-pin-map text-primary"></i>
+        <h5 class="fw-bold mb-2">ยังไม่มีจุดเช็คอินในระบบ</h5>
+        <p class="text-muted small mb-3">มาร่วมเป็นคนแรกที่แชร์ภาพสถานที่สวยๆ ในแอป "ที่นี้ที่ไหนหรือ" กันเถอะ!</p>
+        <a href="{% url 'checkins:create' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-semibold shadow-sm">
+          <i class="bi bi-plus-circle-fill me-1"></i> สร้างจุดเช็คอินแรก
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

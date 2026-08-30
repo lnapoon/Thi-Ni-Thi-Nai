@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}เกิดข้อผิดพลาดภายในระบบ (500 Server Error) - ที่นี้ที่ไหนหรือ{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-12 col-md-6 text-center">
+    <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
+      <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle mx-auto mb-3" style="width: 80px; height: 80px;">
+        <i class="bi bi-gear-wide-connected fs-1"></i>
+      </div>
+      <h3 class="fw-bold text-dark mb-2">500 - เกิดข้อผิดพลาดของเซิร์ฟเวอร์</h3>
+      <p class="text-muted mb-4">ระบบพบปัญหาชั่วคราวในการประมวลผล กรุณาลองใหม่อีกครั้งในภายหลัง</p>
+      <div>
+        <a href="{% url 'checkins:feed' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
+          <i class="bi bi-house-door me-1"></i> กลับสู่หน้าหลัก
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

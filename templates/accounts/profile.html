@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}โปรไฟล์ @{{ profile_user.username }} - ที่นี้ที่ไหนหรือ{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-7">
+
+    <!-- Profile Header Card -->
+    <div class="profile-header-card p-4 mb-4 text-center">
+      <div class="position-relative d-inline-block mb-3">
+        {% if profile.avatar %}
+          <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" class="profile-avatar-lg">
+        {% else %}
+          <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle" style="width: 90px; height: 90px;">
+            <i class="bi bi-person-fill" style="font-size: 3rem;"></i>
+          </div>
+        {% endif %}
+      </div>
+
+      <h4 class="fw-bold mb-1">
+        {% if profile_user.first_name %}
+          {{ profile_user.first_name }} {{ profile_user.last_name }}
+        {% else %}
+          {{ profile_user.username }}
+        {% endif %}
+      </h4>
+      <p class="text-muted small mb-2">@{{ profile_user.username }}</p>
+
+      {% if profile.bio %}
+        <p class="text-secondary small px-3 mb-3">{{ profile.bio }}</p>
+      {% else %}
+        <p class="text-muted small fst-italic mb-3">ยังไม่มีคำอธิบายโปรไฟล์</p>
+      {% endif %}
+
+      <div class="d-flex justify-content-center gap-4 py-2 border-top border-bottom border-light-subtle mb-3">
+        <div>
+          <span class="fs-5 fw-bold text-primary">{{ checkin_count }}</span>
+          <div class="text-muted small" style="font-size: 0.75rem;">เช็คอิน</div>
+        </div>
+        <div>
+          <span class="fs-5 fw-bold text-secondary">{{ profile_user.date_joined|date:"d M Y" }}</span>
+          <div class="text-muted small" style="font-size: 0.75rem;">สมาชิกตั้งแต่</div>
+        </div>
+      </div>
+
+      {% if is_owner %}
+        <div class="d-flex justify-content-center gap-2">
+          <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+            <i class="bi bi-pencil-square me-1"></i> แก้ไขโปรไฟล์
+          </a>
+          <form action="{% url 'accounts:logout' %}" method="post" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+              <i class="bi bi-box-arrow-right me-1"></i> ออกจากระบบ
+            </button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Check-ins Section Title -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold mb-0">
+        <i class="bi bi-pin-map-fill text-danger me-1"></i> จุดเช็คอินของ {% if is_owner %}ฉัน{% else %}{{ profile_user.username }}{% endif %}
+      </h5>
+      <span class="badge bg-secondary rounded-pill">{{ checkin_count }}</span>
+    </div>
+
+    <!-- User Check-ins List / Grid -->
+    {% if checkins %}
+      <div class="row g-3">
+        {% for checkin in checkins %}
+          <div class="col-12 col-sm-6">
+            <div class="card checkin-card h-100">
+              <div class="card-img-wrapper">
+                <a href="{{ checkin.get_absolute_url }}">
+                  <img src="{{ checkin.photo.url }}" alt="{{ checkin.place_name }}" loading="lazy">
+                </a>
+                <span class="place-badge">
+                  <i class="bi bi-geo-alt-fill text-warning me-1"></i>{{ checkin.place_name }}
+                </span>
+              </div>
+              <div class="card-body p-3 d-flex flex-column">
+                <p class="card-text small text-secondary mb-2 flex-grow-1">
+                  {{ checkin.caption|truncatechars:80 }}
+                </p>
+                <div class="d-flex justify-content-between align-items-center text-muted pt-2 border-top" style="font-size: 0.75rem;">
+                  <span><i class="bi bi-clock me-1"></i>{{ checkin.created_at|timesince }} ที่แล้ว</span>
+                  <a href="{{ checkin.get_absolute_url }}" class="btn btn-sm btn-link text-primary p-0 text-decoration-none fw-semibold">
+                    ดูรายละเอียด &rarr;
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state py-5">
+        <i class="bi bi-camera"></i>
+        <h6 class="fw-bold text-secondary">ยังไม่มีรายการเช็คอิน</h6>
+        <p class="text-muted small">เริ่มต้นแชร์สถานที่แรกที่คุณประทับใจได้เลย</p>
+        {% if is_owner %}
+          <a href="{% url 'checkins:create' %}" class="btn btn-primary btn-sm rounded-pill px-3 mt-2">
+            <i class="bi bi-plus-circle me-1"></i> โพสต์เช็คอินแรก
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ checkin.place_name }} - ที่นี้ที่ไหนหรือ{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-7">
+
+    <!-- Top Action Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <a href="{% url 'checkins:feed' %}" class="btn btn-light btn-sm rounded-pill px-3">
+        <i class="bi bi-arrow-left me-1"></i> ย้อนกลับ
+      </a>
+
+      {% if is_owner %}
+        <div class="d-flex gap-2">
+          <a href="{% url 'checkins:edit' pk=checkin.pk %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+            <i class="bi bi-pencil me-1"></i> แก้ไข
+          </a>
+          <a href="{% url 'checkins:delete' pk=checkin.pk %}" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+            <i class="bi bi-trash3 me-1"></i> ลบ
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Main Detail Card -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
+      <!-- Full Image -->
+      <div class="position-relative bg-dark text-center">
+        <img src="{{ checkin.photo.url }}" alt="{{ checkin.place_name }}" class="img-fluid w-100" style="max-height: 550px; object-fit: contain;">
+      </div>
+
+      <div class="card-body p-4">
+        <!-- Place Name Title -->
+        <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
+          <div>
+            <h3 class="fw-bold text-dark mb-1">
+              <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ checkin.place_name }}
+            </h3>
+            <span class="text-muted small">
+              <i class="bi bi-clock me-1"></i>เช็คอินเมื่อ {{ checkin.created_at|date:"d F Y เวลา H:i น." }} ({{ checkin.created_at|timesince }} ที่แล้ว)
+            </span>
+          </div>
+
+          <!-- Like Action Button -->
+          <form action="{% url 'checkins:like' pk=checkin.pk %}" method="post" class="ajax-like-form d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-light rounded-pill border px-3 py-1 btn-like {% if is_liked %}liked{% endif %}">
+              <i class="bi {% if is_liked %}bi-heart-fill text-danger{% else %}bi-heart{% endif %} me-1"></i>
+              <span class="small fw-bold like-count">{{ likes_count }}</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Location Coordinates badge -->
+        {% if checkin.has_location %}
+          <div class="p-3 bg-light rounded-3 border mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+            <div>
+              <span class="badge bg-primary me-2"><i class="bi bi-crosshair me-1"></i>พิกัด GPS</span>
+              <span class="text-secondary small fw-medium font-monospace">{{ checkin.latitude|floatformat:5 }}, {{ checkin.longitude|floatformat:5 }}</span>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm rounded-pill px-3">
+                <i class="bi bi-geo-alt me-1"></i> เปิด Google Maps
+              </a>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Caption Content -->
+        <div class="my-4">
+          <h6 class="fw-bold text-muted text-uppercase mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">คำบรรยาย</h6>
+          <p class="fs-6 text-dark" style="line-height: 1.7; white-space: pre-line;">{{ checkin.caption }}</p>
+        </div>
+
+        <hr class="my-3 text-muted">
+
+        <!-- Author Footer Card -->
+        <div class="d-flex align-items-center justify-content-between">
+          <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="d-flex align-items-center text-decoration-none text-dark gap-3">
+            {% if checkin.user.profile.avatar %}
+              <img src="{{ checkin.user.profile.avatar.url }}" alt="{{ checkin.user.username }}" class="rounded-circle border" width="48" height="48" style="object-fit: cover;">
+            {% else %}
+              <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                <i class="bi bi-person-fill fs-4"></i>
+              </div>
+            {% endif %}
+            <div>
+              <span class="fw-bold d-block">
+                {% if checkin.user.first_name %}
+                  {{ checkin.user.first_name }} {{ checkin.user.last_name }}
+                {% else %}
+                  {{ checkin.user.username }}
+                {% endif %}
+              </span>
+              <span class="text-muted small">@{{ checkin.user.username }}</span>
+            </div>
+          </a>
+
+          <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            ดูโปรไฟล์
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

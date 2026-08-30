@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}ไม่มีสิทธิ์เข้าถึง (403 Forbidden) - ที่นี้ที่ไหนหรือ{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-12 col-md-6 text-center">
+    <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
+      <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle mx-auto mb-3" style="width: 80px; height: 80px;">
+        <i class="bi bi-shield-lock-fill fs-1"></i>
+      </div>
+      <h3 class="fw-bold text-dark mb-2">403 - ไม่มีสิทธิ์เข้าถึง</h3>
+      <p class="text-muted mb-4">ขออภัย คุณไม่มีสิทธิ์ในการเข้าถึง ดัดแปลง หรือลบข้อมูลส่วนนี้ (สงวนสิทธิ์เฉพาะเจ้าของโพสต์เท่านั้น)</p>
+      <div>
+        <a href="{% url 'checkins:feed' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
+          <i class="bi bi-house-door me-1"></i> กลับสู่หน้าหลัก
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}แผนที่จุดเช็คอิน - ที่นี้ที่ไหนหรือ{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet.js CSS CDN -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-10 col-lg-8">
+
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-3 bg-white">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-map-fill text-primary me-2"></i>แผนที่จุดเช็คอินทั้งหมด
+        </h5>
+        <span class="badge bg-primary-subtle text-primary border rounded-pill">
+          {{ geotagged_checkins|length }} จุดที่มีพิกัด
+        </span>
+      </div>
+      <p class="text-muted small mb-3">แตะที่หมุดเพื่อดูข้อมูลและรูปภาพของแต่ละจุดเช็คอิน</p>
+
+      <!-- Leaflet Map Container -->
+      <div id="map" class="shadow-sm border"></div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Leaflet.js Script CDN -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Default center on Thailand (Bangkok: 13.7563, 100.5018)
+    const map = L.map('map').setView([13.7563, 100.5018], 6);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const markers = [];
+
+    {% for item in geotagged_checkins %}
+      {% if item.latitude and item.longitude %}
+        const marker_{{ item.pk }} = L.marker([{{ item.latitude }}, {{ item.longitude }}]).addTo(map);
+        const popupContent_{{ item.pk }} = `
+          <div style="max-width: 200px; text-align: center;">
+            <img src="{{ item.photo.url }}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" alt="{{ item.place_name }}">
+            <h6 style="font-weight: 700; margin-bottom: 2px; font-size: 14px;">{{ item.place_name|escapejs }}</h6>
+            <p style="color: #666; font-size: 12px; margin-bottom: 6px;">โดย @{{ item.user.username|escapejs }}</p>
+            <a href="{% url 'checkins:detail' pk=item.pk %}" class="btn btn-primary btn-sm rounded-pill text-white py-1 px-3" style="font-size: 11px; text-decoration: none;">ดูรายละเอียด</a>
+          </div>
+        `;
+        marker_{{ item.pk }}.bindPopup(popupContent_{{ item.pk }});
+        markers.push([{{ item.latitude }}, {{ item.longitude }}]);
+      {% endif %}
+    {% endfor %}
+
+    if (markers.length > 0) {
+      const bounds = L.latLngBounds(markers);
+      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+    }
+  });
+</script>
+{% endblock %}

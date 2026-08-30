@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - ที่นี้ที่ไหนหรือ{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+      <!-- Form Header -->
+      <div class="d-flex align-items-center mb-3">
+        <a href="{% if is_edit %}{% url 'checkins:detail' pk=object.pk %}{% else %}{% url 'checkins:feed' %}{% endif %}" class="btn btn-light btn-sm rounded-circle me-2">
+          <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+          <h4 class="fw-bold mb-0">{{ page_title }}</h4>
+          <span class="text-muted small">แชร์ภาพและสถานที่ที่คุณประทับใจ</span>
+        </div>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger py-2 rounded-3 small mb-3">
+            {% for error in form.non_field_errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Place Name -->
+        <div class="mb-3">
+          <label for="{{ form.place_name.id_for_label }}" class="form-label small fw-semibold text-dark">
+            <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ form.place_name.label }}
+          </label>
+          {{ form.place_name }}
+          {% if form.place_name.errors %}
+            <div class="text-danger small mt-1">{{ form.place_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Geolocation Widget / Status -->
+        <div class="mb-3 p-3 bg-light rounded-3 border">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label small fw-semibold mb-0 text-secondary">
+              <i class="bi bi-crosshair me-1"></i>พิกัดตำแหน่ง (GPS Geolocation)
+            </label>
+            <button type="button" id="btn-get-location" class="btn btn-outline-primary btn-sm rounded-pill py-0 px-2" style="font-size: 0.75rem;">
+              <i class="bi bi-arrow-clockwise me-1"></i>จับพิกัดใหม่
+            </button>
+          </div>
+          <div id="geo-status" class="small">
+            <span class="badge bg-secondary-subtle text-secondary py-2 px-3">
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span> กำลังค้นหาพิกัด GPS ของคุณ...
+            </span>
+          </div>
+          <div class="form-text text-muted mt-2" style="font-size: 0.75rem;">
+            * ระบบจะดึงพิกัดผ่าน Geolocation API ในเบราว์เซอร์อัตโนมัติ หากปฏิเสธการเข้าถึงพิกัด ก็ยังสามารถโพสต์โดยระบุเพียงชื่อสถานที่ได้
+          </div>
+          {{ form.latitude }}
+          {{ form.longitude }}
+        </div>
+
+        <!-- Photo Upload & Preview -->
+        <div class="mb-3">
+          <label for="{{ form.photo.id_for_label }}" class="form-label small fw-semibold text-dark">
+            <i class="bi bi-camera-fill text-primary me-1"></i>{{ form.photo.label }}
+          </label>
+
+          <!-- Image Preview Container -->
+          <div class="image-preview-container mb-2 text-center" id="photo-preview-box">
+            {% if is_edit and object.photo %}
+              <img id="photo-preview-img" src="{{ object.photo.url }}" alt="Preview" class="img-fluid rounded-3">
+              <div id="photo-preview-placeholder" class="text-muted p-4 d-none">
+                <i class="bi bi-image fs-1 d-block mb-1 text-secondary"></i>
+                <span class="small">แตะเลือกรูปภาพเพื่อแสดงตัวอย่าง</span>
+              </div>
+            {% else %}
+              <img id="photo-preview-img" src="" alt="Preview" class="img-fluid rounded-3 d-none">
+              <div id="photo-preview-placeholder" class="text-muted p-4">
+                <i class="bi bi-image fs-1 d-block mb-1 text-secondary"></i>
+                <span class="small">แตะเลือกรูปภาพจากเครื่องหรือถ่ายภาพ</span>
+              </div>
+            {% endif %}
+          </div>
+
+          {{ form.photo }}
+          {% if form.photo.help_text %}
+            <div class="form-text text-muted" style="font-size: 0.75rem;">{{ form.photo.help_text }}</div>
+          {% endif %}
+          {% if form.photo.errors %}
+            <div class="text-danger small mt-1">{{ form.photo.errors.0 }}</div>
+          {% endif %}
+          <div class="form-text text-muted" style="font-size: 0.75rem;">
+            * รองรับไฟล์ JPG, PNG, WEBP (ขนาดไม่เกิน 5 MB) รูปภาพจะถูกบีบอัดให้เหมาะสมโดยอัตโนมัติ
+          </div>
+        </div>
+
+        <!-- Caption -->
+        <div class="mb-4">
+          <label for="{{ form.caption.id_for_label }}" class="form-label small fw-semibold text-dark">
+            <i class="bi bi-chat-left-text-fill text-info me-1"></i>{{ form.caption.label }}
+          </label>
+          {{ form.caption }}
+          {% if form.caption.errors %}
+            <div class="text-danger small mt-1">{{ form.caption.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-warning py-2 rounded-pill fw-bold shadow-sm">
+            <i class="bi bi-check2-circle me-1"></i>{{ button_text }}
+          </button>
+          <a href="{% if is_edit %}{% url 'checkins:detail' pk=object.pk %}{% else %}{% url 'checkins:feed' %}{% endif %}" class="btn btn-light rounded-pill py-2 text-muted">
+            ยกเลิก
+          </a>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
