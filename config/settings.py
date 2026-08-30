@@ -112,29 +112,22 @@ NEON_FALLBACK_DB = "postgresql://neondb_owner:npg_SL6FjAmClNi1@ep-dark-waterfall
 _raw_db_url = config("DATABASE_URL", default=NEON_FALLBACK_DB).strip()
 DATABASE_URL = _raw_db_url if _raw_db_url else NEON_FALLBACK_DB
 
-if DATABASE_URL:
-    # Strip channel_binding if present to prevent libpq SCRAM-PLUS compatibility errors on AWS Lambda / Vercel
-    clean_db_url = (
-        DATABASE_URL.replace("&channel_binding=require", "")
-        .replace("?channel_binding=require&", "?")
-        .replace("?channel_binding=require", "")
-        .replace("channel_binding=require", "")
-    )
-    DATABASES = {
-        "default": dj_database_url.config(
-            default=clean_db_url,
-            conn_max_age=0,
-            ssl_require=True,
-        )
-    }
+# Strip channel_binding if present to prevent libpq SCRAM-PLUS compatibility errors on AWS Lambda / Vercel
+clean_db_url = (
+    DATABASE_URL.replace("&channel_binding=require", "")
+    .replace("?channel_binding=require&", "?")
+    .replace("?channel_binding=require", "")
+    .replace("channel_binding=require", "")
+)
 
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+DATABASES = {
+    "default": dj_database_url.parse(
+        clean_db_url,
+        conn_max_age=0,
+        ssl_require=True,
+    )
+}
+
 
 
 # Media files & Pluggable Storage configuration
