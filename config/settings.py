@@ -17,7 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config(
     "SECRET_KEY", default="django-insecure-thi-ni-thi-nai-rue-fallback-key-2026"
 )
-DEBUG = config("DEBUG", default=True, cast=bool)
+DEBUG = True
 
 # Allow all hosts in production/serverless environments to avoid 400 Bad Request
 raw_allowed_hosts = config('ALLOWED_HOSTS', default='*', cast=Csv())
