@@ -367,8 +367,49 @@
   <script src="{% static 'js/geolocation.js' %}"></script>
   <script src="{% static 'js/social.js' %}"></script>
 
-  <!-- Instant Page Preload / Fast Navigation System -->
+  <!-- Speculation Rules API for Instant 0ms Native Page Pre-rendering -->
+  <script type="speculationrules">
+  {
+    "prerender": [
+      {
+        "source": "list",
+        "urls": ["{% url 'checkins:feed' %}", "{% url 'checkins:map' %}", "{% url 'accounts:search' %}", "{% url 'accounts:profile_me' %}"],
+        "eagerness": "moderate"
+      }
+    ],
+    "prefetch": [
+      {
+        "source": "document",
+        "where": {
+          "and": [
+            { "href_matches": "/*" },
+            { "not": { "href_matches": "*/logout/*" } },
+            { "not": { "href_matches": "*/delete/*" } },
+            { "not": { "href_matches": "*/admin/*" } }
+          ]
+        },
+        "eagerness": "conservative"
+      }
+    ]
+  }
+  </script>
+
+  <!-- Instant.page High-Speed Pre-fetching Library -->
+  <script src="https://cdn.jsdelivr.net/npm/instant.page@5.2.0/instantpage.min.js" type="module" defer></script>
+
+  <!-- Service Worker Registration for Instant Asset & Shell Caching -->
   <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/static/sw.js').then(function(reg) {
+          // SW registered successfully
+        }).catch(function(err) {
+          console.debug('SW registration skipped:', err);
+        });
+      });
+    }
+
+    // Instant Page Preload / Fast Navigation System
     (function () {
       const prefetched = new Set();
       function prefetch(url) {
@@ -376,7 +417,7 @@
         try {
           const u = new URL(url, window.location.href);
           if (u.origin !== window.location.origin) return;
-          if (u.pathname.includes('/logout') || u.pathname.includes('/delete')) return;
+          if (u.pathname.includes('/logout') || u.pathname.includes('/delete') || u.pathname.includes('/admin/')) return;
           prefetched.add(url);
           const link = document.createElement('link');
           link.rel = 'prefetch';
