@@ -6,10 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>{% block title %}ที่นี่ Check-in - บันทึกและแชร์จุดเช็คอินสถานที่ท่องเที่ยว{% endblock %}</title>
 
-  <!-- Theme Initializer (Instant Dark/Light Mode Load) -->
+  <!-- Theme Initializer (Instant Dark/Light Mode Load - Default to Light) -->
   <script>
     (function () {
-      const saved = localStorage.getItem('thi_ni_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const saved = localStorage.getItem('thi_ni_theme') || 'light';
       document.documentElement.setAttribute('data-bs-theme', saved);
     })();
   </script>
