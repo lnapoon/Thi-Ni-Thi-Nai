@@ -31,28 +31,29 @@
   <!-- Animate.css CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
+  <!-- Favicon with Diagonal Split Logo -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
 
-  <!-- Top Navigation Header (Frosted Glass) -->
-  <header class="app-navbar py-2 mb-3 text-white sticky-top">
+  <!-- Top Navigation Header (Adaptive Frosted Glass) -->
+  <header class="app-navbar py-2 mb-3 sticky-top">
     <div class="container-fluid container-md d-flex justify-content-between align-items-center">
-      <a href="{% url 'checkins:feed' %}" class="text-white text-decoration-none d-flex align-items-center gap-2">
-        <div class="brand-icon-wrapper">
-          <i class="bi bi-geo-alt-fill fs-5"></i>
-        </div>
+      <a href="{% url 'checkins:feed' %}" class="nav-brand-link text-decoration-none d-flex align-items-center gap-2">
+        <img src="{% static 'img/logo-icon.svg' %}" alt="ที่นี่ Check-in Logo" width="38" height="38" class="brand-icon-img shadow-sm rounded-3">
         <div>
-          <span class="fs-5 brand-title">ที่นี่ <span class="text-warning">Check-in</span></span>
+          <span class="fs-5 brand-title">ที่นี่ <span class="text-accent-brand">Check-in</span></span>
         </div>
       </a>
 
       <!-- Desktop Header Actions -->
-      <div class="d-none d-md-flex align-items-center gap-3">
+      <div class="d-none d-md-flex align-items-center gap-2">
         <!-- Sun/Moon Slider Theme Switch -->
-        <button type="button" class="theme-toggle-btn btn-toggle-theme" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">
+        <button type="button" class="theme-toggle-btn btn-toggle-theme me-2" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">
           <div class="theme-toggle-track">
             <i class="bi bi-sun-fill theme-icon-sun"></i>
             <i class="bi bi-moon-stars-fill theme-icon-moon"></i>
@@ -61,47 +62,47 @@
         </button>
 
         {% if user.is_authenticated %}
-          <a href="{% url 'checkins:feed' %}" class="text-white text-decoration-none {% if request.resolver_match.url_name == 'feed' %}fw-bold{% endif %}">
+          <a href="{% url 'checkins:feed' %}" class="nav-custom-link {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
             <i class="bi bi-house-door me-1"></i> หน้าหลัก
           </a>
-          <a href="{% url 'checkins:map' %}" class="text-white text-decoration-none {% if request.resolver_match.url_name == 'map' %}fw-bold{% endif %}">
+          <a href="{% url 'checkins:map' %}" class="nav-custom-link {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
             <i class="bi bi-map me-1"></i> แผนที่
           </a>
-          <a href="{% url 'accounts:search' %}" class="text-white text-decoration-none {% if request.resolver_match.url_name == 'search' %}fw-bold{% endif %}">
+          <a href="{% url 'accounts:search' %}" class="nav-custom-link {% if request.resolver_match.url_name == 'search' %}active{% endif %}">
             <i class="bi bi-search me-1"></i> ค้นหาเพื่อน
           </a>
-          <a href="{% url 'checkins:create' %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-sm">
+          <a href="{% url 'checkins:create' %}" class="btn btn-create-checkin btn-sm rounded-pill px-3 fw-bold shadow-sm ms-1">
             <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินใหม่
           </a>
-          <div class="dropdown">
-            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <div class="dropdown ms-1">
+            <a href="#" class="nav-user-dropdown d-flex align-items-center text-decoration-none dropdown-toggle rounded-pill px-2 py-1" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               {% if user.get_avatar_url %}
-                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle me-1 border border-2 border-white" width="32" height="32" style="object-fit: cover;">
+                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle me-1 border border-2 border-primary-subtle" width="30" height="30" style="object-fit: cover;">
               {% else %}
-                <i class="bi bi-person-circle fs-5 me-1"></i>
+                <i class="bi bi-person-circle fs-5 me-1 text-primary"></i>
               {% endif %}
-              <span class="fw-semibold">{{ user.username }}</span>
+              <span class="fw-semibold user-name-label small px-1">{{ user.username }}</span>
             </a>
 
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="{% url 'accounts:profile_me' %}"><i class="bi bi-person me-2"></i> โปรไฟล์ของฉัน</a></li>
-              <li><a class="dropdown-item" href="{% url 'accounts:profile_edit' %}"><i class="bi bi-gear me-2"></i> ตั้งค่าโปรไฟล์</a></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 mt-2" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:profile_me' %}"><i class="bi bi-person me-2 text-primary"></i> โปรไฟล์ของฉัน</a></li>
+              <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:profile_edit' %}"><i class="bi bi-gear me-2 text-warning"></i> ตั้งค่าโปรไฟล์</a></li>
               {% if user.is_staff %}
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-primary fw-semibold" href="{% url 'checkins:admin_dashboard' %}"><i class="bi bi-speedometer2 me-2"></i> แดชบอร์ดจัดการระบบ (Admin)</a></li>
+                <li><a class="dropdown-item rounded-3 py-2 text-primary fw-semibold" href="{% url 'checkins:admin_dashboard' %}"><i class="bi bi-speedometer2 me-2"></i> แดชบอร์ดจัดการระบบ (Admin)</a></li>
               {% endif %}
               <li><hr class="dropdown-divider"></li>
               <li>
-                <form action="{% url 'accounts:logout' %}" method="post" class="px-2 py-1">
+                <form action="{% url 'accounts:logout' %}" method="post" class="px-1 py-1">
                   {% csrf_token %}
-                  <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-box-arrow-right me-1"></i> ออกจากระบบ</button>
+                  <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-pill"><i class="bi bi-box-arrow-right me-1"></i> ออกจากระบบ</button>
                 </form>
               </li>
             </ul>
           </div>
         {% else %}
-          <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-sm rounded-pill px-3">เข้าสู่ระบบ</a>
-          <a href="{% url 'accounts:signup' %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold">สมัครสมาชิก</a>
+          <a href="{% url 'accounts:login' %}" class="btn btn-nav-login btn-sm rounded-pill px-3 fw-semibold">เข้าสู่ระบบ</a>
+          <a href="{% url 'accounts:signup' %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-sm">สมัครสมาชิก</a>
         {% endif %}
       </div>
 
@@ -119,9 +120,11 @@
         {% if user.is_authenticated %}
           <button type="button" class="btn p-0 border-0 bg-transparent text-white shadow-none d-flex align-items-center" data-bs-toggle="offcanvas" data-bs-target="#mobileUserDrawer" aria-controls="mobileUserDrawer" title="เมนูผู้ใช้งาน">
             {% if user.get_avatar_url %}
-              <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle border border-2 border-white shadow-sm" width="36" height="36" style="object-fit: cover;">
+              <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle border border-2 border-primary shadow-sm" width="36" height="36" style="object-fit: cover;">
             {% else %}
-              <i class="bi bi-person-circle fs-3 text-white"></i>
+              <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 36px; height: 36px;">
+                <i class="bi bi-person-fill fs-5"></i>
+              </div>
             {% endif %}
           </button>
         {% endif %}
@@ -367,49 +370,8 @@
   <script src="{% static 'js/geolocation.js' %}"></script>
   <script src="{% static 'js/social.js' %}"></script>
 
-  <!-- Speculation Rules API for Instant 0ms Native Page Pre-rendering -->
-  <script type="speculationrules">
-  {
-    "prerender": [
-      {
-        "source": "list",
-        "urls": ["{% url 'checkins:feed' %}", "{% url 'checkins:map' %}", "{% url 'accounts:search' %}", "{% url 'accounts:profile_me' %}"],
-        "eagerness": "moderate"
-      }
-    ],
-    "prefetch": [
-      {
-        "source": "document",
-        "where": {
-          "and": [
-            { "href_matches": "/*" },
-            { "not": { "href_matches": "*/logout/*" } },
-            { "not": { "href_matches": "*/delete/*" } },
-            { "not": { "href_matches": "*/admin/*" } }
-          ]
-        },
-        "eagerness": "conservative"
-      }
-    ]
-  }
-  </script>
-
-  <!-- Instant.page High-Speed Pre-fetching Library -->
-  <script src="https://cdn.jsdelivr.net/npm/instant.page@5.2.0/instantpage.min.js" type="module" defer></script>
-
-  <!-- Service Worker Registration for Instant Asset & Shell Caching -->
+  <!-- Instant Page Preload / Fast Navigation System -->
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js').catch(function() {
-          return navigator.serviceWorker.register('/static/sw.js');
-        }).catch(function(err) {
-          console.debug('SW registration skipped:', err);
-        });
-      });
-    }
-
-    // Instant Page Preload / Fast Navigation System
     (function () {
       const prefetched = new Set();
       function prefetch(url) {
@@ -417,7 +379,7 @@
         try {
           const u = new URL(url, window.location.href);
           if (u.origin !== window.location.origin) return;
-          if (u.pathname.includes('/logout') || u.pathname.includes('/delete') || u.pathname.includes('/admin/')) return;
+          if (u.pathname.includes('/logout') || u.pathname.includes('/delete')) return;
           prefetched.add(url);
           const link = document.createElement('link');
           link.rel = 'prefetch';
