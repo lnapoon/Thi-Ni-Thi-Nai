@@ -1,29 +1,193 @@
 {% extends 'base.html' %}
 
-{% block title %}แผนที่จุดเช็คอิน - ที่นี่ Check-in{% endblock %}
+{% block title %}แผนที่จุดเช็คอินตามโซนและจังหวัด - ที่นี่ Check-in{% endblock %}
 
 {% block extra_head %}
 <!-- Leaflet.js CSS CDN -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+  .zone-pill-btn {
+    border-radius: 50rem;
+    padding: 0.45rem 1rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: #ffffff;
+    color: #475569;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .zone-pill-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    transform: translateY(-1px);
+  }
+  .zone-pill-btn.active {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  }
+  .zone-pill-btn.active .badge {
+    background-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+  }
+  .zone-scroll-container {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+  }
+  .zone-scroll-container::-webkit-scrollbar {
+    display: none;
+  }
+  .map-card-item {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+  .map-card-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+  }
+  .custom-leaflet-popup .leaflet-popup-content-wrapper {
+    border-radius: 16px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+  }
+  .custom-leaflet-popup .leaflet-popup-content {
+    margin: 0;
+    line-height: 1.4;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-12 col-md-10 col-lg-8">
+  <div class="col-12 col-xl-10">
 
+    <!-- Page Header & Overview Stats -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+      <div>
+        <h4 class="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+          <i class="bi bi-map-fill text-primary"></i> สำรวจจุดเช็คอินตามโซนและจังหวัด
+        </h4>
+        <p class="text-muted small mb-0">เลือกโซนภูมิภาคและเจาะลึกรายจังหวัดเพื่อดูสถานที่ท่องเที่ยวยอดนิยม</p>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 fw-semibold">
+          <i class="bi bi-pin-map-fill me-1"></i> <span id="stat-total-pins">{{ total_geotagged }}</span> จุดบนแผนที่
+        </span>
+        <a href="{% url 'checkins:create' %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-sm">
+          <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินที่นี่
+        </a>
+      </div>
+    </div>
+
+    <!-- Filter Control Card -->
     <div class="card border-0 shadow-sm rounded-4 p-3 mb-3 bg-white">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="fw-bold mb-0">
-          <i class="bi bi-map-fill text-primary me-2"></i>แผนที่จุดเช็คอินทั้งหมด
-        </h5>
-        <span class="badge bg-primary-subtle text-primary border rounded-pill">
-          {{ geotagged_checkins|length }} จุดที่มีพิกัด
+      
+      <!-- 1. Region Selector Pills -->
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="small fw-bold text-dark">
+          <i class="bi bi-compass me-1 text-primary"></i> เลือกภูมิภาค (Region):
+        </span>
+        <button type="button" id="btn-reset-filters" class="btn btn-link btn-sm text-muted p-0 text-decoration-none small" style="font-size: 0.78rem;">
+          <i class="bi bi-arrow-counterclockwise me-1"></i> รีเซ็ตตัวกรอง
+        </button>
+      </div>
+
+      <div class="zone-scroll-container d-flex align-items-center gap-2 mb-3">
+        <button type="button" class="zone-pill-btn active" data-region="">
+          <i class="bi bi-grid-fill"></i> ทุกภูมิภาค
+          <span class="badge bg-secondary-subtle text-secondary rounded-pill ms-1">{{ total_geotagged }}</span>
+        </button>
+
+        {% for reg in regions_with_counts %}
+          <button type="button" class="zone-pill-btn" data-region="{{ reg.name }}">
+            {{ reg.name }}
+            <span class="badge bg-secondary-subtle text-secondary rounded-pill ms-1">{{ reg.count }}</span>
+          </button>
+        {% endfor %}
+      </div>
+
+      <!-- 2. Province Drill-down & Keyword Search Form -->
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-5">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-light border-end-0 text-danger rounded-start-3">
+              <i class="bi bi-geo-alt-fill"></i>
+            </span>
+            <select id="select-province" class="form-select border-start-0 rounded-end-3">
+              <option value="">-- เจาะจงทุกจังหวัดในโซน --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-5">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-light border-end-0 text-muted rounded-start-3">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="text" id="input-search-place" class="form-control border-start-0 rounded-end-3" placeholder="ค้นหาชื่อสถานที่ หรือคำบรรยาย...">
+          </div>
+        </div>
+
+        <div class="col-12 col-md-2 d-grid">
+          <button type="button" id="btn-apply-view" class="btn btn-primary btn-sm rounded-3 fw-semibold">
+            <i class="bi bi-crosshair me-1"></i> ซูมตำแหน่ง
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Leaflet Map Box -->
+    <div class="card border-0 shadow-sm rounded-4 p-2 p-md-3 mb-4 bg-white">
+      <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+        <div class="d-flex align-items-center gap-2 small">
+          <span class="radar-dot"></span>
+          <span class="fw-bold text-dark" id="map-active-zone-label">กำลังแสดง: ทั่วประเทศไทย</span>
+        </div>
+        <span class="badge bg-light text-muted border rounded-pill small" id="map-matching-count-badge">
+          พบ {{ total_geotagged }} แห่ง
         </span>
       </div>
-      <p class="text-muted small mb-3">แตะที่หมุดเพื่อดูข้อมูลและรูปภาพของแต่ละจุดเช็คอิน</p>
 
-      <!-- Leaflet Map Container with Explicit Height -->
-      <div id="map" class="shadow-sm border rounded-4" style="height: 520px; min-height: 480px; width: 100%; z-index: 1;"></div>
+      <div id="map" class="shadow-sm border rounded-4" style="height: 520px; min-height: 460px; width: 100%; z-index: 1;"></div>
+    </div>
+
+    <!-- Filtered Places Cards Stream -->
+    <div class="mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0 text-dark">
+          <i class="bi bi-collection-fill text-warning me-1"></i> รายการจุดเช็คอินในโซนที่เลือก (<span id="cards-count-text">{{ total_geotagged }}</span> แห่ง)
+        </h5>
+      </div>
+
+      <!-- Places Grid -->
+      <div class="row g-3" id="places-grid-container">
+        <!-- Rendered dynamically by JavaScript -->
+      </div>
+
+      <!-- Empty State for Selected Zone -->
+      <div class="empty-state shadow-sm rounded-4 p-5 text-center bg-white my-3 d-none" id="places-empty-state">
+        <div class="mb-3">
+          <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle shadow-sm" style="width: 70px; height: 70px;">
+            <i class="bi bi-geo-alt fs-2"></i>
+          </div>
+        </div>
+        <h6 class="fw-bold text-dark mb-1">ยังไม่มีจุดเช็คอินในจังหวัดหรือเงื่อนไขนี้</h6>
+        <p class="text-muted small mb-3">คุณเคยไปเที่ยวที่นี่ไหม? มาเป็นคนแรกที่โพสต์ปักหมุดเช็คอินกันเลย!</p>
+        <a href="{% url 'checkins:create' %}" class="btn btn-warning btn-sm rounded-pill px-4 py-2 fw-bold shadow">
+          <i class="bi bi-plus-circle-fill me-1"></i> ปักหมุดที่นี่เลย
+        </a>
+      </div>
     </div>
 
   </div>
@@ -34,49 +198,295 @@
 <!-- Leaflet.js Script CDN -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-  function initLeafletMap() {
-    const mapEl = document.getElementById('map');
-    if (!mapEl || typeof L === 'undefined') return;
-    if (mapEl._leaflet_id) return; // Prevent double init
+  (function() {
+    const rawMarkers = {{ markers_json|safe|default:'[]' }};
+    const regionsData = {{ regions_data_json|safe|default:'{}' }};
+    const provinceCoords = {{ province_coords_json|safe|default:'{}' }};
 
-    // Default center on Thailand (Bangkok: 13.7563, 100.5018)
-    const map = L.map('map').setView([13.7563, 100.5018], 6);
+    let map = null;
+    let leafletMarkers = [];
+    let currentRegion = '';
+    let currentProvince = '';
+    let searchQuery = '';
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    const zoneButtons = document.querySelectorAll('.zone-pill-btn');
+    const provinceSelect = document.getElementById('select-province');
+    const searchInput = document.getElementById('input-search-place');
+    const btnReset = document.getElementById('btn-reset-filters');
+    const btnApplyView = document.getElementById('btn-apply-view');
+    const activeZoneLabel = document.getElementById('map-active-zone-label');
+    const matchingCountBadge = document.getElementById('map-matching-count-badge');
+    const cardsCountText = document.getElementById('cards-count-text');
+    const placesGrid = document.getElementById('places-grid-container');
+    const placesEmptyState = document.getElementById('places-empty-state');
 
-    const markers = [];
+    // Populate Province Select options based on active Region
+    function populateProvinceSelect(selectedRegion) {
+      provinceSelect.innerHTML = '<option value="">-- เจาะจงทุกจังหวัดในโซน --</option>';
 
-    {% for item in geotagged_checkins %}
-      {% if item.latitude and item.longitude %}
-        const marker_{{ item.pk }} = L.marker([{{ item.latitude }}, {{ item.longitude }}]).addTo(map);
-        const popupContent_{{ item.pk }} = `
-          <div style="max-width: 200px; text-align: center; font-family: 'Sarabun', sans-serif;">
-            <img src="{{ item.get_photo_url }}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" alt="{{ item.place_name }}">
-            <h6 style="font-weight: 700; margin-bottom: 2px; font-size: 14px; color: #0f172a;">{{ item.place_name|escapejs }}</h6>
-            <p style="color: #64748b; font-size: 12px; margin-bottom: 6px;">โดย @{{ item.user.username|escapejs }}</p>
-            <a href="{% url 'checkins:detail' pk=item.pk %}" class="btn btn-primary btn-sm rounded-pill text-white py-1 px-3" style="font-size: 11px; text-decoration: none;">ดูรายละเอียด</a>
-          </div>
-        `;
+      let provList = [];
+      if (selectedRegion && regionsData[selectedRegion]) {
+        provList = regionsData[selectedRegion].provinces.map(p => p.name);
+      } else {
+        provList = Object.keys(provinceCoords);
+      }
 
-        marker_{{ item.pk }}.bindPopup(popupContent_{{ item.pk }});
-        markers.push([{{ item.latitude }}, {{ item.longitude }}]);
-      {% endif %}
-    {% endfor %}
-
-    if (markers.length > 0) {
-      const bounds = L.latLngBounds(markers);
-      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+      provList.sort().forEach(function(prov) {
+        const opt = document.createElement('option');
+        opt.value = prov;
+        opt.textContent = prov;
+        if (prov === currentProvince) opt.selected = true;
+        provinceSelect.appendChild(opt);
+      });
     }
 
-    setTimeout(function () {
-      map.invalidateSize();
-    }, 200);
-  }
+    // Filter markers based on region, province, and search query
+    function getFilteredMarkers() {
+      return rawMarkers.filter(function(item) {
+        if (currentRegion && item.region !== currentRegion) {
+          return false;
+        }
+        if (currentProvince && item.province !== currentProvince) {
+          return false;
+        }
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          const pName = (item.place_name || '').toLowerCase();
+          const cap = (item.caption || '').toLowerCase();
+          const author = (item.author || '').toLowerCase();
+          const prov = (item.province || '').toLowerCase();
+          if (!pName.includes(q) && !cap.includes(q) && !author.includes(q) && !prov.includes(q)) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
 
-  document.addEventListener('DOMContentLoaded', initLeafletMap);
-  document.addEventListener('turbo:load', initLeafletMap);
+    // Update the Leaflet Map and render markers
+    function renderMapMarkers() {
+      if (!map) return;
+
+      // Clear existing markers
+      leafletMarkers.forEach(m => map.removeLayer(m));
+      leafletMarkers = [];
+
+      const filtered = getFilteredMarkers();
+
+      filtered.forEach(function(item) {
+        if (!item.lat || !item.lng) return;
+
+        const marker = L.marker([item.lat, item.lng]).addTo(map);
+        const popupContent = `
+          <div style="width: 220px; font-family: 'Sarabun', sans-serif; overflow: hidden;">
+            <img src="${item.photo_url}" style="width: 100%; height: 120px; object-fit: cover; border-top-left-radius: 12px; border-top-right-radius: 12px;" alt="${item.place_name}">
+            <div style="padding: 10px;">
+              <span style="display: inline-block; font-size: 10px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 50px; padding: 1px 8px; font-weight: 700; margin-bottom: 4px;">
+                ${item.province || item.region || 'ไทย'}
+              </span>
+              <h6 style="font-weight: 700; font-size: 14px; color: #0f172a; margin-bottom: 3px; line-height: 1.3;">${item.place_name}</h6>
+              <p style="color: #64748b; font-size: 11px; margin-bottom: 8px;">โดย @${item.author} (${item.created_at_text})</p>
+              <div style="display: flex; gap: 4px;">
+                <a href="${item.detail_url}" class="btn btn-primary btn-sm rounded-pill text-white py-1 px-3 w-100 text-center" style="font-size: 11px; text-decoration: none; font-weight: 600;">
+                  ดูรายละเอียด
+                </a>
+                <a href="https://www.google.com/maps/search/?api=1&query=${item.lat},${item.lng}" target="_blank" rel="noopener" class="btn btn-light btn-sm rounded-circle text-danger border" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; padding: 0;" title="เปิด Google Maps">
+                  <i class="bi bi-geo-alt-fill" style="font-size: 12px;"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+        marker.bindPopup(popupContent, { className: 'custom-leaflet-popup' });
+        leafletMarkers.push(marker);
+      });
+
+      // Update UI Counters and Labels
+      const count = filtered.length;
+      matchingCountBadge.textContent = `พบ ${count} แห่ง`;
+      cardsCountText.textContent = count;
+
+      let zoneText = 'ทั่วประเทศไทย';
+      if (currentProvince) {
+        zoneText = `จ.${currentProvince} (${currentRegion || 'ประเทศไทย'})`;
+      } else if (currentRegion) {
+        zoneText = `${currentRegion}`;
+      }
+      activeZoneLabel.textContent = `กำลังแสดง: ${zoneText}`;
+
+      // Render bottom cards stream
+      renderCardsList(filtered);
+    }
+
+    // Render Cards in Bottom Grid
+    function renderCardsList(filteredList) {
+      if (!placesGrid) return;
+      placesGrid.innerHTML = '';
+
+      if (filteredList.length === 0) {
+        placesEmptyState.classList.remove('d-none');
+        return;
+      }
+      placesEmptyState.classList.add('d-none');
+
+      filteredList.forEach(function(item) {
+        const col = document.createElement('div');
+        col.className = 'col-12 col-sm-6 col-lg-4';
+        col.innerHTML = `
+          <div class="card map-card-item h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white" data-lat="${item.lat}" data-lng="${item.lng}">
+            <div class="position-relative" style="height: 160px;">
+              <img src="${item.photo_url}" alt="${item.place_name}" style="width: 100%; height: 100%; object-fit: cover;">
+              <span class="badge bg-dark bg-opacity-75 text-white position-absolute top-0 start-0 m-2 rounded-pill px-2 py-1 small" style="backdrop-filter: blur(4px);">
+                <i class="bi bi-geo-alt-fill text-danger me-1"></i> ${item.province || item.region || 'ไทย'}
+              </span>
+            </div>
+            <div class="card-body p-3 d-flex flex-column justify-content-between">
+              <div>
+                <h6 class="fw-bold text-dark text-truncate mb-1" title="${item.place_name}">
+                  ${item.place_name}
+                </h6>
+                <p class="text-muted small text-truncate-2 mb-2" style="font-size: 0.8rem; min-height: 2.4em;">
+                  ${item.caption || 'ไม่มีข้อความบรรยาย'}
+                </p>
+              </div>
+              <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                <span class="small text-secondary fw-semibold" style="font-size: 0.75rem;">
+                  @${item.author}
+                </span>
+                <div class="d-flex gap-1">
+                  <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-2 py-0 btn-focus-marker" data-lat="${item.lat}" data-lng="${item.lng}" title="ซูมไปยังหมุดนี้" style="font-size: 0.72rem;">
+                    <i class="bi bi-crosshair"></i>
+                  </button>
+                  <a href="${item.detail_url}" class="btn btn-primary btn-sm rounded-pill px-3 py-0 fw-semibold" style="font-size: 0.72rem;">
+                    ดูรายละเอียด
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        placesGrid.appendChild(col);
+      });
+
+      // Bind click on card focus buttons
+      document.querySelectorAll('.btn-focus-marker').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const lat = parseFloat(this.dataset.lat);
+          const lng = parseFloat(this.dataset.lng);
+          if (map && lat && lng) {
+            map.flyTo([lat, lng], 15, { animate: true, duration: 1.2 });
+            window.scrollTo({ top: document.getElementById('map').offsetTop - 90, behavior: 'smooth' });
+          }
+        });
+      });
+    }
+
+    // Fly / Pan Map View to active selection
+    function zoomToActiveSelection() {
+      if (!map) return;
+
+      // 1. If province selected, zoom to province coordinates
+      if (currentProvince && provinceCoords[currentProvince]) {
+        const pInfo = provinceCoords[currentProvince];
+        map.flyTo([pInfo.lat, pInfo.lng], pInfo.zoom || 11, { animate: true, duration: 1.2 });
+        return;
+      }
+
+      // 2. If region selected, zoom to region coordinates
+      if (currentRegion && regionsData[currentRegion]) {
+        const rInfo = regionsData[currentRegion];
+        map.flyTo([rInfo.lat, rInfo.lng], rInfo.zoom || 8, { animate: true, duration: 1.2 });
+        return;
+      }
+
+      // 3. Fallback: Fit bounds of filtered markers or default to Thailand center
+      const filtered = getFilteredMarkers();
+      const coords = filtered.filter(m => m.lat && m.lng).map(m => [m.lat, m.lng]);
+      if (coords.length > 0) {
+        const bounds = L.latLngBounds(coords);
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13, animate: true });
+      } else {
+        map.flyTo([13.7563, 100.5018], 6, { animate: true, duration: 1 });
+      }
+    }
+
+    // Initialize Leaflet Map
+    function initMap() {
+      const mapEl = document.getElementById('map');
+      if (!mapEl || typeof L === 'undefined') return;
+      if (mapEl._leaflet_id) return;
+
+      // Thailand Center
+      map = L.map('map').setView([13.7563, 100.5018], 6);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      populateProvinceSelect('');
+      renderMapMarkers();
+      zoomToActiveSelection();
+
+      setTimeout(function() {
+        map.invalidateSize();
+      }, 200);
+    }
+
+    // Event Listeners for Filters
+    zoneButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        zoneButtons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        currentRegion = this.dataset.region || '';
+        currentProvince = ''; // reset province on region change
+        populateProvinceSelect(currentRegion);
+        renderMapMarkers();
+        zoomToActiveSelection();
+      });
+    });
+
+    if (provinceSelect) {
+      provinceSelect.addEventListener('change', function() {
+        currentProvince = this.value;
+        renderMapMarkers();
+        zoomToActiveSelection();
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        searchQuery = this.value.trim();
+        renderMapMarkers();
+      });
+    }
+
+    if (btnReset) {
+      btnReset.addEventListener('click', function(e) {
+        e.preventDefault();
+        currentRegion = '';
+        currentProvince = '';
+        searchQuery = '';
+        if (searchInput) searchInput.value = '';
+        zoneButtons.forEach(b => b.classList.remove('active'));
+        if (zoneButtons[0]) zoneButtons[0].classList.add('active');
+        populateProvinceSelect('');
+        renderMapMarkers();
+        zoomToActiveSelection();
+      });
+    }
+
+    if (btnApplyView) {
+      btnApplyView.addEventListener('click', function(e) {
+        e.preventDefault();
+        zoomToActiveSelection();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initMap);
+    document.addEventListener('turbo:load', initMap);
+  })();
 </script>
 {% endblock %}

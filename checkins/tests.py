@@ -162,18 +162,52 @@ class CheckInTests(TestCase):
 
     def test_pillow_image_compression(self):
         """Test that uploaded image is automatically resized and compressed by Pillow."""
-        # Create an oversized image (2000x2000)
+        from checkins.utils import optimize_checkin_image
         large_image_file = create_dummy_image("oversized.jpg", size=(2000, 2000), color=(0, 255, 0))
-        checkin_large = CheckIn.objects.create(
-            user=self.alice,
-            place_name='Mountain Peak',
-            caption='High altitude view',
-            photo=large_image_file,
-            latitude=18.5894,
-            longitude=98.4867
-        )
-        # Verify saved image dimensions are clamped to <= 1600px
-        saved_img = Image.open(checkin_large.photo.path)
+        optimized_file = optimize_checkin_image(large_image_file)
+        saved_img = Image.open(optimized_file)
         self.assertLessEqual(saved_img.width, 1600)
         self.assertLessEqual(saved_img.height, 1600)
+
+    def test_feed_view_post_creates_checkin(self):
+        """Test that user can submit a new check-in directly from the feed page."""
+        self.client.login(username='alice', password='password123')
+        new_photo = create_dummy_image('feed_post.jpg')
+        response = self.client.post(reverse('checkins:feed'), {
+            'place_name': 'วัดร่องขุ่น เชียงราย',
+            'region': 'ภาคเหนือ',
+            'province': 'เชียงราย',
+            'caption': 'วัดสีขาวสวยงามมาก',
+            'latitude': 19.8242,
+            'longitude': 99.7631,
+            'photo': new_photo,
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(CheckIn.objects.filter(place_name='วัดร่องขุ่น เชียงราย', user=self.alice).exists())
+        created_checkin = CheckIn.objects.get(place_name='วัดร่องขุ่น เชียงราย')
+        self.assertEqual(created_checkin.region, 'ภาคเหนือ')
+        self.assertEqual(created_checkin.province, 'เชียงราย')
+
+    def test_checkin_auto_infer_province_and_region(self):
+        """Test that province and region are automatically inferred from place name."""
+        checkin_auto = CheckIn.objects.create(
+            user=self.bob,
+            place_name='ถนนคนเดินวัวลาย เชียงใหม่',
+            caption='บรรยากาศคึกคักยามเย็น',
+            photo=create_dummy_image('chiangmai.jpg'),
+        )
+        self.assertEqual(checkin_auto.province, 'เชียงใหม่')
+        self.assertEqual(checkin_auto.region, 'ภาคเหนือ')
+
+    def test_map_view_contains_markers_and_regions(self):
+        """Test that map view context contains markers JSON, regions and counts."""
+        self.client.login(username='alice', password='password123')
+        response = self.client.get(reverse('checkins:map'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'checkins/map.html')
+        self.assertIn('markers_json', response.context)
+        self.assertIn('regions_data_json', response.context)
+        self.assertIn('total_geotagged', response.context)
+        self.assertGreaterEqual(response.context['total_geotagged'], 1)
+
 

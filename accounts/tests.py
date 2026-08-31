@@ -30,6 +30,7 @@ class AccountsTests(TestCase):
             'email': 'bob@example.com',
             'password1': 'StrongPass1234!',
             'password2': 'StrongPass1234!',
+            'agree_pdpa': True,
         }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(User.objects.filter(username='bob').exists())

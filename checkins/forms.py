@@ -1,11 +1,31 @@
 from django import forms
 from .models import CheckIn
+from .constants import REGION_CHOICES, PROVINCE_CHOICES, PROVINCE_TO_REGION
 from PIL import Image
 
 class CheckInForm(forms.ModelForm):
+    region = forms.ChoiceField(
+        choices=REGION_CHOICES,
+        required=False,
+        label='ภูมิภาค',
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'id_region',
+        })
+    )
+    province = forms.ChoiceField(
+        choices=PROVINCE_CHOICES,
+        required=False,
+        label='จังหวัด',
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'id_province',
+        })
+    )
+
     class Meta:
         model = CheckIn
-        fields = ['place_name', 'caption', 'photo', 'latitude', 'longitude']
+        fields = ['place_name', 'region', 'province', 'caption', 'photo', 'latitude', 'longitude']
         widgets = {
             'place_name': forms.TextInput(attrs={
                 'class': 'form-control form-control-lg',
@@ -30,6 +50,8 @@ class CheckInForm(forms.ModelForm):
         }
         labels = {
             'place_name': 'ชื่อสถานที่ / จุดเช็คอิน *',
+            'region': 'ภูมิภาค',
+            'province': 'จังหวัด',
             'caption': 'ข้อความบรรยาย * (สูงสุด 500 ตัวอักษร)',
             'photo': 'รูปภาพสถานที่ *',
         }

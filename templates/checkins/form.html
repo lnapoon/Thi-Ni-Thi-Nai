@@ -40,6 +40,28 @@
           {% endif %}
         </div>
 
+        <!-- Zone & Province Selectors -->
+        <div class="row g-2 mb-3">
+          <div class="col-12 col-sm-6">
+            <label for="{{ form.region.id_for_label }}" class="form-label small fw-semibold text-dark">
+              <i class="bi bi-map me-1 text-primary"></i>{{ form.region.label }}
+            </label>
+            {{ form.region }}
+            {% if form.region.errors %}
+              <div class="text-danger small mt-1">{{ form.region.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="col-12 col-sm-6">
+            <label for="{{ form.province.id_for_label }}" class="form-label small fw-semibold text-dark">
+              <i class="bi bi-pin-map me-1 text-danger"></i>{{ form.province.label }}
+            </label>
+            {{ form.province }}
+            {% if form.province.errors %}
+              <div class="text-danger small mt-1">{{ form.province.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
         <!-- Geolocation Widget / Status -->
         <div class="mb-3 p-3 bg-light rounded-4 border">
           <div class="d-flex justify-content-between align-items-center mb-2">
@@ -124,3 +146,41 @@
   </div>
 </div>
 {% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function() {
+    const regionsData = {{ regions_data_json|safe|default:'{}' }};
+    const regionSelect = document.getElementById('id_region');
+    const provinceSelect = document.getElementById('id_province');
+
+    if (regionSelect && provinceSelect) {
+      regionSelect.addEventListener('change', function() {
+        const selectedRegion = this.value;
+        const currentProv = provinceSelect.value;
+
+        provinceSelect.innerHTML = '<option value="">-- เลือกจังหวัด --</option>';
+
+        let provList = [];
+        if (selectedRegion && regionsData[selectedRegion]) {
+          provList = regionsData[selectedRegion].provinces.map(p => p.name);
+        } else {
+          // Flatten all provinces
+          for (let r in regionsData) {
+            provList.push(...regionsData[r].provinces.map(p => p.name));
+          }
+        }
+
+        provList.sort().forEach(function(prov) {
+          const opt = document.createElement('option');
+          opt.value = prov;
+          opt.textContent = prov;
+          if (prov === currentProv) opt.selected = true;
+          provinceSelect.appendChild(opt);
+        });
+      });
+    }
+  })();
+</script>
+{% endblock %}
+

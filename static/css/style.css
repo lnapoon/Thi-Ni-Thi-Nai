@@ -852,3 +852,64 @@ body.dark-mode #pdpaConsentBanner {
   background-color: #131b2e !important;
   border-color: #1e293b !important;
 }
+
+/* ==========================================================================
+   Feed Post Composer & Zone Filter Styles
+   ========================================================================== */
+.feed-post-composer-card {
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--card-bg, #ffffff);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.composer-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--app-primary-light, #3b82f6);
+}
+
+.feed-photo-dropzone {
+  background-color: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.feed-photo-dropzone:hover {
+  background-color: #f1f5f9;
+  border-color: var(--app-primary-light, #3b82f6);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+[data-bs-theme="dark"] .feed-photo-dropzone,
+body.dark-mode .feed-photo-dropzone {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .zone-pill-btn,
+body.dark-mode .zone-pill-btn {
+  background: #131b2e;
+  color: #cbd5e1;
+  border-color: #1e293b;
+}
+
+[data-bs-theme="dark"] .zone-pill-btn:hover,
+body.dark-mode .zone-pill-btn:hover {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .zone-pill-btn.active,
+body.dark-mode .zone-pill-btn.active {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+

@@ -14,6 +14,7 @@ import json
 
 from .models import CheckIn, Like, Comment, Bookmark
 from .forms import CheckInForm
+from .constants import REGIONS_DATA, ALL_PROVINCES, PROVINCE_COORDINATES, PROVINCE_TO_REGION
 from accounts.models import Follow, Profile
 
 
@@ -36,9 +37,29 @@ class FeedView(LoginRequiredMixin, ListView):
         )
         return qs.order_by('-created_at')
 
+    def post(self, request, *args, **kwargs):
+        form = CheckInForm(request.POST, request.FILES)
+        if form.is_valid():
+            checkin = form.save(commit=False)
+            checkin.user = request.user
+            checkin.save()
+            messages.success(request, f'🎉 เช็คอินที่ "{checkin.place_name}" สำเร็จแล้ว!')
+            return redirect('checkins:feed')
+        else:
+            messages.error(request, 'เกิดข้อผิดพลาดในการโพสต์เช็คอิน กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง')
+            self.object_list = self.get_queryset()
+            context = self.get_context_data(form=form)
+            return self.render_to_response(context)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         checkins_list = context.get('checkins', [])
+
+        if 'form' not in context:
+            context['form'] = CheckInForm()
+
+        context['regions_data_json'] = json.dumps(REGIONS_DATA, ensure_ascii=False)
+        context['all_provinces_json'] = json.dumps(ALL_PROVINCES, ensure_ascii=False)
 
         if self.request.user.is_authenticated:
             # Set of check-in IDs liked by current user
@@ -120,6 +141,7 @@ class CheckInCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'สร้างจุดเช็คอินใหม่'
         context['button_text'] = 'โพสต์เช็คอิน'
+        context['regions_data_json'] = json.dumps(REGIONS_DATA, ensure_ascii=False)
         return context
 
 
@@ -150,6 +172,7 @@ class CheckInUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         context['page_title'] = f'แก้ไขเช็คอิน: {self.object.place_name}'
         context['button_text'] = 'บันทึกการแก้ไข'
         context['is_edit'] = True
+        context['regions_data_json'] = json.dumps(REGIONS_DATA, ensure_ascii=False)
         return context
 
 
@@ -183,8 +206,46 @@ class CheckInMapView(LoginRequiredMixin, TemplateView):
         geotagged_checkins = CheckIn.objects.filter(
             latitude__isnull=False,
             longitude__isnull=False
-        ).select_related('user')[:50]
-        context['geotagged_checkins'] = geotagged_checkins
+        ).select_related('user', 'user__profile').order_by('-created_at')
+
+        markers = []
+        for item in geotagged_checkins:
+            markers.append({
+                'id': item.id,
+                'place_name': item.place_name,
+                'region': item.region or '',
+                'province': item.province or '',
+                'lat': item.latitude,
+                'lng': item.longitude,
+                'photo_url': item.get_photo_url,
+                'caption': item.caption,
+                'author': item.user.username,
+                'author_avatar': item.user.get_avatar_url,
+                'detail_url': reverse('checkins:detail', kwargs={'pk': item.pk}),
+                'created_at_text': timesince(item.created_at) + ' ที่แล้ว',
+            })
+
+        # Calculate counts per region
+        region_counts = {}
+        regions_with_counts = []
+        for reg_name in REGIONS_DATA.keys():
+            count = sum(1 for m in markers if m['region'] == reg_name)
+            region_counts[reg_name] = count
+            regions_with_counts.append({
+                'name': reg_name,
+                'count': count,
+            })
+
+        context.update({
+            'geotagged_checkins': geotagged_checkins,
+            'markers_json': json.dumps(markers, ensure_ascii=False),
+            'regions_data_json': json.dumps(REGIONS_DATA, ensure_ascii=False),
+            'province_coords_json': json.dumps(PROVINCE_COORDINATES, ensure_ascii=False),
+            'region_counts': region_counts,
+            'regions_with_counts': regions_with_counts,
+            'total_geotagged': len(markers),
+            'regions_list': list(REGIONS_DATA.keys()),
+        })
         return context
 
 
