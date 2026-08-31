@@ -22,8 +22,8 @@
       </div>
       <p class="text-muted small mb-3">แตะที่หมุดเพื่อดูข้อมูลและรูปภาพของแต่ละจุดเช็คอิน</p>
 
-      <!-- Leaflet Map Container -->
-      <div id="map" class="shadow-sm border"></div>
+      <!-- Leaflet Map Container with Explicit Height -->
+      <div id="map" class="shadow-sm border rounded-4" style="height: 520px; min-height: 480px; width: 100%; z-index: 1;"></div>
     </div>
 
   </div>
@@ -49,10 +49,10 @@
       {% if item.latitude and item.longitude %}
         const marker_{{ item.pk }} = L.marker([{{ item.latitude }}, {{ item.longitude }}]).addTo(map);
         const popupContent_{{ item.pk }} = `
-          <div style="max-width: 200px; text-align: center;">
+          <div style="max-width: 200px; text-align: center; font-family: 'Sarabun', sans-serif;">
             <img src="{{ item.get_photo_url }}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" alt="{{ item.place_name }}">
-            <h6 style="font-weight: 700; margin-bottom: 2px; font-size: 14px;">{{ item.place_name|escapejs }}</h6>
-            <p style="color: #666; font-size: 12px; margin-bottom: 6px;">โดย @{{ item.user.username|escapejs }}</p>
+            <h6 style="font-weight: 700; margin-bottom: 2px; font-size: 14px; color: #0f172a;">{{ item.place_name|escapejs }}</h6>
+            <p style="color: #64748b; font-size: 12px; margin-bottom: 6px;">โดย @{{ item.user.username|escapejs }}</p>
             <a href="{% url 'checkins:detail' pk=item.pk %}" class="btn btn-primary btn-sm rounded-pill text-white py-1 px-3" style="font-size: 11px; text-decoration: none;">ดูรายละเอียด</a>
           </div>
         `;
@@ -66,6 +66,10 @@
       const bounds = L.latLngBounds(markers);
       map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
     }
+
+    setTimeout(function () {
+      map.invalidateSize();
+    }, 200);
   });
 </script>
 {% endblock %}
