@@ -133,31 +133,110 @@ body::before {
    Header & Top Navigation (Frosted Glass & Glowing Brand)
    ========================================================================= */
 .app-navbar {
-  background: rgba(15, 23, 42, 0.88) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.2);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1030;
 }
 
-.brand-icon-wrapper {
-  width: 38px;
-  height: 38px;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.brand-icon-img {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+  filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.25));
+}
+
+.brand-icon-img:hover {
+  transform: rotate(-8deg) scale(1.1);
+  filter: drop-shadow(0 4px 14px rgba(245, 158, 11, 0.45));
+}
+
+.brand-title {
+  font-family: 'Outfit', 'Sarabun', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.5px;
   color: #0f172a;
-  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.4);
-  position: relative;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: color 0.3s ease;
+}
+
+.text-accent-brand {
+  color: #ea580c;
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.nav-custom-link {
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-custom-link:hover {
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+  transform: translateY(-1px);
+}
+
+.nav-custom-link.active {
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.12);
+  font-weight: 700;
+}
+
+.btn-create-checkin {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff !important;
+  border: none;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-create-checkin:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.5);
+  color: #ffffff !important;
+}
+
+.btn-nav-login {
+  color: #2563eb;
+  border: 1.5px solid #bfdbfe;
+  background: rgba(239, 246, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.btn-nav-login:hover {
+  background: #2563eb;
+  color: #ffffff !important;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.nav-user-dropdown {
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  background: rgba(248, 250, 252, 0.85);
+  transition: all 0.2s ease;
+}
+
+.nav-user-dropdown:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
 }
 
 .brand-icon-wrapper:hover {
-  transform: rotate(-10deg) scale(1.1);
+  transform: rotate(-8deg) scale(1.08);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4), 0 4px 12px rgba(251, 191, 36, 0.5);
 }
 
 .brand-title {
@@ -698,7 +777,7 @@ body.dark-mode .theme-toggle-thumb {
 }
 
 /* ==========================================================================
-   DARK MODE COMPREHENSIVE PALETTE & STYLES
+   DARK MODE COMPREHENSIVE PALETTE & REFINED STYLES
    ========================================================================== */
 [data-bs-theme="dark"],
 body.dark-mode {
@@ -709,22 +788,85 @@ body.dark-mode {
   --text-light: #64748b;
   --border-color: #1e293b;
   --border-light: #1e293b;
-  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.7);
   background-color: #090d16 !important;
   color: #f1f5f9 !important;
 }
 
+[data-bs-theme="dark"] body::before,
+body.dark-mode::before {
+  background: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.2) 0%, rgba(251, 191, 36, 0.05) 50%, transparent 80%);
+}
+
 [data-bs-theme="dark"] .app-navbar,
 body.dark-mode .app-navbar {
-  background: rgba(9, 13, 22, 0.88) !important;
+  background: rgba(10, 15, 29, 0.88) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-bs-theme="dark"] .brand-title,
+body.dark-mode .brand-title {
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .text-accent-brand,
+body.dark-mode .text-accent-brand {
+  color: #fbbf24 !important;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-bs-theme="dark"] .nav-custom-link,
+body.dark-mode .nav-custom-link {
+  color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .nav-custom-link:hover,
+body.dark-mode .nav-custom-link:hover {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+}
+
+[data-bs-theme="dark"] .nav-custom-link.active,
+body.dark-mode .nav-custom-link.active {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.16);
+}
+
+[data-bs-theme="dark"] .nav-user-dropdown,
+body.dark-mode .nav-user-dropdown {
+  color: #f1f5f9;
+  border-color: #334155;
+  background: rgba(19, 27, 46, 0.85);
+}
+
+[data-bs-theme="dark"] .nav-user-dropdown:hover,
+body.dark-mode .nav-user-dropdown:hover {
+  background: #1e293b;
+  border-color: #475569;
+}
+
+[data-bs-theme="dark"] .btn-nav-login,
+body.dark-mode .btn-nav-login {
+  color: #38bdf8;
+  border-color: #0369a1;
+  background: rgba(12, 74, 110, 0.3);
+}
+
+[data-bs-theme="dark"] .btn-nav-login:hover,
+body.dark-mode .btn-nav-login:hover {
+  background: #0284c7;
+  color: #ffffff !important;
+  border-color: #0284c7;
 }
 
 [data-bs-theme="dark"] .bottom-nav,
 body.dark-mode .bottom-nav {
-  background: rgba(15, 23, 42, 0.92) !important;
+  background: rgba(10, 15, 29, 0.94) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
@@ -740,11 +882,27 @@ body.dark-mode .bottom-nav-item.active {
 
 [data-bs-theme="dark"] .feed-card,
 [data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .stories-carousel-card,
+[data-bs-theme="dark"] .feed-post-composer-card,
 body.dark-mode .feed-card,
-body.dark-mode .card {
+body.dark-mode .card,
+body.dark-mode .stories-carousel-card,
+body.dark-mode .feed-post-composer-card {
   background-color: #131b2e !important;
   border-color: #1e293b !important;
   color: #f1f5f9 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-bs-theme="dark"] .story-avatar-img,
+body.dark-mode .story-avatar-img {
+  border-color: #131b2e !important;
+  background-color: #131b2e !important;
+}
+
+[data-bs-theme="dark"] .story-username,
+body.dark-mode .story-username {
+  color: #cbd5e1 !important;
 }
 
 [data-bs-theme="dark"] .profile-header-card,
@@ -758,17 +916,22 @@ body.dark-mode .story-avatar-wrapper {
   background-color: #131b2e !important;
 }
 
+/* Dark Mode Inputs & Textareas */
 [data-bs-theme="dark"] .form-control,
 [data-bs-theme="dark"] .form-select,
+[data-bs-theme="dark"] textarea.form-control,
 body.dark-mode .form-control,
-body.dark-mode .form-select {
+body.dark-mode .form-select,
+body.dark-mode textarea.form-control {
   background-color: #0f172a !important;
   border-color: #334155 !important;
   color: #f8fafc !important;
 }
 
 [data-bs-theme="dark"] .form-control:focus,
-body.dark-mode .form-control:focus {
+[data-bs-theme="dark"] .form-select:focus,
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
   background-color: #0f172a !important;
   border-color: #38bdf8 !important;
   color: #f8fafc !important;
@@ -780,11 +943,23 @@ body.dark-mode .form-control::placeholder {
   color: #64748b !important;
 }
 
+[data-bs-theme="dark"] .input-group-text,
+body.dark-mode .input-group-text {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+/* Background Utility Classes in Dark Mode */
 [data-bs-theme="dark"] .bg-white,
-[data-bs-theme="dark"] .bg-light,
-body.dark-mode .bg-white,
-body.dark-mode .bg-light {
+body.dark-mode .bg-white {
   background-color: #131b2e !important;
+  color: #f1f5f9 !important;
+}
+
+[data-bs-theme="dark"] .bg-light,
+body.dark-mode .bg-light {
+  background-color: #0f172a !important;
   color: #f1f5f9 !important;
 }
 
@@ -801,12 +976,63 @@ body.dark-mode .text-muted {
 [data-bs-theme="dark"] .border,
 [data-bs-theme="dark"] .border-bottom,
 [data-bs-theme="dark"] .border-top,
+[data-bs-theme="dark"] .border-start,
+[data-bs-theme="dark"] .border-end,
 body.dark-mode .border,
 body.dark-mode .border-bottom,
-body.dark-mode .border-top {
+body.dark-mode .border-top,
+body.dark-mode .border-start,
+body.dark-mode .border-end {
   border-color: #1e293b !important;
 }
 
+/* Subtle Badge & Pill Colors for Dark Theme */
+[data-bs-theme="dark"] .bg-primary-subtle,
+body.dark-mode .bg-primary-subtle {
+  background-color: rgba(37, 99, 235, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+[data-bs-theme="dark"] .bg-warning-subtle,
+body.dark-mode .bg-warning-subtle {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+  color: #fbbf24 !important;
+}
+
+[data-bs-theme="dark"] .bg-danger-subtle,
+body.dark-mode .bg-danger-subtle {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+}
+
+[data-bs-theme="dark"] .bg-success-subtle,
+body.dark-mode .bg-success-subtle {
+  background-color: rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
+}
+
+[data-bs-theme="dark"] .bg-info-subtle,
+body.dark-mode .bg-info-subtle {
+  background-color: rgba(14, 165, 233, 0.2) !important;
+  color: #38bdf8 !important;
+}
+
+/* Social & Outline Buttons in Dark Mode */
+[data-bs-theme="dark"] .btn-outline-secondary,
+body.dark-mode .btn-outline-secondary {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary:hover,
+body.dark-mode .btn-outline-secondary:hover {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+/* Modals, Offcanvas, Dropdowns */
 [data-bs-theme="dark"] .offcanvas,
 [data-bs-theme="dark"] .modal-content,
 [data-bs-theme="dark"] .dropdown-menu,
@@ -820,8 +1046,10 @@ body.dark-mode .dropdown-menu {
 
 [data-bs-theme="dark"] .modal-header,
 [data-bs-theme="dark"] .modal-footer,
+[data-bs-theme="dark"] .offcanvas-header,
 body.dark-mode .modal-header,
-body.dark-mode .modal-footer {
+body.dark-mode .modal-footer,
+body.dark-mode .offcanvas-header {
   background-color: #0f172a !important;
   border-color: #1e293b !important;
 }
@@ -853,40 +1081,6 @@ body.dark-mode #pdpaConsentBanner {
   border-color: #1e293b !important;
 }
 
-/* ==========================================================================
-   Feed Post Composer & Zone Filter Styles
-   ========================================================================== */
-.feed-post-composer-card {
-  border: 1px solid var(--border-color, #e2e8f0);
-  background: var(--card-bg, #ffffff);
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.composer-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--app-primary-light, #3b82f6);
-}
-
-.feed-photo-dropzone {
-  background-color: #f8fafc;
-  border: 2px dashed #cbd5e1;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.feed-photo-dropzone:hover {
-  background-color: #f1f5f9;
-  border-color: var(--app-primary-light, #3b82f6);
-}
-
-.cursor-pointer {
-  cursor: pointer;
-}
-
 [data-bs-theme="dark"] .feed-photo-dropzone,
 body.dark-mode .feed-photo-dropzone {
   background-color: #1e293b !important;
@@ -911,5 +1105,42 @@ body.dark-mode .zone-pill-btn.active {
   background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
   color: #ffffff !important;
   border-color: transparent !important;
+}
+
+/* Alert Boxes Dark Theme */
+[data-bs-theme="dark"] .alert-info,
+body.dark-mode .alert-info {
+  background-color: #0c2d48 !important;
+  color: #bae6fd !important;
+  border: 1px solid #0284c7 !important;
+}
+
+[data-bs-theme="dark"] .alert-success,
+body.dark-mode .alert-success {
+  background-color: #064e3b !important;
+  color: #a7f3d0 !important;
+  border: 1px solid #059669 !important;
+}
+
+[data-bs-theme="dark"] .alert-danger,
+body.dark-mode .alert-danger {
+  background-color: #450a0a !important;
+  color: #fecaca !important;
+  border: 1px solid #dc2626 !important;
+}
+
+[data-bs-theme="dark"] .alert-warning,
+body.dark-mode .alert-warning {
+  background-color: #451a03 !important;
+  color: #fef08a !important;
+  border: 1px solid #d97706 !important;
+}
+
+/* Tables in Dark Mode (Admin Dashboard etc) */
+[data-bs-theme="dark"] .table,
+body.dark-mode .table {
+  --bs-table-bg: #131b2e;
+  --bs-table-color: #f1f5f9;
+  --bs-table-border-color: #1e293b;
 }
 

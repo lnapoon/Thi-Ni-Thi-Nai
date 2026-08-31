@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" width="100%" height="100%">
+  <defs>
+    <!-- Soft Smooth Shadow -->
+    <filter id="softFullShadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#1e3a8a" flood-opacity="0.25"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#ea580c" flood-opacity="0.15"/>
+    </filter>
+
+    <filter id="softPinShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.25"/>
+    </filter>
+
+    <!-- Vibrant Sapphire Blue Gradient -->
+    <linearGradient id="navVibrantBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="40%" stop-color="#2563eb"/>
+      <stop offset="85%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+
+    <!-- Vibrant Golden Sun Gradient -->
+    <linearGradient id="navVibrantGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="35%" stop-color="#f59e0b"/>
+      <stop offset="80%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#fef08a"/>
+    </linearGradient>
+
+    <clipPath id="navSquircle">
+      <rect x="10" y="10" width="80" height="80" rx="24" ry="24" />
+    </clipPath>
+  </defs>
+
+  <!-- Left Icon Mark -->
+  <g filter="url(#softFullShadow)">
+    <g clip-path="url(#navSquircle)">
+      <polygon points="-5,-5 105,-5 -5,105" fill="url(#navVibrantBlue)" />
+      <polygon points="105,-5 105,105 -5,105" fill="url(#navVibrantGold)" />
+      <line x1="105" y1="-5" x2="-5" y2="105" stroke="#ffffff" stroke-width="2" stroke-opacity="0.8" />
+    </g>
+    <!-- Frosted White Border -->
+    <rect x="10" y="10" width="80" height="80" rx="24" ry="24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-opacity="0.75"/>
+
+    <!-- Crisp Floating Pin -->
+    <g filter="url(#softPinShadow)">
+      <path d="M50 24 C38 24 28 34 28 46 C28 60 46 75 48.3 77.2 C49.2 78.1 50.8 78.1 51.7 77.2 C54 75 72 60 72 46 C72 34 62 24 50 24 Z" 
+            fill="#ffffff" />
+      <!-- Center Eye -->
+      <circle cx="50" cy="45" r="8" fill="url(#navVibrantBlue)"/>
+      <circle cx="50" cy="45" r="5" fill="#ffffff"/>
+      <circle cx="50" cy="45" r="3.5" fill="url(#navVibrantGold)"/>
+    </g>
+  </g>
+
+  <!-- Typography "ที่นี่ Check-in" -->
+  <text x="108" y="60" font-family="'Sarabun', 'Outfit', sans-serif" font-size="34" font-weight="800" fill="#ffffff" letter-spacing="-0.5">ที่นี่</text>
+  <text x="175" y="60" font-family="'Outfit', 'Sarabun', sans-serif" font-size="34" font-weight="800" fill="url(#navVibrantGold)" letter-spacing="-0.5">Check-in</text>
+  <text x="110" y="80" font-family="'Sarabun', sans-serif" font-size="12" font-weight="600" fill="#94a3b8" letter-spacing="0.5">บันทึกและแชร์จุดเช็คอิน</text>
+</svg>

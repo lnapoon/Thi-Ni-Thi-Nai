@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Soft Smooth Ambient Glow & Elevation Shadow -->
+    <filter id="softBadgeShadow" x="-25%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#1e3a8a" flood-opacity="0.28"/>
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#ea580c" flood-opacity="0.18"/>
+    </filter>
+
+    <!-- Pin Floating Soft 3D Shadow -->
+    <filter id="pinFloatShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.28"/>
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.18"/>
+    </filter>
+
+    <!-- Radiant Sapphire Blue Gradient (Vibrant & Smooth) -->
+    <linearGradient id="vibrantBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="40%" stop-color="#2563eb"/>
+      <stop offset="85%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+
+    <!-- Radiant Warm Golden Sun Gradient (Vibrant & Smooth) -->
+    <linearGradient id="vibrantGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="35%" stop-color="#f59e0b"/>
+      <stop offset="75%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#fef08a"/>
+    </linearGradient>
+
+    <!-- Crisp Pure White Floating Pin Gradient -->
+    <linearGradient id="pinPureWhite" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+
+    <!-- Soft Glassmorphism Specular Sheen -->
+    <linearGradient id="glassSheen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="35%" stop-color="#ffffff" stop-opacity="0.15"/>
+      <stop offset="70%" stop-color="#ffffff" stop-opacity="0.0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <!-- Diagonal Soft Glow Seam -->
+    <linearGradient id="seamSoftGlow" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.6"/>
+    </linearGradient>
+
+    <clipPath id="squircleClip">
+      <rect x="20" y="20" width="160" height="160" rx="46" ry="46" />
+    </clipPath>
+  </defs>
+
+  <!-- Base App Badge with Soft Ambient Glow -->
+  <g filter="url(#softBadgeShadow)">
+    <g clip-path="url(#squircleClip)">
+      <!-- Top-Left Vibrant Royal Sapphire Blue -->
+      <polygon points="-10,-10 210,-10 -10,210" fill="url(#vibrantBlue)" />
+
+      <!-- Bottom-Right Radiant Warm Amber Sun -->
+      <polygon points="210,-10 210,210 -10,210" fill="url(#vibrantGold)" />
+
+      <!-- Soft Glowing Diagonal Dividing Line -->
+      <line x1="210" y1="-10" x2="-10" y2="210" stroke="url(#seamSoftGlow)" stroke-width="2.5" stroke-linecap="round"/>
+
+      <!-- Smooth Ambient Light Flare in Center -->
+      <circle cx="100" cy="100" r="45" fill="#ffffff" fill-opacity="0.12" />
+
+      <!-- Soft Glass Sheen -->
+      <rect x="20" y="20" width="160" height="160" rx="46" ry="46" fill="url(#glassSheen)" pointer-events="none"/>
+    </g>
+
+    <!-- Clean Frosted White Border Rim -->
+    <rect x="20" y="20" width="160" height="160" rx="46" ry="46" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.75"/>
+  </g>
+
+  <!-- Modern Floating 3D Location Pin Mark (Soft, Crisp & Prominent) -->
+  <g filter="url(#pinFloatShadow)">
+    <!-- Elegant Smooth Pin Contour -->
+    <path d="M100 44 C76 44 57 63 57 87 C57 114 91 146 96.6 151.2 C98.5 153 101.5 153 103.4 151.2 C109 146 143 114 143 87 C143 63 124 44 100 44 Z" 
+          fill="url(#pinPureWhite)" />
+
+    <!-- Subtle Inner Bevel Highlight -->
+    <path d="M100 46 C78 46 60 64 60 86 C60 109 91 139 98 145 C97 139 65 106 65 86 C65 67 81 50 100 46 Z" 
+          fill="#ffffff" fill-opacity="0.9"/>
+
+    <!-- Center Check-in Portal Ring (Vibrant Gradient Eye) -->
+    <circle cx="100" cy="86" r="17" fill="url(#vibrantBlue)" />
+    <circle cx="100" cy="86" r="12" fill="#ffffff" />
+    <circle cx="100" cy="86" r="8" fill="url(#vibrantGold)" />
+    <!-- Mini Glint -->
+    <circle cx="102" cy="84" r="2.5" fill="#ffffff" />
+  </g>
+</svg>

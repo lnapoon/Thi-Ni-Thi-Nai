@@ -2,8 +2,9 @@ services:
   - type: web
     name: thi-ni-thi-nai-rue
     runtime: python
+    region: singapore
     buildCommand: "./build_files.sh && python manage.py migrate"
-    startCommand: "gunicorn config.wsgi:application"
+    startCommand: "gunicorn config.wsgi:application --workers 3 --threads 2 --worker-class gthread --timeout 60 --keep-alive 5"
     envVars:
       - key: DEBUG
         value: "False"
