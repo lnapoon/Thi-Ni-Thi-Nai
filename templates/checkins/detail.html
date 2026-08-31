@@ -82,7 +82,7 @@
           </a>
 
           <!-- Share Button -->
-          <button type="button" class="ig-action-btn btn-share-post" data-title="{{ checkin.place_name }}" data-url="{{ request.scheme }}://{{ request.get_host }}{{ checkin.get_absolute_url }}" title="แชร์">
+          <button type="button" class="ig-action-btn btn-share-post" data-title="{{ checkin.place_name }}" data-url="{{ request.build_absolute_uri }}" title="แชร์">
             <i class="bi bi-send"></i>
           </button>
         </div>

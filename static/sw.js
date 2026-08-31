@@ -1,9 +1,8 @@
 // Service Worker for "ที่นี่ Check-in"
 // Superfast App Shell Caching & Offline Support
 
-const CACHE_NAME = 'thi-ni-cache-v2';
+const CACHE_NAME = 'thi-ni-cache-v3';
 const STATIC_ASSETS = [
-  '/',
   '/static/css/style.css',
   '/static/js/geolocation.js',
   '/static/js/social.js',

@@ -423,6 +423,15 @@
           localStorage.setItem('thi_ni_theme', newTheme);
         });
       });
+
+      // Register Service Worker for PWA / instant caching
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js').catch(function (err) {
+            console.warn('SW registration notice:', err);
+          });
+        });
+      }
     });
   </script>
   {% block extra_scripts %}{% endblock %}
