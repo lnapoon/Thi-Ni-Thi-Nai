@@ -350,10 +350,27 @@ body::before {
   z-index: 1 !important;
 }
 
-.leaflet-popup-content-wrapper {
-  border-radius: 14px !important;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15) !important;
-  padding: 4px !important;
+/* Card Actions Bar (Like, Comment, Share on Left, Bookmark on Far Right) */
+.card-actions-bar,
+.ig-action-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 14px 4px 14px !important;
+  width: 100% !important;
+}
+
+.card-actions-bar .actions-left,
+.ig-action-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.card-actions-bar .actions-right {
+  display: flex !important;
+  align-items: center !important;
+  margin-left: auto !important;
 }
 
 .btn-action-icon {

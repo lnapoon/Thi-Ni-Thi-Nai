@@ -121,8 +121,8 @@
           </div>
 
           <!-- Action Bar (Like, Comment, Share, Bookmark) -->
-          <div class="card-actions-bar">
-            <div class="d-flex align-items-center gap-2">
+          <div class="card-actions-bar d-flex align-items-center justify-content-between px-3 pt-2 pb-1">
+            <div class="actions-left d-flex align-items-center gap-2">
               <!-- Like Button -->
               <button 
                 type="button" 
@@ -157,8 +157,8 @@
               </button>
             </div>
 
-            <!-- Bookmark Button -->
-            <div>
+            <!-- Bookmark Button (Aligned to Far Right) -->
+            <div class="actions-right ms-auto">
               <button 
                 type="button" 
                 class="btn-action-icon btn-bookmark {% if checkin.id in user_bookmarked_ids %}bookmarked text-primary{% endif %}" 

@@ -281,10 +281,10 @@
     </div>
   </div>
 
-  <!-- Mobile User Action Menu Offcanvas (Bottom Sheet) -->
+  <!-- Mobile User Action Menu Offcanvas (Slides in from Right) -->
   {% if user.is_authenticated %}
-    <div class="offcanvas offcanvas-bottom rounded-top-4 border-0 shadow-lg" tabindex="-1" id="mobileUserDrawer" style="max-height: 85vh; height: auto; z-index: 1080;">
-      <div class="offcanvas-header pb-2 border-bottom">
+    <div class="offcanvas offcanvas-end rounded-start-4 border-0 shadow-lg" tabindex="-1" id="mobileUserDrawer" style="width: 320px; max-width: 88vw; z-index: 1080;">
+      <div class="offcanvas-header pb-2 border-bottom bg-light bg-opacity-50">
         <div class="d-flex align-items-center gap-3">
           {% if user.get_avatar_url %}
             <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle border border-2 border-primary shadow-sm" width="46" height="46" style="object-fit: cover;">
