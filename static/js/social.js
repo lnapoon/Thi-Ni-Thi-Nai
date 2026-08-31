@@ -8,7 +8,7 @@
  * - Followers / Following user list modals
  */
 
-document.addEventListener('DOMContentLoaded', function () {
+function initSocialInteractions() {
   const getCsrfToken = () => {
     const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
     if (input) return input.value;
@@ -557,4 +557,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     toast.addEventListener('hidden.bs.toast', () => toast.remove());
   }
-});
+}
+
+document.addEventListener('DOMContentLoaded', initSocialInteractions);
+document.addEventListener('turbo:load', initSocialInteractions);

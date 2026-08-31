@@ -80,8 +80,8 @@ class ProfileView(View):
         else:
             user_obj = request.user
 
-        profile, _ = Profile.objects.get_or_create(user=user_obj)
-        user_checkins = user_obj.checkins.all().order_by("-created_at")
+        profile, _ = Profile.objects.select_related("user").get_or_create(user=user_obj)
+        user_checkins = user_obj.checkins.select_related("user", "user__profile").order_by("-created_at")
 
         is_owner = user_obj == request.user
         is_following = False
@@ -93,22 +93,24 @@ class ProfileView(View):
         # Bookmarked checkins
         bookmarked_checkins = []
         if is_owner:
-            bookmarked_ids = Bookmark.objects.filter(user=request.user).values_list(
+            bookmarked_ids = list(Bookmark.objects.filter(user=request.user).values_list(
                 "checkin_id", flat=True
-            )
-            bookmarked_checkins = CheckIn.objects.filter(
-                id__in=bookmarked_ids
-            ).order_by("-created_at")
+            ))
+            if bookmarked_ids:
+                bookmarked_checkins = CheckIn.objects.filter(
+                    id__in=bookmarked_ids
+                ).select_related("user", "user__profile").order_by("-created_at")
 
         # Liked checkins
         liked_checkins = []
         if is_owner:
-            liked_ids = Like.objects.filter(user=request.user).values_list(
+            liked_ids = list(Like.objects.filter(user=request.user).values_list(
                 "checkin_id", flat=True
-            )
-            liked_checkins = CheckIn.objects.filter(id__in=liked_ids).order_by(
-                "-created_at"
-            )
+            ))
+            if liked_ids:
+                liked_checkins = CheckIn.objects.filter(
+                    id__in=liked_ids
+                ).select_related("user", "user__profile").order_by("-created_at")
 
         context = {
             "profile_user": user_obj,

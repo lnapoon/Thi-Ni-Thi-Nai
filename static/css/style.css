@@ -1,7 +1,10 @@
-/* ==========================================================================
-   "ที่นี่ Check-in" - Ultra-Modern Cinematic & Social UI Design System
-   Rich Micro-Animations, 3D Elevation, Glassmorphism & Micro-Interactions
-   ========================================================================== */
+/* Turbo Drive Progress Bar (Silky Smooth YouTube-style progress) */
+.turbo-progress-bar {
+  height: 3px !important;
+  background: linear-gradient(90deg, #fbbf24 0%, #3b82f6 50%, #6366f1 100%) !important;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.7) !important;
+  z-index: 99999 !important;
+}
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');

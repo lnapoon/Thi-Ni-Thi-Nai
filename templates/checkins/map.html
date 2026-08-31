@@ -34,7 +34,11 @@
 <!-- Leaflet.js Script CDN -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+  function initLeafletMap() {
+    const mapEl = document.getElementById('map');
+    if (!mapEl || typeof L === 'undefined') return;
+    if (mapEl._leaflet_id) return; // Prevent double init
+
     // Default center on Thailand (Bangkok: 13.7563, 100.5018)
     const map = L.map('map').setView([13.7563, 100.5018], 6);
 
@@ -70,6 +74,9 @@
     setTimeout(function () {
       map.invalidateSize();
     }, 200);
-  });
+  }
+
+  document.addEventListener('DOMContentLoaded', initLeafletMap);
+  document.addEventListener('turbo:load', initLeafletMap);
 </script>
 {% endblock %}
