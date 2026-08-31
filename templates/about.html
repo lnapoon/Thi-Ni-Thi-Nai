@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}เกี่ยวกับแอปพลิเคชัน - ที่นี่ Check-in{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-3">
+  <div class="col-12 col-md-7 col-lg-6">
+
+    <!-- Top Navigation Header -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 border d-inline-flex align-items-center gap-1 shadow-sm">
+        <i class="bi bi-arrow-left"></i> กลับไปการตั้งค่า
+      </a>
+    </div>
+
+    <!-- Main Title -->
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <i class="bi bi-stars fs-4 text-warning"></i>
+      <h5 class="fw-bold mb-0">เกี่ยวกับแอปพลิเคชัน</h5>
+    </div>
+
+    <!-- App Identity Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 text-center mb-3 text-start-md bg-body-tertiary">
+      <div class="d-inline-flex align-items-center justify-content-center rounded-circle mx-auto mb-3 bg-primary-subtle text-primary border border-primary-subtle shadow-sm" style="width: 80px; height: 80px;">
+        <img src="{% static 'img/logo-icon.svg' %}" alt="ที่นี่ Check-in" width="48" height="48">
+      </div>
+      <h4 class="fw-extrabold mb-1">ที่นี่ Check-in</h4>
+      <div class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-3 py-1 mx-auto mb-3 fw-mono" style="width: fit-content;">
+        TINIMEEARAI v1.0.0
+      </div>
+      <p class="text-secondary small mb-0 px-2" style="line-height: 1.6;">
+        แพลตฟอร์มคอมมูนิตี้ท่องเที่ยวและเช็คอินสถานที่จริง แบ่งปันภาพถ่าย พิกัด GPS และเรื่องราวการเดินทางทั่วไทย
+      </p>
+    </div>
+
+    <!-- Core Highlights Cards -->
+    <div class="d-flex flex-column gap-2 mb-4">
+      <!-- Feature 1 -->
+      <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center gap-3 bg-body-tertiary">
+        <div class="rounded-circle bg-info-subtle text-info p-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+          <i class="bi bi-camera-fill fs-5"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold mb-1 small">อัปโหลดภาพถ่ายเก็บไว้บน Cloudinary Storage ปลอดภัย</h6>
+          <p class="text-muted small mb-0">จัดเก็บและประมวลผลรูปภาพความเร็วสูง พร้อมระบบสำรองข้อมูลบน Cloud</p>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center gap-3 bg-body-tertiary">
+        <div class="rounded-circle bg-danger-subtle text-danger p-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+          <i class="bi bi-geo-alt-fill fs-5"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold mb-1 small">ดึงพิกัด Geolocation อัตโนมัติและแสดงบนแผนที่ Leaflet</h6>
+          <p class="text-muted small mb-0">ระบุตำแหน่งสถานที่จริงด้วย GPS และแสดงหมุดจุดเช็คอินบนแผนที่แบบ Interactive</p>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center gap-3 bg-body-tertiary">
+        <div class="rounded-circle bg-success-subtle text-success p-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+          <i class="bi bi-database-fill-gear fs-5"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold mb-1 small">ฐานข้อมูลความเร็วสูง Neon PostgreSQL Cloud Database</h6>
+          <p class="text-muted small mb-0">เชื่อมต่อฐานข้อมูลระบบคลาวด์ เสถียร และรองรับการค้นหาพิกัดพื้นที่อย่างรวดเร็ว</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Developer Team Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
+      <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-people-fill text-primary"></i>
+          <h6 class="fw-bold mb-0">พัฒนาโดยทีม CS68</h6>
+        </div>
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1 small fw-semibold">
+          Computer Science
+        </span>
+      </div>
+
+      <div class="d-flex flex-column gap-2">
+        <div class="d-flex align-items-center justify-content-between p-2.5 rounded-3 bg-body border border-subtle">
+          <span class="fw-semibold small">นายภูริรัฐ แซ่โคว</span>
+          <span class="font-monospace text-muted small fw-bold">6812732119</span>
+        </div>
+        <div class="d-flex align-items-center justify-content-between p-2.5 rounded-3 bg-body border border-subtle">
+          <span class="fw-semibold small">นายสกล มะลิลา</span>
+          <span class="font-monospace text-muted small fw-bold">6812732124</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

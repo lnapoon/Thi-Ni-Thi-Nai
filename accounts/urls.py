@@ -13,6 +13,7 @@ from .views import (
     GoogleOAuthCallbackView,
     GitHubOAuthLoginView,
     GitHubOAuthCallbackView,
+    about_view,
 )
 
 app_name = 'accounts'
@@ -23,6 +24,7 @@ urlpatterns = [
     path('logout/', CustomLogoutView.as_view(), name='logout'),
     path('profile/', ProfileView.as_view(), name='profile_me'),
     path('profile/edit/', profile_edit, name='profile_edit'),
+    path('about/', about_view, name='about'),
     path('profile/<str:username>/', ProfileView.as_view(), name='profile_user'),
     path('follow/<str:username>/', ToggleFollowView.as_view(), name='toggle_follow'),
     path('users/<str:username>/followers/', UserFollowersListView.as_view(), name='followers_list'),

@@ -87,6 +87,7 @@
             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 mt-2" aria-labelledby="userDropdown">
               <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:profile_me' %}"><i class="bi bi-person me-2 text-primary"></i> โปรไฟล์ของฉัน</a></li>
               <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:profile_edit' %}"><i class="bi bi-gear me-2 text-warning"></i> ตั้งค่าโปรไฟล์</a></li>
+              <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:about' %}"><i class="bi bi-info-circle me-2 text-info"></i> เกี่ยวกับแอปพลิเคชัน</a></li>
               {% if user.is_staff %}
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item rounded-3 py-2 text-primary fw-semibold" href="{% url 'checkins:admin_dashboard' %}"><i class="bi bi-speedometer2 me-2"></i> แดชบอร์ดจัดการระบบ (Admin)</a></li>

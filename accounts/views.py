@@ -625,3 +625,9 @@ class GitHubOAuthCallbackView(View):
         except Exception as e:
             messages.error(request, f"เกิดข้อผิดพลาดในการเชื่อมต่อ GitHub: {str(e)}")
             return redirect("accounts:login")
+
+
+def about_view(request):
+    """Render the application information and credits page."""
+    return render(request, "about.html")
+
