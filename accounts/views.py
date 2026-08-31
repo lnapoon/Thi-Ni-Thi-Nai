@@ -357,16 +357,18 @@ def _download_and_save_avatar(profile, avatar_url, username):
     if not avatar_url:
         return
     try:
+        # pyrefly: ignore [missing-import]
         import cloudinary.uploader
+
         upload_result = cloudinary.uploader.upload(
             avatar_url,
-            folder='avatars',
+            folder="avatars",
             public_id=f"avatar_{username}_{uuid.uuid4().hex[:6]}",
-            overwrite=True
+            overwrite=True,
         )
-        if upload_result and 'public_id' in upload_result:
-            profile.avatar = upload_result['public_id']
-            profile.save(update_fields=['avatar'])
+        if upload_result and "public_id" in upload_result:
+            profile.avatar = upload_result["public_id"]
+            profile.save(update_fields=["avatar"])
             return
     except Exception as e:
         print(f"Cloudinary direct upload note: {e}")
@@ -505,7 +507,9 @@ class GoogleOAuthCallbackView(View):
 
 class GitHubOAuthLoginView(View):
     def get(self, request):
-        client_id = config("GITHUB_OAUTH_CLIENT_ID", default="Ov23li3OtJ9Wu3gxaQBU").strip()
+        client_id = config(
+            "GITHUB_OAUTH_CLIENT_ID", default="Ov23li3OtJ9Wu3gxaQBU"
+        ).strip()
         redirect_uri = request.build_absolute_uri(reverse("accounts:github_callback"))
 
         if not client_id:
@@ -535,8 +539,13 @@ class GitHubOAuthCallbackView(View):
             messages.error(request, "การเข้าสู่ระบบด้วย GitHub ถูกยกเลิกหรือเกิดข้อผิดพลาด")
             return redirect("accounts:login")
 
-        client_id = config("GITHUB_OAUTH_CLIENT_ID", default="Ov23li3OtJ9Wu3gxaQBU").strip()
-        client_secret = config("GITHUB_OAUTH_CLIENT_SECRET", default="86ca2c3e2128f82e41a8362cbb86f6f0a92659a0").strip()
+        client_id = config(
+            "GITHUB_OAUTH_CLIENT_ID", default="Ov23li3OtJ9Wu3gxaQBU"
+        ).strip()
+        client_secret = config(
+            "GITHUB_OAUTH_CLIENT_SECRET",
+            default="86ca2c3e2128f82e41a8362cbb86f6f0a92659a0",
+        ).strip()
         redirect_uri = request.build_absolute_uri(reverse("accounts:github_callback"))
 
         try:
