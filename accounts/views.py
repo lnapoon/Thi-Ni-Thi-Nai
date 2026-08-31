@@ -10,6 +10,8 @@ from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from django.conf import settings
+
+# pyrefly: ignore [missing-import]
 from decouple import config
 import urllib.request
 import urllib.parse
@@ -274,73 +276,112 @@ class UserFollowingListView(LoginRequiredMixin, View):
 class UserSearchView(LoginRequiredMixin, View):
     def get(self, request):
         from django.db.models import Q, Count
-        query = request.GET.get('q', '').strip()
+
+        query = request.GET.get("q", "").strip()
 
         if query:
-            users_qs = User.objects.filter(
-                Q(username__icontains=query)
-                | Q(first_name__icontains=query)
-                | Q(last_name__icontains=query)
-                | Q(profile__bio__icontains=query)
-            ).exclude(id=request.user.id).select_related('profile').annotate(
-                num_checkins=Count('checkins', distinct=True),
-                num_followers=Count('follower_relations', distinct=True)
-            ).order_by('-num_followers', '-num_checkins')[:50]
+            users_qs = (
+                User.objects.filter(
+                    Q(username__icontains=query)
+                    | Q(first_name__icontains=query)
+                    | Q(last_name__icontains=query)
+                    | Q(profile__bio__icontains=query)
+                )
+                .exclude(id=request.user.id)
+                .select_related("profile")
+                .annotate(
+                    num_checkins=Count("checkins", distinct=True),
+                    num_followers=Count("follower_relations", distinct=True),
+                )
+                .order_by("-num_followers", "-num_checkins")[:50]
+            )
         else:
             # Suggested users (Active users with checkins, excluding self)
-            users_qs = User.objects.exclude(id=request.user.id).select_related('profile').annotate(
-                num_checkins=Count('checkins', distinct=True),
-                num_followers=Count('follower_relations', distinct=True)
-            ).order_by('-num_checkins', '-num_followers', '-date_joined')[:30]
+            users_qs = (
+                User.objects.exclude(id=request.user.id)
+                .select_related("profile")
+                .annotate(
+                    num_checkins=Count("checkins", distinct=True),
+                    num_followers=Count("follower_relations", distinct=True),
+                )
+                .order_by("-num_checkins", "-num_followers", "-date_joined")[:30]
+            )
 
         user_following_ids = set(
-            Follow.objects.filter(follower=request.user).values_list('following_id', flat=True)
+            Follow.objects.filter(follower=request.user).values_list(
+                "following_id", flat=True
+            )
         )
 
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+        if (
+            request.headers.get("x-requested-with") == "XMLHttpRequest"
+            or request.GET.get("format") == "json"
+        ):
             users_data = []
             for u in users_qs:
-                users_data.append({
-                    'id': u.id,
-                    'username': u.username,
-                    'display_name': u.get_full_name() or u.username,
-                    'avatar_url': u.get_avatar_url,
-                    'bio': u.profile.bio if hasattr(u, 'profile') else '',
-                    'num_checkins': getattr(u, 'num_checkins', 0),
-                    'num_followers': getattr(u, 'num_followers', 0),
-                    'is_following': u.id in user_following_ids,
-                    'profile_url': reverse('accounts:profile_user', kwargs={'username': u.username}),
-                })
-            return JsonResponse({'success': True, 'users': users_data, 'query': query})
+                users_data.append(
+                    {
+                        "id": u.id,
+                        "username": u.username,
+                        "display_name": u.get_full_name() or u.username,
+                        "avatar_url": u.get_avatar_url,
+                        "bio": u.profile.bio if hasattr(u, "profile") else "",
+                        "num_checkins": getattr(u, "num_checkins", 0),
+                        "num_followers": getattr(u, "num_followers", 0),
+                        "is_following": u.id in user_following_ids,
+                        "profile_url": reverse(
+                            "accounts:profile_user", kwargs={"username": u.username}
+                        ),
+                    }
+                )
+            return JsonResponse({"success": True, "users": users_data, "query": query})
 
-        return render(request, 'accounts/user_search.html', {
-            'users': users_qs,
-            'query': query,
-            'user_following_ids': user_following_ids,
-        })
+        return render(
+            request,
+            "accounts/user_search.html",
+            {
+                "users": users_qs,
+                "query": query,
+                "user_following_ids": user_following_ids,
+            },
+        )
 
 
 # =========================================================================
 # OAUTH SOCIAL LOGIN (GOOGLE & GITHUB) + AVATAR EXTRACTION
 # =========================================================================
 
+
 def _download_and_save_avatar(profile, avatar_url, username):
-    """Download avatar from OAuth provider and save to user's Profile."""
+    """Download avatar from OAuth provider and save to user's Profile via Cloudinary."""
     if not avatar_url:
         return
     try:
-        from django.core.files.uploadedfile import SimpleUploadedFile
-        req = urllib.request.Request(
+        import cloudinary.uploader
+        upload_result = cloudinary.uploader.upload(
             avatar_url,
-            headers={'User-Agent': 'Mozilla/5.0'}
+            folder='avatars',
+            public_id=f"avatar_{username}_{uuid.uuid4().hex[:6]}",
+            overwrite=True
         )
+        if upload_result and 'public_id' in upload_result:
+            profile.avatar = upload_result['public_id']
+            profile.save(update_fields=['avatar'])
+            return
+    except Exception as e:
+        print(f"Cloudinary direct upload note: {e}")
+
+    try:
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        req = urllib.request.Request(avatar_url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=5) as response:
             image_data = response.read()
             if image_data:
                 profile.avatar = SimpleUploadedFile(
                     name=f"oauth_{username}_{uuid.uuid4().hex[:6]}.jpg",
                     content=image_data,
-                    content_type="image/jpeg"
+                    content_type="image/jpeg",
                 )
                 profile.save()
     except Exception as e:
@@ -351,11 +392,11 @@ class GoogleOAuthLoginView(View):
     def get(self, request):
         client_id = config("GOOGLE_OAUTH_CLIENT_ID", default="").strip()
         redirect_uri = request.build_absolute_uri(reverse("accounts:google_callback"))
-        
+
         if not client_id:
             messages.warning(
                 request,
-                "ระบบ Google Login อยู่ในระหว่างการเชื่อมต่อ API Credential กรุณาใช้การสมัครสมาชิกด้วยชื่อผู้ใช้ หรือติดต่อผู้ดูแลระบบ"
+                "ระบบ Google Login อยู่ในระหว่างการเชื่อมต่อ API Credential กรุณาใช้เข้าสู่ระบบด้วย GitHub หรือสมัครสมาชิกด้วยชื่อผู้ใช้",
             )
             return redirect("accounts:signup")
 
@@ -387,15 +428,19 @@ class GoogleOAuthCallbackView(View):
         try:
             # Exchange code for access token
             token_url = "https://oauth2.googleapis.com/token"
-            token_data = urllib.parse.urlencode({
-                "code": code,
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "redirect_uri": redirect_uri,
-                "grant_type": "authorization_code",
-            }).encode('utf-8')
+            token_data = urllib.parse.urlencode(
+                {
+                    "code": code,
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "redirect_uri": redirect_uri,
+                    "grant_type": "authorization_code",
+                }
+            ).encode("utf-8")
 
-            token_req = urllib.request.Request(token_url, data=token_data, method='POST')
+            token_req = urllib.request.Request(
+                token_url, data=token_data, method="POST"
+            )
             with urllib.request.urlopen(token_req, timeout=10) as resp:
                 token_json = json.loads(resp.read().decode())
 
@@ -406,7 +451,7 @@ class GoogleOAuthCallbackView(View):
             # Fetch user info
             userinfo_req = urllib.request.Request(
                 "https://www.googleapis.com/oauth2/v2/userinfo",
-                headers={"Authorization": f"Bearer {access_token}"}
+                headers={"Authorization": f"Bearer {access_token}"},
             )
             with urllib.request.urlopen(userinfo_req, timeout=10) as resp:
                 userinfo = json.loads(resp.read().decode())
@@ -417,7 +462,7 @@ class GoogleOAuthCallbackView(View):
             picture = userinfo.get("picture", "")
             google_id = userinfo.get("id", "")
 
-            username_base = email.split('@')[0] if email else f"g_user_{google_id[:6]}"
+            username_base = email.split("@")[0] if email else f"g_user_{google_id[:6]}"
             username = username_base.lower()
 
             user = None
@@ -433,12 +478,12 @@ class GoogleOAuthCallbackView(View):
                 while User.objects.filter(username=final_username).exists():
                     final_username = f"{username}{counter}"
                     counter += 1
-                
+
                 user = User.objects.create_user(
                     username=final_username,
                     email=email,
                     first_name=first_name,
-                    last_name=last_name
+                    last_name=last_name,
                 )
                 user.set_unusable_password()
                 user.save()
@@ -448,7 +493,9 @@ class GoogleOAuthCallbackView(View):
                 _download_and_save_avatar(profile, picture, user.username)
 
             login(request, user)
-            messages.success(request, f"🎉 เข้าสู่ระบบผ่าน Google สำเร็จ! ยินดีต้อนรับ @{user.username}")
+            messages.success(
+                request, f"🎉 เข้าสู่ระบบผ่าน Google สำเร็จ! ยินดีต้อนรับ @{user.username}"
+            )
             return redirect("checkins:feed")
 
         except Exception as e:
@@ -458,13 +505,13 @@ class GoogleOAuthCallbackView(View):
 
 class GitHubOAuthLoginView(View):
     def get(self, request):
-        client_id = config("GITHUB_OAUTH_CLIENT_ID", default="").strip()
+        client_id = config("GITHUB_OAUTH_CLIENT_ID", default="Ov23li3OtJ9Wu3gxaQBU").strip()
         redirect_uri = request.build_absolute_uri(reverse("accounts:github_callback"))
 
         if not client_id:
             messages.warning(
                 request,
-                "ระบบ GitHub Login อยู่ในระหว่างการเชื่อมต่อ API Credential กรุณาใช้การสมัครสมาชิกด้วยชื่อผู้ใช้ หรือติดต่อผู้ดูแลระบบ"
+                "ระบบ GitHub Login อยู่ในระหว่างการเชื่อมต่อ API Credential กรุณาใช้การสมัครสมาชิกด้วยชื่อผู้ใช้ หรือติดต่อผู้ดูแลระบบ",
             )
             return redirect("accounts:signup")
 
@@ -473,7 +520,9 @@ class GitHubOAuthLoginView(View):
             "redirect_uri": redirect_uri,
             "scope": "read:user user:email",
         }
-        auth_url = f"https://github.com/login/oauth/authorize?{urllib.parse.urlencode(params)}"
+        auth_url = (
+            f"https://github.com/login/oauth/authorize?{urllib.parse.urlencode(params)}"
+        )
         return redirect(auth_url)
 
 
@@ -486,25 +535,27 @@ class GitHubOAuthCallbackView(View):
             messages.error(request, "การเข้าสู่ระบบด้วย GitHub ถูกยกเลิกหรือเกิดข้อผิดพลาด")
             return redirect("accounts:login")
 
-        client_id = config("GITHUB_OAUTH_CLIENT_ID", default="").strip()
-        client_secret = config("GITHUB_OAUTH_CLIENT_SECRET", default="").strip()
+        client_id = config("GITHUB_OAUTH_CLIENT_ID", default="Ov23li3OtJ9Wu3gxaQBU").strip()
+        client_secret = config("GITHUB_OAUTH_CLIENT_SECRET", default="86ca2c3e2128f82e41a8362cbb86f6f0a92659a0").strip()
         redirect_uri = request.build_absolute_uri(reverse("accounts:github_callback"))
 
         try:
             # Exchange code for access token
             token_url = "https://github.com/login/oauth/access_token"
-            token_data = urllib.parse.urlencode({
-                "code": code,
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "redirect_uri": redirect_uri,
-            }).encode('utf-8')
+            token_data = urllib.parse.urlencode(
+                {
+                    "code": code,
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "redirect_uri": redirect_uri,
+                }
+            ).encode("utf-8")
 
             token_req = urllib.request.Request(
                 token_url,
                 data=token_data,
                 headers={"Accept": "application/json"},
-                method='POST'
+                method="POST",
             )
             with urllib.request.urlopen(token_req, timeout=10) as resp:
                 token_json = json.loads(resp.read().decode())
@@ -518,8 +569,8 @@ class GitHubOAuthCallbackView(View):
                 "https://api.github.com/user",
                 headers={
                     "Authorization": f"Bearer {access_token}",
-                    "User-Agent": "Thi-Ni-Checkin-App"
-                }
+                    "User-Agent": "Thi-Ni-Checkin-App",
+                },
             )
             with urllib.request.urlopen(user_req, timeout=10) as resp:
                 gh_user = json.loads(resp.read().decode())
@@ -555,7 +606,9 @@ class GitHubOAuthCallbackView(View):
                 _download_and_save_avatar(profile, gh_avatar_url, user.username)
 
             login(request, user)
-            messages.success(request, f"🎉 เข้าสู่ระบบผ่าน GitHub สำเร็จ! ยินดีต้อนรับ @{user.username}")
+            messages.success(
+                request, f"🎉 เข้าสู่ระบบผ่าน GitHub สำเร็จ! ยินดีต้อนรับ @{user.username}"
+            )
             return redirect("checkins:feed")
 
         except Exception as e:
