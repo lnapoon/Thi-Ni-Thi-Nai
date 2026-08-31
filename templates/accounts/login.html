@@ -3,17 +3,42 @@
 {% block title %}เข้าสู่ระบบ - ที่นี่ Check-in{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-3">
+<div class="row justify-content-center mt-3 mb-5">
   <div class="col-12 col-md-6 col-lg-5">
-    <div class="card border-0 shadow-sm rounded-4 p-4">
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+      
+      <!-- Header -->
       <div class="text-center mb-4">
-        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-3" style="width: 60px; height: 60px;">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-2 shadow-sm" style="width: 58px; height: 58px;">
           <i class="bi bi-geo-alt-fill fs-2"></i>
         </div>
-        <h4 class="fw-bold mb-1">เข้าสู่ระบบ</h4>
-        <p class="text-muted small">เข้าสู่ระบบเพื่อแชร์และดูจุดเช็คอินของเพื่อนๆ</p>
+        <h4 class="fw-bold mb-1 text-dark">ยินดีต้อนรับกลับมา</h4>
+        <p class="text-muted small mb-0">เข้าสู่ระบบเพื่อแชร์และดูจุดเช็คอินของเพื่อนๆ</p>
       </div>
 
+      <!-- Social Logins (Google & GitHub) -->
+      <div class="d-flex flex-column gap-2 mb-3">
+        <a href="{% url 'accounts:google_login' %}" class="btn btn-light border rounded-pill py-2 px-3 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="font-size: 0.9rem; color: #1e293b;">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.29 21.41 7.37 24 12 24Z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.17 0 9.97 0 12s.46 3.83 1.26 5.42l4.02-3.15Z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.29 2.59 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98Z"/>
+          </svg>
+          เข้าสู่ระบบด้วย Google
+        </a>
+
+        <a href="{% url 'accounts:github_login' %}" class="btn btn-dark rounded-pill py-2 px-3 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="font-size: 0.9rem;">
+          <i class="bi bi-github fs-5"></i> เข้าสู่ระบบด้วย GitHub
+        </a>
+      </div>
+
+      <div class="position-relative text-center my-3">
+        <hr class="text-muted">
+        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small" style="font-size: 0.8rem;">หรือเข้าสู่ระบบด้วยชื่อผู้ใช้</span>
+      </div>
+
+      <!-- Password Login Form -->
       <form method="post" novalidate>
         {% csrf_token %}
 
@@ -26,10 +51,11 @@
         {% endif %}
 
         <div class="mb-3">
-          <label for="id_username" class="form-label small fw-semibold">ชื่อผู้ใช้ (Username)</label>
+          <label for="id_username" class="form-label small fw-semibold text-dark">
+            <i class="bi bi-person me-1 text-primary"></i>ชื่อผู้ใช้ (Username)
+          </label>
           <div class="input-group">
-            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
-            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="form-control border-start-0 ps-0 {% if form.username.errors %}is-invalid{% endif %}" placeholder="ระบุชื่อผู้ใช้">
+            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="form-control rounded-pill px-3 py-2 {% if form.username.errors %}is-invalid{% endif %}" placeholder="ระบุชื่อผู้ใช้">
           </div>
           {% if form.username.errors %}
             <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
@@ -37,25 +63,27 @@
         </div>
 
         <div class="mb-4">
-          <label for="id_password" class="form-label small fw-semibold">รหัสผ่าน (Password)</label>
+          <label for="id_password" class="form-label small fw-semibold text-dark">
+            <i class="bi bi-lock me-1 text-primary"></i>รหัสผ่าน (Password)
+          </label>
           <div class="input-group">
-            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
-            <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control border-start-0 ps-0 {% if form.password.errors %}is-invalid{% endif %}" placeholder="ระบุรหัสผ่าน">
+            <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control rounded-pill px-3 py-2 {% if form.password.errors %}is-invalid{% endif %}" placeholder="ระบุรหัสผ่าน">
           </div>
           {% if form.password.errors %}
             <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
           {% endif %}
         </div>
 
-        <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-semibold shadow-sm mb-3">
+        <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm mb-3">
           เข้าสู่ระบบ
         </button>
 
         <div class="text-center">
           <span class="text-muted small">ยังไม่มีบัญชีผู้ใช้?</span>
-          <a href="{% url 'accounts:signup' %}" class="small fw-bold text-decoration-none ms-1">สมัครสมาชิกที่นี่</a>
+          <a href="{% url 'accounts:signup' %}" class="small fw-bold text-primary text-decoration-none ms-1">สมัครสมาชิกที่นี่</a>
         </div>
       </form>
+
     </div>
   </div>
 </div>
