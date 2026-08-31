@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (geoStatus) {
       geoStatus.innerHTML = `
-        <span class="badge bg-success-subtle text-success border border-success-subtle py-2 px-3">
-          <i class="bi bi-geo-alt-fill me-1"></i> ได้รับพิกัดแล้ว: ${lat.toFixed(4)}, ${lng.toFixed(4)}
+        <span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2 rounded-pill">
+          <i class="bi bi-geo-alt-fill me-1"></i> ได้รับพิกัด: ${lat.toFixed(4)}, ${lng.toFixed(4)}
         </span>
       `;
     }
@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!navigator.geolocation) {
       if (geoStatus) {
         geoStatus.innerHTML = `
-          <span class="badge bg-secondary-subtle text-secondary py-2 px-3">
-            <i class="bi bi-info-circle me-1"></i> อุปกรณ์ไม่รองรับการจับพิกัด GPS (สามารถพิมพ์ชื่อสถานที่ได้)
+          <span class="badge bg-secondary-subtle text-secondary py-1 px-2 rounded-pill">
+            <i class="bi bi-info-circle me-1"></i> ไม่รองรับ GPS
           </span>
         `;
       }
@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (geoStatus) {
       geoStatus.innerHTML = `
-        <span class="badge bg-primary-subtle text-primary py-2 px-3">
-          <span class="spinner-border spinner-border-sm me-1" role="status"></span> กำลังดึงพิกัดตำแหน่งของคุณ...
+        <span class="badge bg-primary-subtle text-primary py-1 px-2 rounded-pill">
+          <span class="spinner-border spinner-border-sm me-1" role="status"></span> กำลังดึงพิกัด...
         </span>
       `;
     }
@@ -48,13 +48,13 @@ document.addEventListener('DOMContentLoaded', function () {
         updateLocationDisplay(lat, lng);
       },
       function (error) {
-        let msg = 'ไม่สามารถดึงพิกัดได้ (สามารถโพสต์โดยระบุเพียงชื่อสถานที่ได้)';
+        let msg = 'ไม่ได้ระบุพิกัด';
         if (error.code === error.PERMISSION_DENIED) {
-          msg = 'ปฏิเสธการเข้าถึงพิกัด (สามารถโพสต์โดยระบุเพียงชื่อสถานที่ได้)';
+          msg = 'ปฏิเสธการเข้าถึงพิกัด';
         }
         if (geoStatus) {
           geoStatus.innerHTML = `
-            <span class="badge bg-light text-muted border py-2 px-3">
+            <span class="badge bg-light text-muted border py-1 px-2 rounded-pill">
               <i class="bi bi-geo me-1"></i> ${msg}
             </span>
           `;
