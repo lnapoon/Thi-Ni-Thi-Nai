@@ -7,9 +7,10 @@ from django.urls import path, re_path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from config.views import media_redirect_view
+from config.views import media_redirect_view, service_worker_view
 
 urlpatterns = [
+    path('sw.js', service_worker_view, name='service_worker'),
     re_path(r'^media/(?P<path>.*)$', media_redirect_view, name='media_redirect'),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls', namespace='accounts')),

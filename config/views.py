@@ -1,6 +1,12 @@
-import sys
-import traceback
-from django.shortcuts import render, redirect
+from pathlib import Path
+from django.http import HttpResponse, FileResponse
+from django.conf import settings
+
+def service_worker_view(request):
+    sw_path = Path(settings.BASE_DIR) / 'static' / 'sw.js'
+    if sw_path.exists():
+        return FileResponse(open(sw_path, 'rb'), content_type='application/javascript')
+    return HttpResponse("// sw not found", content_type='application/javascript')
 
 def media_redirect_view(request, path=""):
     clean_path = path.lstrip('/')

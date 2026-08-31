@@ -46,6 +46,11 @@ extra_csrf = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
 if extra_csrf:
     CSRF_TRUSTED_ORIGINS.extend(extra_csrf)
 
+# Reverse Proxy & HTTPS detection for Vercel / Render / Cloudflare
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
 
 # ─────────────────────────────────────────────────────────────
 # Cloudinary SDK configuration (direct — NO django-cloudinary-storage)
