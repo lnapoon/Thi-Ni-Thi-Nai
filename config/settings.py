@@ -142,10 +142,14 @@ clean_db_url = (
 DATABASES = {
     "default": dj_database_url.parse(
         clean_db_url,
-        conn_max_age=0,
+        conn_max_age=600,
         ssl_require=True,
     )
 }
+
+# Static file caching & compression (1 year cache for static assets)
+WHITENOISE_MAX_AGE = 31536000
+WHITENOISE_USE_FINDERS = True
 
 
 # ─────────────────────────────────────────────────────────────

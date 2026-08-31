@@ -18,22 +18,26 @@ class Profile(models.Model):
 
     @property
     def get_avatar_url(self):
-        """Return full Cloudinary URL for the avatar."""
+        """Return optimized CDN URL for the avatar (auto WebP, auto quality, 200x200 crop with face detection)."""
         if not self.avatar:
             return ""
         try:
             url = self.avatar.url
             if url:
+                if "/image/upload/" in url and "/image/upload/f_auto" not in url:
+                    url = url.replace("/image/upload/", "/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,g_face/")
                 return url
         except Exception:
             pass
         val = str(self.avatar)
         if val.startswith("http"):
+            if "/image/upload/" in val and "/image/upload/f_auto" not in val:
+                return val.replace("/image/upload/", "/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,g_face/")
             return val
         from django.conf import settings
 
         cloud = getattr(settings, "CLOUDINARY_CLOUD_NAME", "pkxxxmpn")
-        return f"https://res.cloudinary.com/{cloud}/image/upload/{val}"
+        return f"https://res.cloudinary.com/{cloud}/image/upload/f_auto,q_auto:good,w_200,h_200,c_fill,g_face/{val}"
 
     @property
     def followers_count(self):

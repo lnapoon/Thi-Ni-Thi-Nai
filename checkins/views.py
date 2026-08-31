@@ -24,22 +24,16 @@ class FeedView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        tab = self.request.GET.get('tab', 'all')
         qs = CheckIn.objects.select_related('user', 'user__profile').prefetch_related(
             'likes',
             'bookmarks',
             'comments',
             'comments__user',
             'comments__user__profile'
+        ).annotate(
+            num_likes=Count('likes', distinct=True),
+            num_comments=Count('comments', distinct=True)
         )
-
-        if tab == 'following' and self.request.user.is_authenticated:
-            following_user_ids = Follow.objects.filter(
-                follower=self.request.user
-            ).values_list('following_id', flat=True)
-            # Include checkins from followed users or own checkins
-            qs = qs.filter(user_id__in=list(following_user_ids) + [self.request.user.id])
-
         return qs.order_by('-created_at')
 
     def get_context_data(self, **kwargs):

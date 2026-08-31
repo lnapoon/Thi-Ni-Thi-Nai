@@ -27,21 +27,25 @@ class CheckIn(models.Model):
 
     @property
     def get_photo_url(self):
-        """Return full Cloudinary URL for the photo."""
+        """Return optimized Cloudinary CDN URL (auto WebP, auto quality, max 900px width)."""
         if not self.photo:
             return ""
         try:
             url = self.photo.url
             if url:
+                if "/image/upload/" in url and "/image/upload/f_auto" not in url:
+                    url = url.replace("/image/upload/", "/image/upload/f_auto,q_auto:good,w_900,c_limit/")
                 return url
         except Exception:
             pass
         val = str(self.photo)
         if val.startswith('http'):
+            if "/image/upload/" in val and "/image/upload/f_auto" not in val:
+                return val.replace("/image/upload/", "/image/upload/f_auto,q_auto:good,w_900,c_limit/")
             return val
         from django.conf import settings
         cloud = getattr(settings, 'CLOUDINARY_CLOUD_NAME', 'pkxxxmpn')
-        return f"https://res.cloudinary.com/{cloud}/image/upload/{val}"
+        return f"https://res.cloudinary.com/{cloud}/image/upload/f_auto,q_auto:good,w_900,c_limit/{val}"
 
     def get_absolute_url(self):
         return reverse('checkins:detail', kwargs={'pk': self.pk})

@@ -176,7 +176,7 @@
             
             <!-- Likes Counter -->
             <div class="fw-bold mb-1" style="font-size: 0.88rem;">
-              <span class="like-count" data-checkin-id="{{ checkin.id }}">{{ checkin.likes.count }}</span> ถูกใจ
+              <span class="like-count" data-checkin-id="{{ checkin.id }}">{{ checkin.num_likes }}</span> ถูกใจ
             </div>
 
             <!-- Caption -->
@@ -190,15 +190,13 @@
             {% endif %}
 
             <!-- Comments Count Link -->
-            {% with c_count=checkin.comments.count %}
-              {% if c_count > 0 %}
-                <div class="mb-2">
-                  <a href="{% url 'checkins:detail' pk=checkin.pk %}" class="text-muted small text-decoration-none">
-                    ดูความคิดเห็นทั้งหมด <span class="comments-count-badge" data-checkin-id="{{ checkin.id }}">{{ c_count }}</span> รายการ
-                  </a>
-                </div>
-              {% endif %}
-            {% endwith %}
+            {% if checkin.num_comments > 0 %}
+              <div class="mb-2">
+                <a href="{% url 'checkins:detail' pk=checkin.pk %}" class="text-muted small text-decoration-none">
+                  ดูความคิดเห็นทั้งหมด <span class="comments-count-badge" data-checkin-id="{{ checkin.id }}">{{ checkin.num_comments }}</span> รายการ
+                </a>
+              </div>
+            {% endif %}
 
             <!-- Inline Latest Comments Snippet -->
             <div class="inline-comments-stream mb-2" data-checkin-id="{{ checkin.id }}">
