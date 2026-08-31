@@ -401,8 +401,8 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/static/sw.js').then(function(reg) {
-          // SW registered successfully
+        navigator.serviceWorker.register('/sw.js').catch(function() {
+          return navigator.serviceWorker.register('/static/sw.js');
         }).catch(function(err) {
           console.debug('SW registration skipped:', err);
         });

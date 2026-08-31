@@ -147,9 +147,19 @@ DATABASES = {
     )
 }
 
+# In-Memory cache for high-speed queries & sessions
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "thi-ni-locmem-cache",
+        "TIMEOUT": 300,
+    }
+}
+
 # Static file caching & compression (1 year cache for static assets)
 WHITENOISE_MAX_AGE = 31536000
 WHITENOISE_USE_FINDERS = True
+
 
 
 # ─────────────────────────────────────────────────────────────
