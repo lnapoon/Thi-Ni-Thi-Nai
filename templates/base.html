@@ -6,12 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>{% block title %}ที่นี่ Check-in - บันทึกและแชร์จุดเช็คอินสถานที่ท่องเที่ยว{% endblock %}</title>
 
-  <!-- PWA & Mobile Meta Tags -->
-  <meta name="theme-color" content="#1e3a8a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="ที่นี่ Check-in">
-  <link rel="manifest" href="{% static 'manifest.json' %}">
+  <!-- Theme Initializer (Instant Dark/Light Mode Load) -->
+  <script>
+    (function () {
+      const saved = localStorage.getItem('thi_ni_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-bs-theme', saved);
+    })();
+  </script>
 
   <!-- High-Performance CDN Preconnect & DNS-Prefetch -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -50,6 +51,15 @@
 
       <!-- Desktop Header Actions -->
       <div class="d-none d-md-flex align-items-center gap-3">
+        <!-- Sun/Moon Slider Theme Switch -->
+        <button type="button" class="theme-toggle-btn btn-toggle-theme" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">
+          <div class="theme-toggle-track">
+            <i class="bi bi-sun-fill theme-icon-sun"></i>
+            <i class="bi bi-moon-stars-fill theme-icon-moon"></i>
+            <div class="theme-toggle-thumb"></div>
+          </div>
+        </button>
+
         {% if user.is_authenticated %}
           <a href="{% url 'checkins:feed' %}" class="text-white text-decoration-none {% if request.resolver_match.url_name == 'feed' %}fw-bold{% endif %}">
             <i class="bi bi-house-door me-1"></i> หน้าหลัก
@@ -95,8 +105,17 @@
         {% endif %}
       </div>
 
-      <!-- Mobile Right Profile Icon (Opens Bottom Drawer Menu) -->
+      <!-- Mobile Right Controls (Theme Switcher Slider + Profile Avatar) -->
       <div class="d-flex d-md-none align-items-center gap-2">
+        <!-- Mobile Sun/Moon Slider Theme Switch -->
+        <button type="button" class="theme-toggle-btn btn-toggle-theme me-1" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">
+          <div class="theme-toggle-track">
+            <i class="bi bi-sun-fill theme-icon-sun"></i>
+            <i class="bi bi-moon-stars-fill theme-icon-moon"></i>
+            <div class="theme-toggle-thumb"></div>
+          </div>
+        </button>
+
         {% if user.is_authenticated %}
           <button type="button" class="btn p-0 border-0 bg-transparent text-white shadow-none d-flex align-items-center" data-bs-toggle="offcanvas" data-bs-target="#mobileUserDrawer" aria-controls="mobileUserDrawer" title="เมนูผู้ใช้งาน">
             {% if user.get_avatar_url %}
@@ -105,8 +124,6 @@
               <i class="bi bi-person-circle fs-3 text-white"></i>
             {% endif %}
           </button>
-        {% else %}
-          <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-light rounded-pill px-3 fw-semibold">เข้าสู่ระบบ</a>
         {% endif %}
       </div>
     </div>
@@ -392,6 +409,17 @@
           banner.style.display = 'none';
         });
       }
+
+      // Dark/Light Mode Theme Toggle Switch Handlers
+      document.querySelectorAll('.btn-toggle-theme').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          const curTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+          const newTheme = curTheme === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-bs-theme', newTheme);
+          localStorage.setItem('thi_ni_theme', newTheme);
+        });
+      });
     });
   </script>
   {% block extra_scripts %}{% endblock %}
