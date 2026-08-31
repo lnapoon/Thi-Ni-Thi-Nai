@@ -1,7 +1,7 @@
 // Service Worker for "ที่นี่ Check-in"
 // Superfast App Shell Caching & Offline Support
 
-const CACHE_NAME = 'thi-ni-cache-v3';
+const CACHE_NAME = 'thi-ni-cache-v4';
 const STATIC_ASSETS = [
   '/static/css/style.css',
   '/static/js/geolocation.js',
@@ -42,7 +42,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: Stale-While-Revalidate for static assets & Network-First for HTML pages
+// Fetch: Network-First for local static assets and HTML pages to guarantee latest UI updates from Vercel
 self.addEventListener('fetch', (event) => {
   const request = event.request;
 
@@ -56,9 +56,24 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 1. Static Assets (CSS, JS, Fonts, Images) -> Stale-While-Revalidate
+  // 1. Local Static Assets (/static/...) -> Network First, Cache Fallback
+  if (url.pathname.startsWith('/static/')) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // 2. External CDN Assets (Bootstrap, Google Fonts, Leaflet) -> Stale-While-Revalidate
   if (
-    url.pathname.startsWith('/static/') ||
     url.hostname.includes('cdn.jsdelivr.net') ||
     url.hostname.includes('fonts.googleapis.com') ||
     url.hostname.includes('fonts.gstatic.com') ||
