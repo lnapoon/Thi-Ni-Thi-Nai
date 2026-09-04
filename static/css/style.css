@@ -1712,4 +1712,161 @@ body.dark-mode .multi-photo-add-card {
   color: #94a3b8;
 }
 
+/* ==========================================================================
+   Clean & Organized Social Share Modal
+   ========================================================================== */
+.modal-social-share .modal-dialog {
+  max-width: 440px;
+  margin: 1.5rem auto;
+}
+
+.modal-social-share .modal-content {
+  border-radius: 24px;
+  background-color: #ffffff;
+  border: none;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .modal-social-share {
+    padding: 0 !important;
+  }
+  .modal-social-share .modal-dialog {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    max-width: 100%;
+    width: 100%;
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .modal-social-share.show .modal-dialog {
+    transform: translateY(0);
+  }
+  .modal-social-share .modal-content {
+    border-radius: 24px 24px 0 0 !important;
+  }
+}
+
+.share-copy-box {
+  background-color: #f8fafc;
+}
+
+/* 4-Column Balanced Grid */
+.share-grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 10px;
+  padding: 4px 0;
+}
+
+.share-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  padding: 6px 2px;
+  border-radius: 16px;
+  transition: transform 0.18s ease, background-color 0.18s ease;
+  user-select: none;
+  cursor: pointer;
+}
+
+.share-grid-item:hover {
+  transform: translateY(-3px);
+  background-color: #f8fafc;
+}
+
+.share-grid-item:active {
+  transform: scale(0.92);
+}
+
+.share-grid-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  transition: all 0.2s ease;
+}
+
+.share-grid-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+/* Brand Colors */
+.bg-line {
+  background: #06C755;
+}
+
+.bg-facebook {
+  background: #1877F2;
+}
+
+.bg-messenger {
+  background: linear-gradient(135deg, #00B2FE 0%, #006AFF 100%);
+}
+
+.bg-twitter {
+  background: #000000;
+}
+
+.bg-whatsapp {
+  background: #25D366;
+}
+
+.bg-telegram {
+  background: #229ED9;
+}
+
+.bg-email {
+  background: #6366f1;
+}
+
+.bg-system-share {
+  background: #334155;
+}
+
+/* Dark Mode */
+[data-bs-theme="dark"] .modal-social-share .modal-content,
+body.dark-mode .modal-social-share .modal-content {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .modal-social-share .modal-title,
+body.dark-mode .modal-social-share .modal-title {
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .share-copy-box,
+body.dark-mode .share-copy-box {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .share-copy-box input,
+body.dark-mode .share-copy-box input {
+  background-color: #0f172a !important;
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .share-grid-item:hover,
+body.dark-mode .share-grid-item:hover {
+  background-color: #1e293b;
+}
+
+[data-bs-theme="dark"] .share-grid-label,
+body.dark-mode .share-grid-label {
+  color: #cbd5e1;
+}
+
 

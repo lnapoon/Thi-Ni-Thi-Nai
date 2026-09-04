@@ -9,6 +9,7 @@ from .views import (
     UserFollowersListView,
     UserFollowingListView,
     UserSearchView,
+    ShareRecipientsView,
     GoogleOAuthLoginView,
     GoogleOAuthCallbackView,
     GitHubOAuthLoginView,
@@ -30,6 +31,7 @@ urlpatterns = [
     path('users/<str:username>/followers/', UserFollowersListView.as_view(), name='followers_list'),
     path('users/<str:username>/following/', UserFollowingListView.as_view(), name='following_list'),
     path('search/', UserSearchView.as_view(), name='search'),
+    path('api/share-recipients/', ShareRecipientsView.as_view(), name='share_recipients'),
 
     # OAuth Social Login
     path('oauth/google/login/', GoogleOAuthLoginView.as_view(), name='google_login'),

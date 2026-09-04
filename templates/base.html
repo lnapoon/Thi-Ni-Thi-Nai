@@ -285,36 +285,115 @@
     </div>
   </div>
 
-  <!-- Global Share Modal -->
-  <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
+  <!-- Global Social Share Sheet Modal -->
+  <div class="modal fade modal-social-share" id="shareModal" tabindex="-1" aria-labelledby="shareModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
       <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-        <div class="modal-header border-0 pb-0">
-          <h6 class="modal-title fw-bold" id="shareModalTitle">แชร์จุดเช็คอิน</h6>
+        
+        <!-- Drag Handle Bar Indicator (for mobile) -->
+        <div class="modal-handle-bar d-md-none"></div>
+
+        <!-- Share Header -->
+        <div class="modal-header border-0 pb-1 pt-3 px-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="modal-title fw-bold text-dark mb-0" id="shareModalTitle" data-i18n="share_modal_title">
+              <i class="bi bi-send-fill text-primary me-2"></i>แชร์จุดเช็คอิน
+            </h6>
+            <span class="text-muted small" style="font-size: 0.78rem;">ส่งต่อสถานที่สวยๆ ไปยังโซเชียลมีเดีย</span>
+          </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body text-center p-4">
-          <p class="text-muted small mb-3">ส่งต่อสถานที่สวยๆ ให้เพื่อนๆ ของคุณ</p>
-          
-          <div class="d-flex justify-content-center gap-3 mb-4">
-            <a href="#" id="shareLineBtn" target="_blank" rel="noopener" class="btn btn-success rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; font-size: 1.3rem;" title="แชร์เข้า Line">
-              <i class="bi bi-line"></i>
-            </a>
-            <a href="#" id="shareFbBtn" target="_blank" rel="noopener" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; font-size: 1.3rem;" title="แชร์เข้า Facebook">
-              <i class="bi bi-facebook"></i>
-            </a>
-            <a href="#" id="shareTwitterBtn" target="_blank" rel="noopener" class="btn btn-dark rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; font-size: 1.3rem;" title="แชร์เข้า X (Twitter)">
-              <i class="bi bi-twitter-x"></i>
-            </a>
+
+        <div class="modal-body p-4 pt-2">
+          <!-- 1. Copy Link Box -->
+          <div class="share-copy-box mb-4 p-2 bg-light rounded-4 border d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white border-0 text-muted ps-3">
+                <i class="bi bi-link-45deg fs-5"></i>
+              </span>
+              <input type="text" id="shareModalLinkInput" class="form-control bg-white border-0 px-2 fw-medium text-secondary" readonly style="font-size: 0.82rem;">
+              <button class="btn btn-primary rounded-pill px-3 fw-semibold shadow-sm" type="button" id="copyShareLinkBtn">
+                <i class="bi bi-clipboard me-1"></i> <span id="copyShareBtnText" data-i18n="share_copy_link">คัดลอก</span>
+              </button>
+            </div>
           </div>
 
-          <div class="input-group input-group-sm">
-            <input type="text" id="shareModalLinkInput" class="form-control" readonly style="font-size: 0.8rem;">
-            <button class="btn btn-primary" type="button" id="copyShareLinkBtn">
-              <i class="bi bi-clipboard me-1"></i> คัดลอก
+          <!-- 2. Section Title -->
+          <div class="d-flex align-items-center mb-3">
+            <span class="text-muted extra-small fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+              แชร์ไปยังแอปพลิเคชัน
+            </span>
+            <div class="flex-grow-1 ms-2 border-top"></div>
+          </div>
+
+          <!-- 3. Social Apps 4-Column Grid -->
+          <div class="share-grid-container">
+            <!-- 1. LINE -->
+            <a href="#" id="shareLineBtn" target="_blank" rel="noopener" class="share-grid-item text-decoration-none">
+              <div class="share-grid-icon bg-line text-white shadow-sm">
+                <i class="bi bi-line"></i>
+              </div>
+              <span class="share-grid-label">LINE</span>
+            </a>
+
+            <!-- 2. Facebook -->
+            <a href="#" id="shareFbBtn" target="_blank" rel="noopener" class="share-grid-item text-decoration-none">
+              <div class="share-grid-icon bg-facebook text-white shadow-sm">
+                <i class="bi bi-facebook"></i>
+              </div>
+              <span class="share-grid-label">Facebook</span>
+            </a>
+
+            <!-- 3. Messenger -->
+            <a href="#" id="shareMessengerBtn" target="_blank" rel="noopener" class="share-grid-item text-decoration-none">
+              <div class="share-grid-icon bg-messenger text-white shadow-sm">
+                <i class="bi bi-messenger"></i>
+              </div>
+              <span class="share-grid-label">Messenger</span>
+            </a>
+
+            <!-- 4. X (Twitter) -->
+            <a href="#" id="shareTwitterBtn" target="_blank" rel="noopener" class="share-grid-item text-decoration-none">
+              <div class="share-grid-icon bg-twitter text-white shadow-sm">
+                <i class="bi bi-twitter-x"></i>
+              </div>
+              <span class="share-grid-label">X</span>
+            </a>
+
+            <!-- 5. WhatsApp -->
+            <a href="#" id="shareWhatsappBtn" target="_blank" rel="noopener" class="share-grid-item text-decoration-none">
+              <div class="share-grid-icon bg-whatsapp text-white shadow-sm">
+                <i class="bi bi-whatsapp"></i>
+              </div>
+              <span class="share-grid-label">WhatsApp</span>
+            </a>
+
+            <!-- 6. Telegram -->
+            <a href="#" id="shareTelegramBtn" target="_blank" rel="noopener" class="share-grid-item text-decoration-none">
+              <div class="share-grid-icon bg-telegram text-white shadow-sm">
+                <i class="bi bi-telegram"></i>
+              </div>
+              <span class="share-grid-label">Telegram</span>
+            </a>
+
+            <!-- 7. Email -->
+            <a href="#" id="shareEmailBtn" class="share-grid-item text-decoration-none">
+              <div class="share-grid-icon bg-email text-white shadow-sm">
+                <i class="bi bi-envelope-fill"></i>
+              </div>
+              <span class="share-grid-label">Email</span>
+            </a>
+
+            <!-- 8. Native System Share -->
+            <button type="button" class="share-grid-item border-0 bg-transparent" id="shareNativeSystemBtn">
+              <div class="share-grid-icon bg-system-share text-white shadow-sm">
+                <i class="bi bi-share-fill"></i>
+              </div>
+              <span class="share-grid-label" data-i18n="share_native">แชร์อื่นๆ</span>
             </button>
           </div>
         </div>
+
       </div>
     </div>
   </div>

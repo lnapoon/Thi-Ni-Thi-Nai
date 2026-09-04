@@ -362,6 +362,64 @@ class UserSearchView(LoginRequiredMixin, View):
         )
 
 
+class ShareRecipientsView(View):
+    """API endpoint to get friends / active travelers for Instagram-style Share Sheet."""
+
+    def get(self, request):
+        from django.db.models import Q, Count, Case, When, Value, IntegerField
+
+        query = request.GET.get("q", "").strip()
+        user = request.user
+
+        user_following_ids = set()
+        if user.is_authenticated:
+            user_following_ids = set(
+                Follow.objects.filter(follower=user).values_list(
+                    "following_id", flat=True
+                )
+            )
+
+        users_qs = User.objects.select_related("profile")
+        if user.is_authenticated:
+            users_qs = users_qs.exclude(id=user.id)
+
+        if query:
+            users_qs = users_qs.filter(
+                Q(username__icontains=query)
+                | Q(first_name__icontains=query)
+                | Q(last_name__icontains=query)
+            )
+
+        if user_following_ids:
+            users_qs = users_qs.annotate(
+                is_fav=Case(
+                    When(id__in=user_following_ids, then=Value(1)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                ),
+                num_checkins=Count("checkins", distinct=True),
+            ).order_by("-is_fav", "-num_checkins", "username")[:30]
+        else:
+            users_qs = users_qs.annotate(
+                num_checkins=Count("checkins", distinct=True),
+            ).order_by("-num_checkins", "username")[:30]
+
+        data = []
+        for u in users_qs:
+            data.append(
+                {
+                    "id": u.id,
+                    "username": u.username,
+                    "display_name": u.get_full_name() or u.username,
+                    "avatar_url": u.get_avatar_url,
+                    "is_following": u.id in user_following_ids,
+                }
+            )
+
+        return JsonResponse({"success": True, "users": data, "count": len(data)})
+
+
+
 # =========================================================================
 # OAUTH SOCIAL LOGIN (GOOGLE & GITHUB) + AVATAR EXTRACTION
 # =========================================================================
