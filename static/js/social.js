@@ -16,6 +16,22 @@ function initSocialInteractions() {
     return cookie ? cookie.split('=')[1] : '';
   };
 
+  function requireAuth(customMessage = null) {
+    if (window.IS_AUTHENTICATED) return false;
+    const modalEl = document.getElementById('authRequiredModal');
+    if (modalEl && window.bootstrap) {
+      if (customMessage) {
+        const descEl = document.getElementById('authRequiredModalDesc');
+        if (descEl) descEl.textContent = customMessage;
+      }
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modal.show();
+    } else {
+      window.location.href = '/accounts/login/';
+    }
+    return true;
+  }
+
   /* ----------------------------------------------------
    * 1. OPTIMISTIC LIKE HANDLER (Instant Heart & Counter)
    * ---------------------------------------------------- */
@@ -49,6 +65,7 @@ function initSocialInteractions() {
   }
 
   function handleToggleLike(checkinId, url, forceLikeOnly = false) {
+    if (requireAuth('เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อกดถูกใจและบันทึกสถานที่นี้')) return;
     if (!url || likeInFlight.has(checkinId)) return;
 
     // Find any like button for this checkin to read current state
@@ -78,9 +95,23 @@ function initSocialInteractions() {
         'X-CSRFToken': getCsrfToken(),
       }
     })
-    .then(res => res.json())
+    .then(res => {
+      if (res.status === 401) {
+        likeInFlight.delete(checkinId);
+        updateLikeUI(checkinId, wasLiked, currentCount);
+        requireAuth();
+        return null;
+      }
+      return res.json();
+    })
     .then(data => {
+      if (!data) return;
       likeInFlight.delete(checkinId);
+      if (data.login_required) {
+        updateLikeUI(checkinId, wasLiked, currentCount);
+        requireAuth();
+        return;
+      }
       if (data.success || data.liked !== undefined) {
         // Sync exact server count
         updateLikeUI(checkinId, data.liked, data.likes_count);
@@ -105,6 +136,8 @@ function initSocialInteractions() {
     if (!btn) return;
 
     e.preventDefault();
+    if (requireAuth('เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อกดถูกใจและบันทึกสถานที่นี้')) return;
+
     const checkinId = btn.dataset.checkinId;
     const url = btn.dataset.url || btn.getAttribute('href') || (btn.form && btn.form.action);
     if (checkinId && url) {
@@ -115,7 +148,7 @@ function initSocialInteractions() {
   /* ----------------------------------------------------
    * 2. DOUBLE TAP TO LIKE (Instagram Style)
    * ---------------------------------------------------- */
-  document.querySelectorAll('.double-tap-like-area').forEach(wrapper => {
+  document.querySelectorAll('.double-tap-like-area, .card-img-wrapper').forEach(wrapper => {
     let lastTapTime = 0;
     let tapTimeout = null;
 
@@ -127,6 +160,11 @@ function initSocialInteractions() {
         // Double tap confirmed
         clearTimeout(tapTimeout);
         e.preventDefault();
+
+        if (requireAuth('เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อกดถูกใจและบันทึกสถานที่นี้')) {
+          lastTapTime = 0;
+          return;
+        }
 
         const checkinId = wrapper.dataset.checkinId;
         const btn = document.querySelector(`.btn-like[data-checkin-id="${checkinId}"]`);
@@ -166,6 +204,8 @@ function initSocialInteractions() {
     if (!btn) return;
 
     e.preventDefault();
+    if (requireAuth('เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อบันทึกสถานที่โปรดของคุณ')) return;
+
     const url = btn.dataset.url;
     const checkinId = btn.dataset.checkinId;
     if (!url) return;
@@ -195,8 +235,19 @@ function initSocialInteractions() {
         'X-CSRFToken': getCsrfToken(),
       }
     })
-    .then(res => res.json())
+    .then(res => {
+      if (res.status === 401) {
+        requireAuth();
+        return null;
+      }
+      return res.json();
+    })
     .then(data => {
+      if (!data) return;
+      if (data.login_required) {
+        requireAuth();
+        return;
+      }
       if (data.success) {
         targets.forEach(b => {
           const icon = b.querySelector('i');
@@ -216,20 +267,39 @@ function initSocialInteractions() {
   /* ----------------------------------------------------
    * 4. AJAX COMMENTS (Quick Feed & Detail)
    * ---------------------------------------------------- */
+  document.body.addEventListener('click', function (e) {
+    const btn = e.target.closest('.btn-comment-focus');
+    if (!btn) return;
+
+    e.preventDefault();
+    if (requireAuth('เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อร่วมแสดงความคิดเห็น')) return;
+
+    const checkinId = btn.dataset.checkinId;
+    const input = document.querySelector(`.feed-comment-input-${checkinId}`);
+    if (input) {
+      input.focus();
+    }
+  });
+
   document.body.addEventListener('submit', function (e) {
-    const form = e.target.closest('.ajax-comment-form');
+    const form = e.target.closest('.ajax-comment-form, .feed-quick-comment-box');
     if (!form) return;
 
     e.preventDefault();
+    if (requireAuth('เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อร่วมแสดงความคิดเห็น')) return;
+
     const input = form.querySelector('input[name="text"], textarea[name="text"]');
     const text = input ? input.value.trim() : '';
     if (!text) return;
 
-    const url = form.action;
+    const url = form.action || form.dataset.url;
     const submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
 
     const formData = new FormData(form);
+    if (!formData.has('text')) {
+      formData.append('text', text);
+    }
 
     fetch(url, {
       method: 'POST',
@@ -239,9 +309,21 @@ function initSocialInteractions() {
       },
       body: formData
     })
-    .then(res => res.json())
+    .then(res => {
+      if (res.status === 401) {
+        if (submitBtn) submitBtn.disabled = false;
+        requireAuth();
+        return null;
+      }
+      return res.json();
+    })
     .then(data => {
+      if (!data) return;
       if (submitBtn) submitBtn.disabled = false;
+      if (data.login_required) {
+        requireAuth();
+        return;
+      }
       if (data.success) {
         if (input) input.value = '';
 
@@ -255,7 +337,7 @@ function initSocialInteractions() {
         }
 
         // Update comment counter badges
-        document.querySelectorAll(`.comment-count[data-checkin-id="${checkinId}"]`).forEach(el => {
+        document.querySelectorAll(`.comment-count[data-checkin-id="${checkinId}"], .comments-count-badge[data-checkin-id="${checkinId}"]`).forEach(el => {
           el.textContent = data.comments_count;
         });
 
@@ -349,6 +431,8 @@ function initSocialInteractions() {
     if (!btn) return;
 
     e.preventDefault();
+    if (requireAuth('เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อติดตามเพื่อนนักเดินทาง')) return;
+
     const url = btn.dataset.url;
     const username = btn.dataset.username;
     if (!url) return;

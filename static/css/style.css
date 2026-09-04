@@ -36,7 +36,21 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
+  min-height: 100%;
+  background-color: var(--app-bg);
+}
+
+html[data-bs-theme="dark"],
+[data-bs-theme="dark"] {
+  color-scheme: dark !important;
+  background-color: #090d16 !important;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   font-family: 'Sarabun', 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--app-bg);
   color: var(--text-main);
@@ -46,18 +60,23 @@ html, body {
   overflow-x: hidden;
 }
 
+main {
+  flex: 1 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
 /* Background Ambient Lighting Mesh */
 body::before {
   content: '';
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 100vw;
-  height: 400px;
+  height: 100vh;
   background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.06) 0%, rgba(251, 191, 36, 0.03) 50%, transparent 80%);
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 }
 
 /* ==========================================================================
@@ -1142,5 +1161,74 @@ body.dark-mode .table {
   --bs-table-bg: #131b2e;
   --bs-table-color: #f1f5f9;
   --bs-table-border-color: #1e293b;
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * Guest Feed Gate Card & Auth Modal Styling
+ * ───────────────────────────────────────────────────────────── */
+.guest-feed-gate-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 249, 255, 0.95) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 35px -5px rgba(59, 130, 246, 0.15) !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.guest-feed-gate-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px -5px rgba(59, 130, 246, 0.22) !important;
+}
+
+.guest-feed-gate-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6 0%, #f59e0b 50%, #10b981 100%);
+}
+
+[data-bs-theme="dark"] .guest-feed-gate-card,
+body.dark-mode .guest-feed-gate-card {
+  background: linear-gradient(135deg, rgba(19, 27, 46, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-bs-theme="dark"] .guest-feed-gate-card h4,
+body.dark-mode .guest-feed-gate-card h4 {
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .guest-feed-gate-card p,
+body.dark-mode .guest-feed-gate-card p {
+  color: #94a3b8 !important;
+}
+
+.empty-state {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main);
+}
+
+#authRequiredModal .modal-content {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+[data-bs-theme="dark"] #authRequiredModal .modal-content,
+body.dark-mode #authRequiredModal .modal-content {
+  background: rgba(19, 27, 46, 0.98) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9;
+}
+
+[data-bs-theme="dark"] #authRequiredModal .modal-title,
+body.dark-mode #authRequiredModal .modal-title {
+  color: #f8fafc !important;
 }
 

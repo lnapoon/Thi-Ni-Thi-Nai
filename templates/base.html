@@ -11,7 +11,9 @@
     (function () {
       const saved = localStorage.getItem('thi_ni_theme') || 'light';
       document.documentElement.setAttribute('data-bs-theme', saved);
+      document.documentElement.style.colorScheme = saved;
     })();
+    window.IS_AUTHENTICATED = {{ user.is_authenticated|yesno:'true,false' }};
   </script>
 
   <!-- High-Performance CDN Preconnect & DNS-Prefetch -->
@@ -102,12 +104,21 @@
             </ul>
           </div>
         {% else %}
-          <a href="{% url 'accounts:login' %}" class="btn btn-nav-login btn-sm rounded-pill px-3 fw-semibold">เข้าสู่ระบบ</a>
+          <a href="{% url 'checkins:feed' %}" class="nav-custom-link {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
+            <i class="bi bi-house-door me-1"></i> หน้าหลัก
+          </a>
+          <a href="{% url 'checkins:map' %}" class="nav-custom-link {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
+            <i class="bi bi-map me-1"></i> แผนที่
+          </a>
+          <button type="button" class="btn btn-create-checkin btn-sm rounded-pill px-3 fw-bold shadow-sm ms-1" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
+            <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินใหม่
+          </button>
+          <a href="{% url 'accounts:login' %}" class="btn btn-nav-login btn-sm rounded-pill px-3 fw-semibold ms-1">เข้าสู่ระบบ</a>
           <a href="{% url 'accounts:signup' %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-sm">สมัครสมาชิก</a>
         {% endif %}
       </div>
 
-      <!-- Mobile Right Controls (Theme Switcher Slider + Profile Avatar) -->
+      <!-- Mobile Right Controls (Theme Switcher Slider + Profile Avatar / Login) -->
       <div class="d-flex d-md-none align-items-center gap-2">
         <!-- Mobile Sun/Moon Slider Theme Switch -->
         <button type="button" class="theme-toggle-btn btn-toggle-theme me-1" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">
@@ -128,6 +139,10 @@
               </div>
             {% endif %}
           </button>
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm rounded-pill px-2 py-1 fw-bold shadow-sm" style="font-size: 0.78rem;">
+            เข้าสู่ระบบ
+          </a>
         {% endif %}
       </div>
     </div>
@@ -164,7 +179,7 @@
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Mobile Bottom Navigation Bar (5 Items: หน้าหลัก, แผนที่, +สร้าง, ค้นหา, โปรไฟล์) -->
+  <!-- Mobile Bottom Navigation Bar -->
   {% if user.is_authenticated %}
     <nav class="bottom-nav d-md-none">
       <!-- 1. หน้าหลัก -->
@@ -198,7 +213,68 @@
         <span>โปรไฟล์</span>
       </a>
     </nav>
+  {% else %}
+    <nav class="bottom-nav d-md-none">
+      <!-- 1. หน้าหลัก -->
+      <a href="{% url 'checkins:feed' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
+        <i class="bi {% if request.resolver_match.url_name == 'feed' %}bi-house-door-fill{% else %}bi-house-door{% endif %}"></i>
+        <span>หน้าหลัก</span>
+      </a>
+
+      <!-- 2. แผนที่ -->
+      <a href="{% url 'checkins:map' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
+        <i class="bi {% if request.resolver_match.url_name == 'map' %}bi-map-fill{% else %}bi-map{% endif %}"></i>
+        <span>แผนที่</span>
+      </a>
+
+      <!-- 3. ปุ่ม + สร้าง (เปิด Auth Modal สำหรับ Guest) -->
+      <div class="nav-center-action">
+        <button type="button" class="nav-center-btn shadow border-0" data-bs-toggle="modal" data-bs-target="#authRequiredModal" title="เช็คอินใหม่">
+          <i class="bi bi-plus-lg"></i>
+        </button>
+      </div>
+
+      <!-- 4. เข้าสู่ระบบ -->
+      <a href="{% url 'accounts:login' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+        <i class="bi bi-box-arrow-in-right"></i>
+        <span>เข้าสู่ระบบ</span>
+      </a>
+
+      <!-- 5. สมัครสมาชิก -->
+      <a href="{% url 'accounts:signup' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'signup' %}active{% endif %}">
+        <i class="bi bi-person-plus-fill text-warning"></i>
+        <span>สมัคร</span>
+      </a>
+    </nav>
   {% endif %}
+
+  <!-- Global Auth Required Modal for Guests -->
+  <div class="modal fade" id="authRequiredModal" tabindex="-1" aria-labelledby="authRequiredModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
+        <div class="mb-3">
+          <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle shadow-sm" style="width: 64px; height: 64px;">
+            <i class="bi bi-lock-fill fs-2"></i>
+          </div>
+        </div>
+        <h5 class="fw-bold text-dark mb-2" id="authRequiredModalTitle">เข้าสู่ระบบเพื่อใช้งาน</h5>
+        <p class="text-muted small mb-4" id="authRequiredModalDesc">
+          เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อสร้างโพสต์เช็คอิน กดถูกใจ แสดงความคิดเห็น และบันทึกสถานที่โปรดของคุณ
+        </p>
+        <div class="d-grid gap-2">
+          <a href="{% url 'accounts:login' %}" class="btn btn-primary rounded-pill py-2 fw-bold shadow-sm">
+            <i class="bi bi-box-arrow-in-right me-1"></i> เข้าสู่ระบบ
+          </a>
+          <a href="{% url 'accounts:signup' %}" class="btn btn-outline-secondary rounded-pill py-2 fw-semibold">
+            <i class="bi bi-person-plus me-1"></i> สมัครสมาชิกใหม่ (ฟรี)
+          </a>
+          <button type="button" class="btn btn-link btn-sm text-muted text-decoration-none mt-1" data-bs-dismiss="modal">
+            ไว้ทีหลัง
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Global Share Modal -->
   <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalTitle" aria-hidden="true">
@@ -421,6 +497,7 @@
           const curTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
           const newTheme = curTheme === 'dark' ? 'light' : 'dark';
           document.documentElement.setAttribute('data-bs-theme', newTheme);
+          document.documentElement.style.colorScheme = newTheme;
           localStorage.setItem('thi_ni_theme', newTheme);
         });
       });
