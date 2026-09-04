@@ -12,9 +12,23 @@ def user_avatar_path(instance, filename):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     avatar = CloudinaryField("image", folder="avatars", null=True, blank=True)
-    bio = models.TextField(max_length=300, blank=True, default="")
+    display_name = models.CharField(max_length=100, blank=True, default="", verbose_name="ชื่อที่แสดง (Display Name)")
+    category = models.CharField(max_length=100, blank=True, default="", verbose_name="หมวดหมู่ / MBTI / สถานะ")
+    bio = models.TextField(max_length=300, blank=True, default="", verbose_name="คำอธิบายโปรไฟล์ (Bio)")
+    website_title = models.CharField(max_length=100, blank=True, default="", verbose_name="ชื่อลิงก์โปรไฟล์/โซเชียล")
+    website_url = models.URLField(max_length=300, blank=True, default="", verbose_name="URL ลิงก์โปรไฟล์/โซเชียล")
+    music_title = models.CharField(max_length=100, blank=True, default="", verbose_name="เพลงโปรด / แท็กเสียง")
+    music_url = models.URLField(max_length=300, blank=True, default="", verbose_name="URL เพลงโปรด")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def get_display_name(self):
+        if self.display_name:
+            return self.display_name
+        if self.user.first_name:
+            return f"{self.user.first_name} {self.user.last_name}".strip()
+        return self.user.username
 
     @property
     def get_avatar_url(self):
