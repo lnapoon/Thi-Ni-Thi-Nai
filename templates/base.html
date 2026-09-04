@@ -502,13 +502,26 @@
         });
       });
 
-      // Register Service Worker for PWA / instant caching
+      // Register / Clean Service Worker
       if ('serviceWorker' in navigator) {
+        {% if debug %}
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+        });
+        if (window.caches) {
+          caches.keys().then(function (names) {
+            for (let name of names) caches.delete(name);
+          });
+        }
+        {% else %}
         window.addEventListener('load', function () {
           navigator.serviceWorker.register('/sw.js').catch(function (err) {
             console.warn('SW registration notice:', err);
           });
         });
+        {% endif %}
       }
     });
   </script>
