@@ -113,29 +113,58 @@
         {% endif %}
       {% endwith %}
 
-      <!-- Instagram Action Bar -->
-      <div class="ig-action-bar">
-        <div class="ig-action-left">
+      <!-- Action Bar (Like, Comment, Share, Bookmark) -->
+      <div class="card-actions-bar d-flex align-items-center justify-content-between px-3 pt-2 pb-1">
+        <div class="actions-left d-flex align-items-center gap-2">
           <!-- Like Button -->
-          <button type="button" class="ig-action-btn btn-like {% if is_liked %}liked{% endif %}" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:like' pk=checkin.pk %}" title="ถูกใจ" data-i18n-title="action_like">
-            <i class="bi {% if is_liked %}bi-heart-fill text-danger{% else %}bi-heart{% endif %}"></i>
+          <button 
+            type="button" 
+            class="btn-action-icon btn-like {% if is_liked %}liked text-danger{% endif %}" 
+            data-checkin-id="{{ checkin.id }}"
+            data-url="{% url 'checkins:like' pk=checkin.pk %}"
+            title="ถูกใจ"
+            data-i18n-title="action_like"
+          >
+            <i class="bi {% if is_liked %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
           </button>
 
           <!-- Comment Button -->
-          <a href="#comment-input-box" class="ig-action-btn" title="แสดงความคิดเห็น" data-i18n-title="action_comment">
+          <button 
+            type="button" 
+            class="btn-action-icon btn-open-comments" 
+            data-checkin-id="{{ checkin.id }}"
+            data-comment-url="{% url 'checkins:comment_create' pk=checkin.pk %}"
+            title="ความคิดเห็น"
+            data-i18n-title="action_comment"
+          >
             <i class="bi bi-chat"></i>
-          </a>
+          </button>
 
           <!-- Share Button -->
-          <button type="button" class="ig-action-btn btn-share-post" data-title="{{ checkin.place_name }}" data-url="{{ request.build_absolute_uri }}" title="แชร์" data-i18n-title="action_share">
+          <button 
+            type="button" 
+            class="btn-action-icon btn-share-post" 
+            data-title="{{ checkin.place_name }}"
+            data-text="ดูจุดเช็คอิน {{ checkin.place_name }} บน ที่นี่ Check-in"
+            data-url="{{ request.build_absolute_uri }}"
+            title="แชร์จุดเช็คอิน"
+            data-i18n-title="action_share"
+          >
             <i class="bi bi-send"></i>
           </button>
         </div>
 
-        <!-- Bookmark Button -->
-        <div>
-          <button type="button" class="ig-action-btn btn-bookmark {% if is_bookmarked %}bookmarked{% endif %}" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:bookmark' pk=checkin.pk %}" title="บันทึก" data-i18n-title="action_bookmark">
-            <i class="bi {% if is_bookmarked %}bi-bookmark-fill text-warning{% else %}bi-bookmark{% endif %}"></i>
+        <!-- Bookmark Button (Aligned to Far Right) -->
+        <div class="actions-right ms-auto">
+          <button 
+            type="button" 
+            class="btn-action-icon btn-bookmark {% if is_bookmarked %}bookmarked text-primary{% endif %}" 
+            data-checkin-id="{{ checkin.id }}"
+            data-url="{% url 'checkins:bookmark' pk=checkin.pk %}"
+            title="บันทึกสถานที่"
+            data-i18n-title="action_bookmark"
+          >
+            <i class="bi {% if is_bookmarked %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
           </button>
         </div>
       </div>
