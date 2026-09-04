@@ -36,7 +36,21 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
+  min-height: 100%;
+  background-color: var(--app-bg);
+}
+
+html[data-bs-theme="dark"],
+[data-bs-theme="dark"] {
+  color-scheme: dark !important;
+  background-color: #090d16 !important;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   font-family: 'Sarabun', 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--app-bg);
   color: var(--text-main);
@@ -46,18 +60,23 @@ html, body {
   overflow-x: hidden;
 }
 
+main {
+  flex: 1 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
 /* Background Ambient Lighting Mesh */
 body::before {
   content: '';
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 100vw;
-  height: 400px;
+  height: 100vh;
   background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.06) 0%, rgba(251, 191, 36, 0.03) 50%, transparent 80%);
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 }
 
 /* ==========================================================================
@@ -1187,6 +1206,12 @@ body.dark-mode .guest-feed-gate-card h4 {
 [data-bs-theme="dark"] .guest-feed-gate-card p,
 body.dark-mode .guest-feed-gate-card p {
   color: #94a3b8 !important;
+}
+
+.empty-state {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main);
 }
 
 #authRequiredModal .modal-content {

@@ -11,6 +11,7 @@
     (function () {
       const saved = localStorage.getItem('thi_ni_theme') || 'light';
       document.documentElement.setAttribute('data-bs-theme', saved);
+      document.documentElement.style.colorScheme = saved;
     })();
     window.IS_AUTHENTICATED = {{ user.is_authenticated|yesno:'true,false' }};
   </script>
@@ -496,6 +497,7 @@
           const curTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
           const newTheme = curTheme === 'dark' ? 'light' : 'dark';
           document.documentElement.setAttribute('data-bs-theme', newTheme);
+          document.documentElement.style.colorScheme = newTheme;
           localStorage.setItem('thi_ni_theme', newTheme);
         });
       });
