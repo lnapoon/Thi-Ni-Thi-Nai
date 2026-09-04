@@ -226,7 +226,7 @@ function initSocialInteractions() {
       }
     });
 
-    showToast(newBookmarked ? 'บันทึกไปยังคอลเลกชันแล้ว 🔖' : 'นำออกจากรายการบันทึกแล้ว');
+    showToast(newBookmarked ? 'บันทึกไปยังคอลเลกชันแล้ว' : 'นำออกจากรายการบันทึกแล้ว');
 
     fetch(url, {
       method: 'POST',
@@ -354,9 +354,9 @@ function initSocialInteractions() {
         if (commentsList) {
           if (!data.comments || data.comments.length === 0) {
             commentsList.innerHTML = `
-              <div class="text-center py-4 text-muted small empty-modal-comments">
-                <i class="bi bi-chat-heart text-primary fs-3 d-block mb-2 opacity-50"></i>
-                ยังไม่มีความคิดเห็น<br>มาร่วมเป็นคนแรกที่แสดงความคิดเห็นกันเถอะ! ✨
+              <div class="empty-modal-comments d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto">
+                <h5 class="fw-bold mb-1 text-dark">No comments yet</h5>
+                <p class="text-muted small mb-0">Start the conversation.</p>
               </div>
             `;
           } else {
@@ -474,7 +474,7 @@ function initSocialInteractions() {
           modalTitle.textContent = `ความคิดเห็น (${data.comments_count})`;
         }
 
-        showToast('แสดงความคิดเห็นเรียบร้อย 💬');
+        showToast('แสดงความคิดเห็นเรียบร้อย');
       } else {
         showToast(data.error || 'เกิดข้อผิดพลาดในการส่งความคิดเห็น', 'danger');
       }
@@ -612,7 +612,7 @@ function initSocialInteractions() {
       followersCountEl.textContent = Math.max(0, cur + (newFollowing ? 1 : -1));
     }
 
-    showToast(newFollowing ? `ติดตาม @${username} แล้ว ✨` : `เลิกติดตาม @${username} แล้ว`);
+    showToast(newFollowing ? `ติดตาม @${username} แล้ว` : `เลิกติดตาม @${username} แล้ว`);
 
     fetch(url, {
       method: 'POST',
@@ -692,7 +692,7 @@ function initSocialInteractions() {
       const input = document.getElementById('shareModalLinkInput');
       if (input && input.value) {
         navigator.clipboard.writeText(input.value).then(() => {
-          showToast('คัดลอกลิงก์สำเร็จแล้ว! 📋');
+          showToast('คัดลอกลิงก์สำเร็จแล้ว');
           copyShareBtn.innerHTML = '<i class="bi bi-check2 text-white me-1"></i> คัดลอกแล้ว';
           copyShareBtn.classList.remove('btn-primary');
           copyShareBtn.classList.add('btn-success');
@@ -704,7 +704,7 @@ function initSocialInteractions() {
         }).catch(err => {
           input.select();
           document.execCommand('copy');
-          showToast('คัดลอกลิงก์สำเร็จแล้ว! 📋');
+          showToast('คัดลอกลิงก์สำเร็จแล้ว');
         });
       }
     });
