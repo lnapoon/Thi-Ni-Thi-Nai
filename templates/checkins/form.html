@@ -60,12 +60,13 @@
         <a href="{% if is_edit %}{% url 'checkins:detail' pk=object.pk %}{% else %}{% url 'checkins:feed' %}{% endif %}" 
            class="btn btn-light btn-sm rounded-circle me-3 shadow-sm" 
            style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"
-           title="ย้อนกลับ">
+           title="ย้อนกลับ"
+           data-i18n-title="action_back">
           <i class="bi bi-arrow-left fs-5 text-dark"></i>
         </a>
         <div>
           <h4 class="fw-bold mb-0 text-dark">{{ page_title }}</h4>
-          <span class="text-muted small">บันทึกสถานที่ที่คุณประทับใจและแชร์ให้เพื่อนๆ ได้ชม</span>
+          <span class="text-muted small" data-i18n="composer_tagline">บันทึกสถานที่ที่คุณประทับใจและแชร์ให้เพื่อนๆ ได้ชม</span>
         </div>
       </div>
 
@@ -102,13 +103,13 @@
         <div class="form-section-card mb-4">
           <div class="d-flex align-items-center justify-content-between mb-2">
             <label class="form-label fw-bold mb-0 text-dark small">
-              <i class="bi bi-camera-fill text-primary me-1"></i>รูปภาพสถานที่ {% if not is_edit %}<span class="text-danger">*</span>{% endif %}
+              <i class="bi bi-camera-fill text-primary me-1"></i><span data-i18n="form_photo_label">รูปภาพสถานที่</span> {% if not is_edit %}<span class="text-danger">*</span>{% endif %}
             </label>
-            <span class="text-muted small" style="font-size: 0.75rem;">JPG, PNG, WEBP (สูงสุด 5 MB)</span>
+            <span class="text-muted small" style="font-size: 0.75rem;" data-i18n="form_photo_hint">JPG, PNG, WEBP (สูงสุด 5 MB)</span>
           </div>
 
           <!-- Photo Dropzone / Trigger Area -->
-          <div class="photo-upload-dropzone rounded-4 text-center position-relative overflow-hidden cursor-pointer" id="photo-dropzone-box" role="button" tabindex="0" title="คลิกเพื่อเลือกกล้องหรือคลังภาพ">
+          <div class="photo-upload-dropzone rounded-4 text-center position-relative overflow-hidden cursor-pointer" id="photo-dropzone-box" role="button" tabindex="0" title="คลิกเพื่อเลือกกล้องหรือคลังภาพ" data-i18n-title="composer_tap_photo">
             
             <!-- Preview Image (shown when image exists) -->
             <div id="photo-preview-box" class="{% if not is_edit or not object.get_photo_url %}d-none{% endif %} position-relative w-100 h-100">
@@ -117,7 +118,7 @@
               <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 d-flex justify-content-between align-items-center text-white" style="backdrop-filter: blur(4px);">
                 <span class="small ps-2" id="photo-selected-filename">{% if is_edit %}รูปภาพปัจจุบัน{% else %}เลือกรูปภาพแล้ว{% endif %}</span>
                 <span class="badge bg-light text-dark rounded-pill px-3 py-1 fw-semibold small">
-                  <i class="bi bi-pencil-fill me-1"></i>แตะเพื่อเปลี่ยนรูป
+                  <i class="bi bi-pencil-fill me-1"></i><span data-i18n="composer_change_photo">แตะเพื่อเปลี่ยนรูป</span>
                 </span>
               </div>
             </div>
@@ -127,8 +128,8 @@
               <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-2 shadow-sm" style="width: 64px; height: 64px;">
                 <i class="bi bi-camera-fill fs-2"></i>
               </div>
-              <h6 class="fw-bold text-dark mb-1">แตะเพื่อถ่ายรูป หรือเลือกรูปภาพ</h6>
-              <p class="text-muted small mb-0" style="font-size: 0.78rem;">รองรับการเปิดกล้องถ่ายภาพสด หรือเลือกจากคลังรูปภาพในเครื่อง</p>
+              <h6 class="fw-bold text-dark mb-1" data-i18n="composer_tap_photo">แตะเพื่อถ่ายรูป หรือเลือกรูปภาพ</h6>
+              <p class="text-muted small mb-0" style="font-size: 0.78rem;" data-i18n="composer_photo_tip">รองรับการเปิดกล้องถ่ายภาพสด หรือเลือกจากคลังรูปภาพในเครื่อง</p>
             </div>
           </div>
           {% if form.photo.errors %}
@@ -143,15 +144,15 @@
               <i class="bi bi-geo-alt-fill" style="font-size: 15px;"></i>
             </div>
             <div>
-              <span class="fw-bold text-dark small d-block">ข้อมูลสถานที่และโซนพื้นที่</span>
-              <span class="text-muted" style="font-size: 0.75rem;">ระบุชื่อสถานที่ และเลือกโซนภาค/จังหวัดที่ตั้ง</span>
+              <span class="fw-bold text-dark small d-block" data-i18n="form_location_header">ข้อมูลสถานที่และโซนพื้นที่</span>
+              <span class="text-muted" style="font-size: 0.75rem;" data-i18n="form_location_desc">ระบุชื่อสถานที่ และเลือกโซนภาค/จังหวัดที่ตั้ง</span>
             </div>
           </div>
 
           <!-- Place Name -->
           <div class="mb-3">
             <label for="id_place_name" class="form-label small fw-semibold text-dark mb-1">
-              ชื่อสถานที่ / จุดเช็คอิน <span class="text-danger">*</span>
+              <span data-i18n="form_place_name_label">ชื่อสถานที่ / จุดเช็คอิน</span> <span class="text-danger">*</span>
             </label>
             <div class="input-group">
               <span class="input-group-text bg-white border-end-0 text-danger rounded-start-3">
@@ -163,6 +164,7 @@
                 id="id_place_name" 
                 class="form-control border-start-0 ps-0 rounded-end-3" 
                 placeholder="เช่น วัดพระแก้ว, ถนนคนเดินท่าแพ, หาดไร่เลย์..." 
+                data-i18n-placeholder="form_place_name_placeholder"
                 value="{{ form.place_name.value|default:'' }}"
                 required
                 autocomplete="off"
@@ -177,7 +179,7 @@
           <div class="row g-2 mb-3">
             <div class="col-12 col-sm-6">
               <label for="{{ form.region.id_for_label }}" class="form-label small fw-semibold text-dark mb-1">
-                <i class="bi bi-compass me-1 text-primary"></i>{{ form.region.label }}
+                <i class="bi bi-compass me-1 text-primary"></i><span data-i18n="form_region_label">{{ form.region.label }}</span>
               </label>
               {{ form.region }}
               {% if form.region.errors %}
@@ -186,7 +188,7 @@
             </div>
             <div class="col-12 col-sm-6">
               <label for="{{ form.province.id_for_label }}" class="form-label small fw-semibold text-dark mb-1">
-                <i class="bi bi-geo-alt me-1 text-danger"></i>{{ form.province.label }}
+                <i class="bi bi-geo-alt me-1 text-danger"></i><span data-i18n="form_province_label">{{ form.province.label }}</span>
               </label>
               {{ form.province }}
               {% if form.province.errors %}
@@ -201,12 +203,12 @@
               <i class="bi bi-crosshair text-primary fs-5"></i>
               <div id="geo-status" class="small">
                 <span class="badge bg-secondary-subtle text-secondary py-1 px-2 rounded-pill">
-                  <span class="spinner-border spinner-border-sm me-1" role="status"></span> กำลังจับพิกัด GPS...
+                  <span class="spinner-border spinner-border-sm me-1" role="status"></span> <span data-i18n="form_gps_locating">กำลังจับพิกัด GPS...</span>
                 </span>
               </div>
             </div>
             <button type="button" id="btn-get-location" class="btn btn-outline-primary btn-sm rounded-pill py-1 px-3 fw-semibold" style="font-size: 0.75rem;">
-              <i class="bi bi-arrow-clockwise me-1"></i>จับพิกัดใหม่
+              <i class="bi bi-arrow-clockwise me-1"></i><span data-i18n="form_gps_refresh">จับพิกัดใหม่</span>
             </button>
             {{ form.latitude }}
             {{ form.longitude }}
@@ -217,7 +219,7 @@
         <div class="form-section-card mb-4">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <label for="id_caption" class="form-label fw-bold mb-0 text-dark small">
-              <i class="bi bi-chat-left-text-fill text-info me-1"></i>ข้อความบรรยาย <span class="text-danger">*</span>
+              <i class="bi bi-chat-left-text-fill text-info me-1"></i><span data-i18n="form_caption_label">ข้อความบรรยาย</span> <span class="text-danger">*</span>
             </label>
             <span class="text-muted small" id="caption-char-count" style="font-size: 0.75rem;">0/500 ตัวอักษร</span>
           </div>
@@ -228,6 +230,7 @@
             rows="3" 
             maxlength="500" 
             placeholder="เล่าบรรยากาศ ความรู้สึก หรือสิ่งที่น่าประทับใจของที่นี่..."
+            data-i18n-placeholder="form_caption_placeholder"
             required
           >{{ form.caption.value|default:'' }}</textarea>
           {% if form.caption.errors %}
@@ -241,7 +244,7 @@
             <i class="bi bi-check-circle-fill fs-5"></i>
             <span>{{ button_text }}</span>
           </button>
-          <a href="{% if is_edit %}{% url 'checkins:detail' pk=object.pk %}{% else %}{% url 'checkins:feed' %}{% endif %}" class="btn btn-light rounded-pill py-2 text-muted fw-semibold text-center text-decoration-none">
+          <a href="{% if is_edit %}{% url 'checkins:detail' pk=object.pk %}{% else %}{% url 'checkins:feed' %}{% endif %}" class="btn btn-light rounded-pill py-2 text-muted fw-semibold text-center text-decoration-none" data-i18n="form_btn_cancel">
             ยกเลิก
           </a>
         </div>
@@ -264,8 +267,8 @@
         <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-2" style="width: 58px; height: 58px;">
           <i class="bi bi-camera-fill fs-3"></i>
         </div>
-        <h5 class="fw-bold mb-1 text-dark" id="photoSourceModalLabel">เลือกวิธีเพิ่มรูปภาพ</h5>
-        <p class="text-muted small mb-0">ระบบจะขออนุญาตเข้าถึงกล้องหรือคลังภาพในอุปกรณ์ของคุณ</p>
+        <h5 class="fw-bold mb-1 text-dark" id="photoSourceModalLabel" data-i18n="composer_source_title">เลือกวิธีเพิ่มรูปภาพ</h5>
+        <p class="text-muted small mb-0" data-i18n="composer_source_desc">ระบบจะขออนุญาตเข้าถึงกล้องหรือคลังภาพในอุปกรณ์ของคุณ</p>
       </div>
 
       <div class="modal-body p-4 pt-3">
@@ -277,8 +280,8 @@
               <i class="bi bi-camera fs-4"></i>
             </div>
             <div class="flex-grow-1">
-              <div class="fw-bold text-dark mb-0">เปิดกล้องถ่ายรูป (Camera)</div>
-              <span class="text-muted small" style="font-size: 0.78rem;">ถ่ายภาพสถานที่จริงสดๆ ด้วยกล้องของคุณทันที</span>
+              <div class="fw-bold text-dark mb-0" data-i18n="composer_source_camera">เปิดกล้องถ่ายรูป (Camera)</div>
+              <span class="text-muted small" style="font-size: 0.78rem;" data-i18n="composer_source_camera_sub">ถ่ายภาพสถานที่จริงสดๆ ด้วยกล้องของคุณทันที</span>
             </div>
             <i class="bi bi-chevron-right text-muted"></i>
           </button>
@@ -289,8 +292,8 @@
               <i class="bi bi-images fs-4"></i>
             </div>
             <div class="flex-grow-1">
-              <div class="fw-bold text-dark mb-0">เลือกจากคลังรูปภาพ (Gallery / Files)</div>
-              <span class="text-muted small" style="font-size: 0.78rem;">เลือกไฟล์รูปภาพที่มีอยู่แล้วในเครื่องของคุณ</span>
+              <div class="fw-bold text-dark mb-0" data-i18n="composer_source_gallery">เลือกจากคลังรูปภาพ (Gallery / Files)</div>
+              <span class="text-muted small" style="font-size: 0.78rem;" data-i18n="composer_source_gallery_sub">เลือกไฟล์รูปภาพที่มีอยู่แล้วในเครื่องของคุณ</span>
             </div>
             <i class="bi bi-chevron-right text-muted"></i>
           </button>
@@ -299,7 +302,7 @@
       </div>
 
       <div class="modal-footer border-0 pt-0 pb-4 px-4">
-        <button type="button" class="btn btn-light w-100 rounded-pill py-2 text-muted fw-semibold" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-light w-100 rounded-pill py-2 text-muted fw-semibold" data-bs-dismiss="modal" data-i18n="form_btn_cancel">
           ยกเลิก
         </button>
       </div>
@@ -319,7 +322,7 @@
       <div class="modal-header border-0 py-3 px-4 d-flex align-items-center justify-content-between" style="background: rgba(0,0,0,0.4);">
         <div class="d-flex align-items-center gap-2">
           <i class="bi bi-camera-video-fill text-warning fs-5"></i>
-          <span class="fw-bold small" id="cameraCaptureModalLabel">ถ่ายรูปสถานที่</span>
+          <span class="fw-bold small" id="cameraCaptureModalLabel" data-i18n="form_camera_title">ถ่ายรูปสถานที่</span>
         </div>
         <button type="button" class="btn btn-dark btn-sm rounded-circle p-2 text-white border-0" id="btn-close-camera-modal" aria-label="Close">
           <i class="bi bi-x-lg fs-6"></i>
@@ -377,10 +380,10 @@
         <!-- Captured Image Review Controls (Retake / Use) -->
         <div id="camera-review-controls" class="d-none w-100 d-flex align-items-center justify-content-between gap-3 px-2">
           <button type="button" id="btn-camera-retake" class="btn btn-outline-light flex-grow-1 rounded-pill py-2.5 fw-semibold">
-            <i class="bi bi-arrow-counterclockwise me-1"></i> ถ่ายใหม่
+            <i class="bi bi-arrow-counterclockwise me-1"></i> <span data-i18n="form_camera_retake">ถ่ายใหม่</span>
           </button>
           <button type="button" id="btn-camera-confirm" class="btn btn-warning flex-grow-1 rounded-pill py-2.5 fw-bold text-dark">
-            <i class="bi bi-check2-circle me-1"></i> ใช้รูปนี้
+            <i class="bi bi-check2-circle me-1"></i> <span data-i18n="form_camera_confirm">ใช้รูปนี้</span>
           </button>
         </div>
 

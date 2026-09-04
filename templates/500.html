@@ -9,8 +9,8 @@
       <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle mx-auto mb-3" style="width: 80px; height: 80px;">
         <i class="bi bi-gear-wide-connected fs-1"></i>
       </div>
-      <h3 class="fw-bold text-dark mb-2">500 - เกิดข้อผิดพลาดของเซิร์ฟเวอร์</h3>
-      <p class="text-muted mb-3">ระบบพบปัญหาชั่วคราวในการประมวลผล กรุณาลองใหม่อีกครั้งในภายหลัง</p>
+      <h3 class="fw-bold text-dark mb-2" data-i18n="error_500_title">500 - เกิดข้อผิดพลาดของเซิร์ฟเวอร์</h3>
+      <p class="text-muted mb-3" data-i18n="error_500_desc">ระบบพบปัญหาชั่วคราวในการประมวลผล กรุณาลองใหม่อีกครั้งในภายหลัง</p>
 
       {% if error_message and error_message != 'None' and error_message != 'ไม่ทราบสาเหตุ' %}
         <div class="alert alert-danger text-start small font-monospace mb-3">
@@ -36,7 +36,7 @@
       {% endif %}
 
       <div>
-        <a href="{% url 'checkins:feed' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
+        <a href="{% url 'checkins:feed' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm" data-i18n="error_back_home">
           <i class="bi bi-house-door me-1"></i> กลับสู่หน้าหลัก
         </a>
       </div>

@@ -226,7 +226,7 @@ function initSocialInteractions() {
       }
     });
 
-    showToast(newBookmarked ? 'บันทึกไปยังคอลเลกชันแล้ว 🔖' : 'นำออกจากรายการบันทึกแล้ว');
+    showToast(newBookmarked ? 'บันทึกไปยังคอลเลกชันแล้ว' : 'นำออกจากรายการบันทึกแล้ว');
 
     fetch(url, {
       method: 'POST',
@@ -265,24 +265,130 @@ function initSocialInteractions() {
   });
 
   /* ----------------------------------------------------
-   * 4. AJAX COMMENTS (Quick Feed & Detail)
+   * 4. COMMENTS SYSTEM (Modal Drawer & In-Page)
    * ---------------------------------------------------- */
+  // Open Comments Modal or focus in-page input
   document.body.addEventListener('click', function (e) {
-    const btn = e.target.closest('.btn-comment-focus');
+    const btn = e.target.closest('.btn-open-comments, .btn-comment-focus, .btn-comment-modal');
     if (!btn) return;
 
     e.preventDefault();
-    if (requireAuth('เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อร่วมแสดงความคิดเห็น')) return;
 
     const checkinId = btn.dataset.checkinId;
-    const input = document.querySelector(`.feed-comment-input-${checkinId}`);
-    if (input) {
-      input.focus();
+    if (!checkinId) return;
+
+    // Check if in detail page with #comment-input-box
+    const inPageForm = document.getElementById('comment-input-box');
+    if (inPageForm && inPageForm.dataset.checkinId === checkinId) {
+      const inPageInput = inPageForm.querySelector('input[name="text"]');
+      if (inPageInput) {
+        inPageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => inPageInput.focus(), 300);
+        return;
+      }
     }
+
+    // Otherwise open the global postCommentsModal
+    openPostCommentsModal(checkinId, btn.dataset.commentUrl);
   });
 
+  function openPostCommentsModal(checkinId, customUrl = null) {
+    const modalEl = document.getElementById('postCommentsModal');
+    if (!modalEl || !window.bootstrap) return;
+
+    const modalTitle = document.getElementById('postCommentsModalTitle');
+    const authorLink = document.getElementById('modalPostAuthorLink');
+    const authorAvatar = document.getElementById('modalPostAuthorAvatar');
+    const authorName = document.getElementById('modalPostAuthorName');
+    const placeBadge = document.getElementById('modalPostPlaceName');
+    const captionEl = document.getElementById('modalPostCaption');
+    const commentsList = document.getElementById('modalCommentsList');
+    const commentForm = document.getElementById('modalCommentForm');
+    const commentInput = document.getElementById('modalCommentInput');
+
+    if (modalTitle) modalTitle.textContent = 'ความคิดเห็น';
+    if (placeBadge) placeBadge.textContent = '';
+    if (captionEl) captionEl.textContent = '';
+    if (commentsList) {
+      commentsList.innerHTML = '<div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div> กำลังโหลดความคิดเห็น...</div>';
+    }
+
+    if (commentForm) {
+      commentForm.dataset.checkinId = checkinId;
+      commentForm.action = `/checkin/${checkinId}/comment/`;
+    }
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
+
+    const fetchUrl = customUrl || `/checkin/${checkinId}/comment/`;
+
+    fetch(fetchUrl, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        // Populate author header
+        if (modalTitle) modalTitle.textContent = `ความคิดเห็น (${data.comments_count})`;
+        if (authorLink) authorLink.href = `/accounts/profile/${data.author_username}/`;
+        if (authorName) {
+          authorName.href = `/accounts/profile/${data.author_username}/`;
+          authorName.textContent = `@${data.author_username}`;
+        }
+        if (authorAvatar) {
+          authorAvatar.innerHTML = data.author_avatar 
+            ? `<img src="${data.author_avatar}" alt="${data.author_username}" class="rounded-circle border" width="34" height="34" style="object-fit:cover;">`
+            : `<div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width:34px; height:34px; font-size:0.8rem;"><i class="bi bi-person-fill"></i></div>`;
+        }
+        if (placeBadge) {
+          placeBadge.innerHTML = `<i class="bi bi-geo-alt-fill text-danger me-1"></i>${escapeHtml(data.place_name || '')}`;
+        }
+        if (captionEl) {
+          captionEl.textContent = data.caption || 'ไม่มีคำบรรยาย';
+        }
+
+        // Render Comments List
+        if (commentsList) {
+          if (!data.comments || data.comments.length === 0) {
+            commentsList.innerHTML = `
+              <div class="empty-modal-comments d-flex flex-column align-items-center justify-content-center text-center py-5 my-auto">
+                <h5 class="fw-bold mb-1 text-dark">No comments yet</h5>
+                <p class="text-muted small mb-0">Start the conversation.</p>
+              </div>
+            `;
+          } else {
+            commentsList.innerHTML = '';
+            data.comments.forEach(c => {
+              const el = createCommentElement(c);
+              commentsList.appendChild(el);
+            });
+          }
+        }
+
+        // Auto focus input if authenticated
+        if (commentInput) {
+          setTimeout(() => commentInput.focus(), 300);
+        }
+      } else {
+        if (commentsList) {
+          commentsList.innerHTML = '<div class="text-center py-3 text-danger small">ไม่สามารถโหลดความคิดเห็นได้</div>';
+        }
+      }
+    })
+    .catch(err => {
+      console.error('Fetch comments error:', err);
+      if (commentsList) {
+        commentsList.innerHTML = '<div class="text-center py-3 text-danger small">เกิดข้อผิดพลาดในการเชื่อมต่อ</div>';
+      }
+    });
+  }
+
+  // Handle Comment Form Submission (Both Modal Form & In-Page Form)
   document.body.addEventListener('submit', function (e) {
-    const form = e.target.closest('.ajax-comment-form, .feed-quick-comment-box');
+    const form = e.target.closest('#modalCommentForm, .ajax-comment-form, .feed-quick-comment-box');
     if (!form) return;
 
     e.preventDefault();
@@ -292,7 +398,8 @@ function initSocialInteractions() {
     const text = input ? input.value.trim() : '';
     if (!text) return;
 
-    const url = form.action || form.dataset.url;
+    const checkinId = form.dataset.checkinId;
+    const url = form.action || form.dataset.url || `/checkin/${checkinId}/comment/`;
     const submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
 
@@ -318,34 +425,56 @@ function initSocialInteractions() {
       return res.json();
     })
     .then(data => {
-      if (!data) return;
       if (submitBtn) submitBtn.disabled = false;
+      if (!data) return;
+
       if (data.login_required) {
         requireAuth();
         return;
       }
+
       if (data.success) {
         if (input) input.value = '';
 
-        const checkinId = form.dataset.checkinId;
-        const commentsList = document.querySelector(`.comments-list[data-checkin-id="${checkinId}"]`);
-        
-        if (commentsList) {
-          const commentEl = createCommentElement(data.comment);
-          commentsList.appendChild(commentEl);
-          commentEl.classList.add('highlight-fade');
+        // 1. Append to Modal Comments List if open
+        const modalCommentsList = document.getElementById('modalCommentsList');
+        if (modalCommentsList) {
+          const emptyModalEl = modalCommentsList.querySelector('.empty-modal-comments');
+          if (emptyModalEl) emptyModalEl.remove();
+
+          const newCommentEl = createCommentElement(data.comment);
+          modalCommentsList.appendChild(newCommentEl);
+          newCommentEl.classList.add('highlight-fade');
+
+          // Scroll to bottom of modal list
+          const modalBody = modalCommentsList.closest('.modal-body');
+          if (modalBody) {
+            modalBody.scrollTop = modalBody.scrollHeight;
+          }
         }
 
-        // Update comment counter badges
+        // 2. Append to In-Page Comments List if present
+        const pageCommentsList = document.querySelector(`.comments-list[data-checkin-id="${checkinId}"]`);
+        if (pageCommentsList) {
+          const emptyPlaceholder = document.querySelector(`.empty-comments-placeholder[data-checkin-id="${checkinId}"]`);
+          if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
+
+          const pageCommentEl = createCommentElement(data.comment);
+          pageCommentsList.appendChild(pageCommentEl);
+          pageCommentEl.classList.add('highlight-fade');
+        }
+
+        // 3. Update all comment counter badges across the page
         document.querySelectorAll(`.comment-count[data-checkin-id="${checkinId}"], .comments-count-badge[data-checkin-id="${checkinId}"]`).forEach(el => {
           el.textContent = data.comments_count;
         });
 
-        // Hide empty placeholder
-        const emptyPlaceholder = document.querySelector(`.empty-comments-placeholder[data-checkin-id="${checkinId}"]`);
-        if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
+        const modalTitle = document.getElementById('postCommentsModalTitle');
+        if (modalTitle) {
+          modalTitle.textContent = `ความคิดเห็น (${data.comments_count})`;
+        }
 
-        showToast('แสดงความคิดเห็นเรียบร้อย 💬');
+        showToast('แสดงความคิดเห็นเรียบร้อย');
       } else {
         showToast(data.error || 'เกิดข้อผิดพลาดในการส่งความคิดเห็น', 'danger');
       }
@@ -353,6 +482,7 @@ function initSocialInteractions() {
     .catch(err => {
       if (submitBtn) submitBtn.disabled = false;
       console.error('Comment error:', err);
+      showToast('ไม่สามารถส่งความคิดเห็นได้', 'danger');
     });
   });
 
@@ -375,7 +505,7 @@ function initSocialInteractions() {
           <span class="text-secondary">${escapeHtml(c.text)}</span>
         </div>
         <div class="d-flex align-items-center gap-2 text-muted mt-1" style="font-size: 0.75rem;">
-          <span>${c.created_at_text}</span>
+          <span>${c.created_at_text || 'เมื่อสักครู่'}</span>
           ${c.can_delete ? `<button type="button" class="btn btn-link btn-sm text-danger p-0 border-0 btn-delete-comment" data-url="/comment/${c.id}/delete/" style="font-size: 0.75rem;">ลบ</button>` : ''}
         </div>
       </div>
@@ -385,7 +515,7 @@ function initSocialInteractions() {
 
   function escapeHtml(text) {
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = text || '';
     return div.innerHTML;
   }
 
@@ -400,6 +530,7 @@ function initSocialInteractions() {
 
     const url = btn.dataset.url;
     const commentItem = btn.closest('.comment-item');
+    const commentId = commentItem ? commentItem.dataset.commentId : null;
 
     fetch(url, {
       method: 'POST',
@@ -411,13 +542,37 @@ function initSocialInteractions() {
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        if (commentItem) {
-          commentItem.style.transition = 'all 0.3s ease';
-          commentItem.style.opacity = '0';
-          commentItem.style.transform = 'translateX(20px)';
-          setTimeout(() => commentItem.remove(), 300);
+        // Remove from DOM with smooth transition
+        const targets = commentId 
+          ? document.querySelectorAll(`.comment-item[data-comment-id="${commentId}"]`) 
+          : [commentItem];
+
+        targets.forEach(item => {
+          if (item) {
+            item.style.transition = 'all 0.3s ease';
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(20px)';
+            setTimeout(() => item.remove(), 300);
+          }
+        });
+
+        // Update comment counter if provided
+        if (data.comments_count !== undefined) {
+          const checkinId = data.checkin_id;
+          if (checkinId) {
+            document.querySelectorAll(`.comment-count[data-checkin-id="${checkinId}"], .comments-count-badge[data-checkin-id="${checkinId}"]`).forEach(el => {
+              el.textContent = data.comments_count;
+            });
+          }
+          const modalTitle = document.getElementById('postCommentsModalTitle');
+          if (modalTitle) {
+            modalTitle.textContent = `ความคิดเห็น (${data.comments_count})`;
+          }
         }
+
         showToast('ลบความคิดเห็นเรียบร้อยแล้ว');
+      } else {
+        showToast(data.error || 'ไม่สามารถลบความคิดเห็นได้', 'danger');
       }
     })
     .catch(err => console.error('Delete comment error:', err));
@@ -457,7 +612,7 @@ function initSocialInteractions() {
       followersCountEl.textContent = Math.max(0, cur + (newFollowing ? 1 : -1));
     }
 
-    showToast(newFollowing ? `ติดตาม @${username} แล้ว ✨` : `เลิกติดตาม @${username} แล้ว`);
+    showToast(newFollowing ? `ติดตาม @${username} แล้ว` : `เลิกติดตาม @${username} แล้ว`);
 
     fetch(url, {
       method: 'POST',
@@ -481,12 +636,12 @@ function initSocialInteractions() {
    * 7. SHARE & REPOST (Web Share API + Modal Fallback)
    * ---------------------------------------------------- */
   document.body.addEventListener('click', function (e) {
-    const btn = e.target.closest('.btn-share-post');
+    const btn = e.target.closest('.btn-share, .btn-share-post, [data-action="share"]');
     if (!btn) return;
 
     e.preventDefault();
     const title = btn.dataset.title || 'เช็คอินสถานที่ท่องเที่ยว';
-    const text = btn.dataset.text || 'ดูจุดเช็คอินนี้บน ที่นี่ Check-in';
+    const text = btn.dataset.text || `ดูจุดเช็คอิน ${title} บน ที่นี่ Check-in`;
     const url = btn.dataset.url || window.location.href;
 
     if (navigator.share) {
@@ -495,6 +650,7 @@ function initSocialInteractions() {
         text: text,
         url: url
       }).catch(err => {
+        // If aborted/cancelled by user, do nothing; if unsupported/error, open modal
         if (err.name !== 'AbortError') {
           openShareModal(title, url);
         }
@@ -506,14 +662,16 @@ function initSocialInteractions() {
 
   function openShareModal(title, url) {
     const modalEl = document.getElementById('shareModal');
-    if (!modalEl) return;
+    if (!modalEl || !window.bootstrap) return;
 
-    document.getElementById('shareModalTitle').textContent = title;
+    const titleEl = document.getElementById('shareModalTitle');
+    if (titleEl) titleEl.textContent = title ? `แชร์: ${title}` : 'แชร์จุดเช็คอิน';
+
     const linkInput = document.getElementById('shareModalLinkInput');
     if (linkInput) linkInput.value = url;
 
     const encUrl = encodeURIComponent(url);
-    const encText = encodeURIComponent(title + ' - ที่นี่ Check-in');
+    const encText = encodeURIComponent((title || 'ที่นี่ Check-in') + ' - ' + url);
 
     const lineBtn = document.getElementById('shareLineBtn');
     if (lineBtn) lineBtn.href = `https://social-plugins.line.me/lineit/share?url=${encUrl}`;
@@ -524,7 +682,7 @@ function initSocialInteractions() {
     const twitterBtn = document.getElementById('shareTwitterBtn');
     if (twitterBtn) twitterBtn.href = `https://twitter.com/intent/tweet?url=${encUrl}&text=${encText}`;
 
-    const modal = new bootstrap.Modal(modalEl);
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
   }
 
@@ -532,13 +690,21 @@ function initSocialInteractions() {
   if (copyShareBtn) {
     copyShareBtn.addEventListener('click', function () {
       const input = document.getElementById('shareModalLinkInput');
-      if (input) {
+      if (input && input.value) {
         navigator.clipboard.writeText(input.value).then(() => {
-          showToast('คัดลอกลิงก์สำเร็จแล้ว! 📋');
-          copyShareBtn.innerHTML = '<i class="bi bi-check2 text-success me-1"></i> คัดลอกแล้ว';
+          showToast('คัดลอกลิงก์สำเร็จแล้ว');
+          copyShareBtn.innerHTML = '<i class="bi bi-check2 text-white me-1"></i> คัดลอกแล้ว';
+          copyShareBtn.classList.remove('btn-primary');
+          copyShareBtn.classList.add('btn-success');
           setTimeout(() => {
             copyShareBtn.innerHTML = '<i class="bi bi-clipboard me-1"></i> คัดลอก';
+            copyShareBtn.classList.remove('btn-success');
+            copyShareBtn.classList.add('btn-primary');
           }, 2000);
+        }).catch(err => {
+          input.select();
+          document.execCommand('copy');
+          showToast('คัดลอกลิงก์สำเร็จแล้ว');
         });
       }
     });

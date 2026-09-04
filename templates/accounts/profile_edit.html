@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
 
-{% block title %}แก้ไขโปรไฟล์ - ที่นี่ Check-in{% endblock %}
+{% block title %}<span data-i18n="edit_profile_title">แก้ไขโปรไฟล์</span> - ที่นี่ Check-in{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-12 col-md-7 col-lg-6">
     <div class="card border-0 shadow-sm rounded-4 p-4">
       <div class="d-flex align-items-center mb-3">
-        <a href="{% url 'accounts:profile_me' %}" class="btn btn-light btn-sm rounded-circle me-2">
+        <a href="{% url 'accounts:profile_me' %}" class="btn btn-light btn-sm rounded-circle me-2" title="ย้อนกลับ" data-i18n-title="about_back_to_settings">
           <i class="bi bi-arrow-left"></i>
         </a>
-        <h5 class="fw-bold mb-0">แก้ไขข้อมูลโปรไฟล์</h5>
+        <h5 class="fw-bold mb-0" data-i18n="edit_profile_title">แก้ไขข้อมูลโปรไฟล์</h5>
       </div>
 
       <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
 
-        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">ข้อมูลผู้ใช้</h6>
+        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3" data-i18n="edit_profile_user_info">ข้อมูลผู้ใช้</h6>
         {% for field in u_form %}
           <div class="mb-3">
             <label for="{{ field.id_for_label }}" class="form-label small fw-semibold">
@@ -29,11 +29,11 @@
           </div>
         {% endfor %}
 
-        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4">รายละเอียดโปรไฟล์สไตล์ IG</h6>
+        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4" data-i18n="edit_profile_category">รายละเอียดโปรไฟล์สไตล์ IG</h6>
 
         <!-- Display Name -->
         <div class="mb-3">
-          <label for="{{ p_form.display_name.id_for_label }}" class="form-label small fw-semibold">ชื่อที่แสดง (Display Name)</label>
+          <label for="{{ p_form.display_name.id_for_label }}" class="form-label small fw-semibold" data-i18n="edit_profile_display_name">ชื่อที่แสดง (Display Name)</label>
           {{ p_form.display_name }}
           {% if p_form.display_name.errors %}
             <div class="text-danger small mt-1">{{ p_form.display_name.errors.0 }}</div>
@@ -42,7 +42,7 @@
 
         <!-- Category / MBTI -->
         <div class="mb-3">
-          <label for="{{ p_form.category.id_for_label }}" class="form-label small fw-semibold">หมวดหมู่ / MBTI / สถานะ</label>
+          <label for="{{ p_form.category.id_for_label }}" class="form-label small fw-semibold" data-i18n="edit_profile_category">หมวดหมู่ / MBTI / สถานะ</label>
           {{ p_form.category }}
           {% if p_form.category.errors %}
             <div class="text-danger small mt-1">{{ p_form.category.errors.0 }}</div>
@@ -51,7 +51,7 @@
 
         <!-- Bio -->
         <div class="mb-3">
-          <label for="{{ p_form.bio.id_for_label }}" class="form-label small fw-semibold">ข้อความแนะนำตัว (Bio)</label>
+          <label for="{{ p_form.bio.id_for_label }}" class="form-label small fw-semibold" data-i18n="edit_profile_bio">ข้อความแนะนำตัว (Bio)</label>
           {{ p_form.bio }}
           {% if p_form.bio.errors %}
             <div class="text-danger small mt-1">{{ p_form.bio.errors.0 }}</div>
@@ -60,31 +60,31 @@
 
         <!-- Social / External Link -->
         <div class="p-3 bg-light rounded-4 mb-3 border">
-          <h6 class="fw-bold small text-dark mb-2"><i class="bi bi-link-45deg text-primary me-1"></i> ลิงก์ภายนอก / โซเชียล</h6>
+          <h6 class="fw-bold small text-dark mb-2"><i class="bi bi-link-45deg text-primary me-1"></i> <span data-i18n="edit_profile_social_links">ลิงก์ภายนอก / โซเชียล</span></h6>
           <div class="mb-2">
-            <label for="{{ p_form.website_title.id_for_label }}" class="form-label micro-text text-muted mb-1">ชื่อปุ่ม/โซเชียล</label>
+            <label for="{{ p_form.website_title.id_for_label }}" class="form-label micro-text text-muted mb-1" data-i18n="edit_profile_website_title">ชื่อปุ่ม/โซเชียล</label>
             {{ p_form.website_title }}
           </div>
           <div>
-            <label for="{{ p_form.website_url.id_for_label }}" class="form-label micro-text text-muted mb-1">URL ลิงก์</label>
+            <label for="{{ p_form.website_url.id_for_label }}" class="form-label micro-text text-muted mb-1" data-i18n="edit_profile_website_url">URL ลิงก์</label>
             {{ p_form.website_url }}
           </div>
         </div>
 
         <!-- Music Link / Badge -->
         <div class="p-3 bg-light rounded-4 mb-4 border">
-          <h6 class="fw-bold small text-dark mb-2"><i class="bi bi-music-note-beamed text-danger me-1"></i> เพลงโปรด / แท็กเสียง</h6>
+          <h6 class="fw-bold small text-dark mb-2"><i class="bi bi-music-note-beamed text-danger me-1"></i> <span data-i18n="edit_profile_music_header">เพลงโปรด / แท็กเสียง</span></h6>
           <div class="mb-2">
-            <label for="{{ p_form.music_title.id_for_label }}" class="form-label micro-text text-muted mb-1">ชื่อเพลง / ข้อความเสียง</label>
+            <label for="{{ p_form.music_title.id_for_label }}" class="form-label micro-text text-muted mb-1" data-i18n="edit_profile_music_title">ชื่อเพลง / ข้อความเสียง</label>
             {{ p_form.music_title }}
           </div>
           <div>
-            <label for="{{ p_form.music_url.id_for_label }}" class="form-label micro-text text-muted mb-1">URL ลิงก์เพลง (Optional)</label>
+            <label for="{{ p_form.music_url.id_for_label }}" class="form-label micro-text text-muted mb-1" data-i18n="edit_profile_music_url">URL ลิงก์เพลง (Optional)</label>
             {{ p_form.music_url }}
           </div>
         </div>
 
-        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4">รูปภาพโปรไฟล์</h6>
+        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4" data-i18n="edit_profile_avatar_header">รูปภาพโปรไฟล์</h6>
 
         <div class="mb-4">
           <div class="d-flex align-items-center gap-3 mb-2">
@@ -96,7 +96,7 @@
               </div>
             {% endif %}
             <div class="flex-grow-1">
-              <label for="{{ p_form.avatar.id_for_label }}" class="form-label small text-muted mb-1">เปลี่ยนรูปโปรไฟล์ใหม่</label>
+              <label for="{{ p_form.avatar.id_for_label }}" class="form-label small text-muted mb-1" data-i18n="edit_profile_avatar_change">เปลี่ยนรูปโปรไฟล์ใหม่</label>
               {{ p_form.avatar }}
             </div>
           </div>
@@ -106,14 +106,14 @@
         </div>
 
         <div class="d-flex gap-2">
-          <a href="{% url 'accounts:profile_me' %}" class="btn btn-light flex-grow-1 rounded-pill py-2">ยกเลิก</a>
-          <button type="submit" class="btn btn-primary flex-grow-1 rounded-pill py-2 fw-semibold shadow-sm">บันทึกข้อมูล</button>
+          <a href="{% url 'accounts:profile_me' %}" class="btn btn-light flex-grow-1 rounded-pill py-2" data-i18n="edit_profile_cancel">ยกเลิก</a>
+          <button type="submit" class="btn btn-primary flex-grow-1 rounded-pill py-2 fw-semibold shadow-sm" data-i18n="edit_profile_save">บันทึกข้อมูล</button>
         </div>
       </form>
 
       <div class="mt-4 pt-3 border-top">
         <a href="{% url 'accounts:about' %}" class="btn btn-outline-secondary w-100 rounded-pill py-2 d-flex align-items-center justify-content-between px-3 text-start shadow-sm">
-          <span class="small fw-semibold text-body"><i class="bi bi-info-circle-fill me-2 text-primary"></i> เกี่ยวกับแอปพลิเคชัน (App Info)</span>
+          <span class="small fw-semibold text-body"><i class="bi bi-info-circle-fill me-2 text-primary"></i> <span data-i18n="nav_about">เกี่ยวกับแอปพลิเคชัน</span></span>
           <i class="bi bi-chevron-right small"></i>
         </a>
       </div>
