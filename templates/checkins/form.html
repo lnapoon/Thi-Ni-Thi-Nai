@@ -40,6 +40,12 @@
     background-color: #1e293b !important;
     border-color: #334155 !important;
   }
+  .modal {
+    z-index: 1065 !important;
+  }
+  .modal-backdrop {
+    z-index: 1060 !important;
+  }
 </style>
 {% endblock %}
 
@@ -66,6 +72,24 @@
       <form method="post" enctype="multipart/form-data" novalidate id="main-checkin-form">
         {% csrf_token %}
 
+        <!-- Actual File Input for Form Submission -->
+        <input 
+          type="file" 
+          name="photo" 
+          id="id_photo" 
+          accept="image/jpeg,image/png,image/webp,image/gif,image/heic"
+          style="position: fixed; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;"
+        >
+
+        <!-- Native Camera Fallback Input (for mobile browsers) -->
+        <input 
+          type="file" 
+          id="id_photo_camera_fallback" 
+          accept="image/*" 
+          capture="environment"
+          style="position: fixed; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;"
+        >
+
         {% if form.non_field_errors %}
           <div class="alert alert-danger py-2 rounded-3 small mb-3">
             {% for error in form.non_field_errors %}
@@ -83,16 +107,9 @@
             <span class="text-muted small" style="font-size: 0.75rem;">JPG, PNG, WEBP (สูงสุด 5 MB)</span>
           </div>
 
-          <div class="photo-upload-dropzone rounded-4 text-center position-relative overflow-hidden" id="photo-dropzone-box">
-            <input 
-              type="file" 
-              name="photo" 
-              id="id_photo" 
-              class="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer" 
-              accept="image/jpeg,image/png,image/webp,image/gif,image/heic"
-              style="z-index: 5;"
-            >
-
+          <!-- Photo Dropzone / Trigger Area -->
+          <div class="photo-upload-dropzone rounded-4 text-center position-relative overflow-hidden cursor-pointer" id="photo-dropzone-box" role="button" tabindex="0" title="คลิกเพื่อเลือกกล้องหรือคลังภาพ">
+            
             <!-- Preview Image (shown when image exists) -->
             <div id="photo-preview-box" class="{% if not is_edit or not object.get_photo_url %}d-none{% endif %} position-relative w-100 h-100">
               <img id="photo-preview-img" src="{% if is_edit and object.get_photo_url %}{{ object.get_photo_url }}{% endif %}" alt="Preview" class="w-100" style="object-fit: cover; min-height: 240px; max-height: 320px; border-radius: 16px;">
@@ -108,10 +125,10 @@
             <!-- Placeholder State (shown when no image selected) -->
             <div id="photo-preview-placeholder" class="{% if is_edit and object.get_photo_url %}d-none{% endif %} py-4 px-3">
               <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-2 shadow-sm" style="width: 64px; height: 64px;">
-                <i class="bi bi-cloud-arrow-up-fill fs-2"></i>
+                <i class="bi bi-camera-fill fs-2"></i>
               </div>
-              <h6 class="fw-bold text-dark mb-1">แตะเพื่อเลือกรูปภาพ หรือลากไฟล์มาวาง</h6>
-              <p class="text-muted small mb-0" style="font-size: 0.78rem;">ระบบจะปรับขนาดและบีบอัดรูปภาพให้อัตโนมัติ</p>
+              <h6 class="fw-bold text-dark mb-1">แตะเพื่อถ่ายรูป หรือเลือกรูปภาพ</h6>
+              <p class="text-muted small mb-0" style="font-size: 0.78rem;">รองรับการเปิดกล้องถ่ายภาพสด หรือเลือกจากคลังรูปภาพในเครื่อง</p>
             </div>
           </div>
           {% if form.photo.errors %}
@@ -234,6 +251,144 @@
 
   </div>
 </div>
+
+<!-- ======================================================== -->
+<!-- Modal 1: Photo Source Selection & User Consent Modal -->
+<!-- ======================================================== -->
+<div class="modal fade" id="photoSourceModal" tabindex="-1" aria-labelledby="photoSourceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+    <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+      
+      <div class="modal-header border-0 pb-0 pt-4 px-4 text-center d-block position-relative">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-2" style="width: 58px; height: 58px;">
+          <i class="bi bi-camera-fill fs-3"></i>
+        </div>
+        <h5 class="fw-bold mb-1 text-dark" id="photoSourceModalLabel">เลือกวิธีเพิ่มรูปภาพ</h5>
+        <p class="text-muted small mb-0">ระบบจะขออนุญาตเข้าถึงกล้องหรือคลังภาพในอุปกรณ์ของคุณ</p>
+      </div>
+
+      <div class="modal-body p-4 pt-3">
+        <div class="d-flex flex-column gap-3">
+          
+          <!-- Option 1: Open Camera -->
+          <button type="button" id="btn-modal-choose-camera" class="btn btn-outline-primary p-3 rounded-4 text-start d-flex align-items-center gap-3 border shadow-2xs hover-lift transition-all">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+              <i class="bi bi-camera fs-4"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-bold text-dark mb-0">เปิดกล้องถ่ายรูป (Camera)</div>
+              <span class="text-muted small" style="font-size: 0.78rem;">ถ่ายภาพสถานที่จริงสดๆ ด้วยกล้องของคุณทันที</span>
+            </div>
+            <i class="bi bi-chevron-right text-muted"></i>
+          </button>
+
+          <!-- Option 2: Gallery / Files -->
+          <button type="button" id="btn-modal-choose-gallery" class="btn btn-outline-secondary p-3 rounded-4 text-start d-flex align-items-center gap-3 border shadow-2xs hover-lift transition-all cursor-pointer w-100 mb-0">
+            <div class="rounded-circle bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+              <i class="bi bi-images fs-4"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-bold text-dark mb-0">เลือกจากคลังรูปภาพ (Gallery / Files)</div>
+              <span class="text-muted small" style="font-size: 0.78rem;">เลือกไฟล์รูปภาพที่มีอยู่แล้วในเครื่องของคุณ</span>
+            </div>
+            <i class="bi bi-chevron-right text-muted"></i>
+          </button>
+
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 pb-4 px-4">
+        <button type="button" class="btn btn-light w-100 rounded-pill py-2 text-muted fw-semibold" data-bs-dismiss="modal">
+          ยกเลิก
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- Modal 2: Live Viewfinder Camera Capture Modal -->
+<!-- ======================================================== -->
+<div class="modal fade" id="cameraCaptureModal" tabindex="-1" aria-labelledby="cameraCaptureModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 540px;">
+    <div class="modal-content border-0 rounded-4 shadow-2xl bg-dark text-white overflow-hidden">
+      
+      <!-- Camera Modal Header -->
+      <div class="modal-header border-0 py-3 px-4 d-flex align-items-center justify-content-between" style="background: rgba(0,0,0,0.4);">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-camera-video-fill text-warning fs-5"></i>
+          <span class="fw-bold small" id="cameraCaptureModalLabel">ถ่ายรูปสถานที่</span>
+        </div>
+        <button type="button" class="btn btn-dark btn-sm rounded-circle p-2 text-white border-0" id="btn-close-camera-modal" aria-label="Close">
+          <i class="bi bi-x-lg fs-6"></i>
+        </button>
+      </div>
+
+      <!-- Camera Viewfinder & Preview Body -->
+      <div class="modal-body p-0 position-relative bg-black d-flex align-items-center justify-content-center" style="min-height: 380px; max-height: 520px;">
+        
+        <!-- Live Video Stream -->
+        <video id="camera-stream-video" autoplay playsinline muted class="w-100 h-100" style="object-fit: cover; min-height: 380px; max-height: 520px;"></video>
+        
+        <!-- Hidden Canvas for frame snapshot -->
+        <canvas id="camera-snapshot-canvas" class="d-none"></canvas>
+
+        <!-- Captured Still Image Preview Box -->
+        <div id="camera-captured-preview-box" class="d-none position-absolute top-0 start-0 w-100 h-100 bg-black">
+          <img id="camera-captured-preview-img" src="" alt="Captured Image" class="w-100 h-100" style="object-fit: contain;">
+        </div>
+
+        <!-- Camera Focus & Viewfinder Grid Overlay -->
+        <div id="camera-viewfinder-grid" class="position-absolute top-0 start-0 w-100 h-100 pointer-events-none d-flex align-items-center justify-content-center">
+          <div class="border border-white border-opacity-25 rounded-4" style="width: 88%; height: 85%;"></div>
+        </div>
+
+        <!-- Camera Loading Spinner -->
+        <div id="camera-loading-spinner" class="position-absolute text-center">
+          <div class="spinner-border text-warning mb-2" role="status"></div>
+          <div class="small text-white opacity-75">กำลังเปิดกล้อง...</div>
+        </div>
+
+      </div>
+
+      <!-- Camera Modal Footer / Controls -->
+      <div class="modal-footer border-0 py-3 px-4 d-flex justify-content-around align-items-center bg-black">
+        
+        <!-- Live Camera Mode Controls -->
+        <div id="camera-live-controls" class="w-100 d-flex align-items-center justify-content-between px-3">
+          <!-- Flip Camera button -->
+          <button type="button" id="btn-switch-camera-facing" class="btn btn-dark rounded-circle p-3 shadow text-white border border-secondary" title="สลับกล้องหน้า/หลัง">
+            <i class="bi bi-arrow-repeat fs-5"></i>
+          </button>
+
+          <!-- Shutter Button -->
+          <button type="button" id="btn-shutter-snap" class="btn btn-warning rounded-circle p-1 shadow-lg d-flex align-items-center justify-content-center" style="width: 68px; height: 68px;" title="กดถ่ายรูป">
+            <div class="rounded-circle bg-white border border-4 border-warning" style="width: 56px; height: 56px;"></div>
+          </button>
+
+          <!-- Native Camera Fallback trigger -->
+          <button type="button" id="btn-trigger-native-camera" class="btn btn-dark rounded-circle p-3 shadow text-white border border-secondary" title="เปิดแอปกล้องของเครื่อง">
+            <i class="bi bi-phone fs-5"></i>
+          </button>
+        </div>
+
+        <!-- Captured Image Review Controls (Retake / Use) -->
+        <div id="camera-review-controls" class="d-none w-100 d-flex align-items-center justify-content-between gap-3 px-2">
+          <button type="button" id="btn-camera-retake" class="btn btn-outline-light flex-grow-1 rounded-pill py-2.5 fw-semibold">
+            <i class="bi bi-arrow-counterclockwise me-1"></i> ถ่ายใหม่
+          </button>
+          <button type="button" id="btn-camera-confirm" class="btn btn-warning flex-grow-1 rounded-pill py-2.5 fw-bold text-dark">
+            <i class="bi bi-check2-circle me-1"></i> ใช้รูปนี้
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -243,6 +398,8 @@
     const regionSelect = document.getElementById('id_region');
     const provinceSelect = document.getElementById('id_province');
     const photoInput = document.getElementById('id_photo');
+    const photoCameraFallback = document.getElementById('id_photo_camera_fallback');
+    const dropzoneBox = document.getElementById('photo-dropzone-box');
     const previewBox = document.getElementById('photo-preview-box');
     const previewImg = document.getElementById('photo-preview-img');
     const previewPlaceholder = document.getElementById('photo-preview-placeholder');
@@ -252,7 +409,299 @@
     const formEl = document.getElementById('main-checkin-form');
     const submitBtn = document.getElementById('btn-submit-form');
 
-    // 1. Cascading Region -> Province Select
+    // Modals (Move to document.body to prevent CSS transform / stacking context issues)
+    const photoSourceModalEl = document.getElementById('photoSourceModal');
+    if (photoSourceModalEl && photoSourceModalEl.parentElement !== document.body) {
+      document.body.appendChild(photoSourceModalEl);
+    }
+    const cameraCaptureModalEl = document.getElementById('cameraCaptureModal');
+    if (cameraCaptureModalEl && cameraCaptureModalEl.parentElement !== document.body) {
+      document.body.appendChild(cameraCaptureModalEl);
+    }
+
+    const photoSourceModal = photoSourceModalEl ? new bootstrap.Modal(photoSourceModalEl) : null;
+    const cameraCaptureModal = cameraCaptureModalEl ? new bootstrap.Modal(cameraCaptureModalEl) : null;
+
+    // Camera elements
+    const videoStreamEl = document.getElementById('camera-stream-video');
+    const canvasEl = document.getElementById('camera-snapshot-canvas');
+    const capturedPreviewBox = document.getElementById('camera-captured-preview-box');
+    const capturedPreviewImg = document.getElementById('camera-captured-preview-img');
+    const cameraLoadingSpinner = document.getElementById('camera-loading-spinner');
+    const liveControls = document.getElementById('camera-live-controls');
+    const reviewControls = document.getElementById('camera-review-controls');
+    const btnSwitchCamera = document.getElementById('btn-switch-camera-facing');
+    const btnShutterSnap = document.getElementById('btn-shutter-snap');
+    const btnTriggerNative = document.getElementById('btn-trigger-native-camera');
+    const btnCameraRetake = document.getElementById('btn-camera-retake');
+    const btnCameraConfirm = document.getElementById('btn-camera-confirm');
+    const btnCloseCameraModal = document.getElementById('btn-close-camera-modal');
+
+    let currentStream = null;
+    let currentFacingMode = 'environment'; // default to back camera
+    let capturedBlob = null;
+
+    // 1. Photo Dropzone Click -> Open Consent & Source Choice Modal
+    if (dropzoneBox) {
+      dropzoneBox.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (photoSourceModal) {
+          photoSourceModal.show();
+        } else if (photoInput) {
+          photoInput.click();
+        }
+      });
+      dropzoneBox.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.click();
+        }
+      });
+    }
+
+    // 2. Modal Option A: Open Camera
+    const btnModalChooseCamera = document.getElementById('btn-modal-choose-camera');
+    if (btnModalChooseCamera) {
+      btnModalChooseCamera.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (photoSourceModal) photoSourceModal.hide();
+        startCameraFlow();
+      });
+    }
+
+    // 3. Modal Option B: Choose from Gallery / Files
+    const btnModalChooseGallery = document.getElementById('btn-modal-choose-gallery');
+    if (btnModalChooseGallery) {
+      btnModalChooseGallery.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (photoSourceModal) photoSourceModal.hide();
+        if (photoInput) {
+          photoInput.click();
+        }
+      });
+    }
+
+    // Camera Stream Functions
+    async function startCameraFlow() {
+      if (cameraCaptureModal) {
+        cameraCaptureModal.show();
+      }
+      resetCameraPreviewState();
+      await initCameraStream(currentFacingMode);
+    }
+
+    async function initCameraStream(facingMode) {
+      stopCameraStream();
+      if (cameraLoadingSpinner) cameraLoadingSpinner.classList.remove('d-none');
+
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (cameraLoadingSpinner) cameraLoadingSpinner.classList.add('d-none');
+        if (cameraCaptureModal) cameraCaptureModal.hide();
+        // Fallback to native camera input on mobile
+        if (photoCameraFallback) {
+          photoCameraFallback.click();
+        } else if (photoInput) {
+          photoInput.click();
+        }
+        return;
+      }
+
+      try {
+        const constraints = {
+          video: {
+            facingMode: { ideal: facingMode },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          },
+          audio: false
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        currentStream = stream;
+        if (videoStreamEl) {
+          videoStreamEl.srcObject = stream;
+          videoStreamEl.onloadedmetadata = function() {
+            videoStreamEl.play();
+            if (cameraLoadingSpinner) cameraLoadingSpinner.classList.add('d-none');
+          };
+        }
+      } catch (err) {
+        console.warn('Camera access issue:', err);
+        if (cameraLoadingSpinner) cameraLoadingSpinner.classList.add('d-none');
+        alert('ไม่สามารถเข้าถึงกล้องเว็บแคมได้ หรือยังไม่ได้รับอนุญาต ระบบจะเปิดกล้องของอุปกรณ์แทน');
+        if (cameraCaptureModal) cameraCaptureModal.hide();
+        if (photoCameraFallback) {
+          photoCameraFallback.click();
+        } else if (photoInput) {
+          photoInput.click();
+        }
+      }
+    }
+
+    function stopCameraStream() {
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+      }
+      if (videoStreamEl) {
+        videoStreamEl.srcObject = null;
+      }
+    }
+
+    function resetCameraPreviewState() {
+      if (capturedPreviewBox) capturedPreviewBox.classList.add('d-none');
+      if (liveControls) liveControls.classList.remove('d-none');
+      if (reviewControls) reviewControls.classList.add('d-none');
+      capturedBlob = null;
+    }
+
+    // Switch camera front/back
+    if (btnSwitchCamera) {
+      btnSwitchCamera.addEventListener('click', async function() {
+        currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
+        await initCameraStream(currentFacingMode);
+      });
+    }
+
+    // Shutter Snap Button
+    if (btnShutterSnap && videoStreamEl && canvasEl) {
+      btnShutterSnap.addEventListener('click', function() {
+        if (!videoStreamEl.videoWidth) return;
+
+        const w = videoStreamEl.videoWidth;
+        const h = videoStreamEl.videoHeight;
+        canvasEl.width = w;
+        canvasEl.height = h;
+
+        const ctx = canvasEl.getContext('2d');
+        // If front camera, flip horizontally for mirror effect
+        if (currentFacingMode === 'user') {
+          ctx.translate(w, 0);
+          ctx.scale(-1, 1);
+        }
+        ctx.drawImage(videoStreamEl, 0, 0, w, h);
+
+        canvasEl.toBlob(function(blob) {
+          if (!blob) return;
+          capturedBlob = blob;
+          const url = URL.createObjectURL(blob);
+          if (capturedPreviewImg) capturedPreviewImg.src = url;
+          if (capturedPreviewBox) capturedPreviewBox.classList.remove('d-none');
+          if (liveControls) liveControls.classList.add('d-none');
+          if (reviewControls) reviewControls.classList.remove('d-none');
+        }, 'image/jpeg', 0.92);
+      });
+    }
+
+    // Retake Button
+    if (btnCameraRetake) {
+      btnCameraRetake.addEventListener('click', function() {
+        resetCameraPreviewState();
+      });
+    }
+
+    // Confirm & Use Captured Photo
+    if (btnCameraConfirm && photoInput) {
+      btnCameraConfirm.addEventListener('click', function() {
+        if (!capturedBlob) return;
+
+        const filename = `photo_camera_${Date.now()}.jpg`;
+        const file = new File([capturedBlob], filename, { type: 'image/jpeg' });
+
+        // Set to photoInput using DataTransfer
+        try {
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          photoInput.files = dt.files;
+        } catch (e) {
+          console.warn('DataTransfer not supported:', e);
+        }
+
+        // Update preview in main form
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          if (previewImg) previewImg.src = e.target.result;
+          if (previewBox) previewBox.classList.remove('d-none');
+          if (previewPlaceholder) previewPlaceholder.classList.add('d-none');
+          if (filenameSpan) filenameSpan.textContent = filename;
+        };
+        reader.readAsDataURL(file);
+
+        // Close modal and stop stream
+        stopCameraStream();
+        if (cameraCaptureModal) cameraCaptureModal.hide();
+      });
+    }
+
+    // Native Camera Trigger
+    if (btnTriggerNative && photoCameraFallback) {
+      btnTriggerNative.addEventListener('click', function() {
+        stopCameraStream();
+        if (cameraCaptureModal) cameraCaptureModal.hide();
+        photoCameraFallback.click();
+      });
+    }
+
+    // Close Camera Modal
+    if (btnCloseCameraModal) {
+      btnCloseCameraModal.addEventListener('click', function() {
+        stopCameraStream();
+        if (cameraCaptureModal) cameraCaptureModal.hide();
+      });
+    }
+
+    if (cameraCaptureModalEl) {
+      cameraCaptureModalEl.addEventListener('hidden.bs.modal', function() {
+        stopCameraStream();
+      });
+    }
+
+    // Native Camera Fallback Change Event
+    if (photoCameraFallback && photoInput) {
+      photoCameraFallback.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+          try {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            photoInput.files = dt.files;
+          } catch(e) {}
+          handleSelectedFile(file);
+        }
+      });
+    }
+
+    // Standard Photo Input Change Event
+    if (photoInput) {
+      photoInput.addEventListener('change', function() {
+        if (photoSourceModal) photoSourceModal.hide();
+        const file = this.files[0];
+        if (file) {
+          handleSelectedFile(file);
+        }
+      });
+    }
+
+    function handleSelectedFile(file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('คำเตือน: ขนาดไฟล์เกิน 5MB กรุณาเลือกรูปภาพที่มีขนาดเล็กลง');
+        if (photoInput) photoInput.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        if (previewImg) previewImg.src = e.target.result;
+        if (previewBox) previewBox.classList.remove('d-none');
+        if (previewPlaceholder) previewPlaceholder.classList.add('d-none');
+        if (filenameSpan) filenameSpan.textContent = file.name;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // 4. Cascading Region -> Province Select
     if (regionSelect && provinceSelect) {
       regionSelect.addEventListener('change', function() {
         const selectedRegion = this.value;
@@ -279,29 +728,7 @@
       });
     }
 
-    // 2. Photo Upload Preview
-    if (photoInput && previewImg) {
-      photoInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-          if (file.size > 5 * 1024 * 1024) {
-            alert('คำเตือน: ขนาดไฟล์เกิน 5MB กรุณาเลือกรูปภาพที่มีขนาดเล็กลง');
-            this.value = '';
-            return;
-          }
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            previewImg.src = e.target.result;
-            if (previewBox) previewBox.classList.remove('d-none');
-            if (previewPlaceholder) previewPlaceholder.classList.add('d-none');
-            if (filenameSpan) filenameSpan.textContent = file.name;
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-    }
-
-    // 3. Caption Live Character Counter
+    // 5. Caption Live Character Counter
     if (captionTextarea && captionCounter) {
       function updateCounter() {
         const len = captionTextarea.value.length;
@@ -311,7 +738,7 @@
       updateCounter();
     }
 
-    // 4. Form Submit Loading State
+    // 6. Form Submit Loading State
     if (formEl && submitBtn) {
       formEl.addEventListener('submit', function() {
         submitBtn.disabled = true;

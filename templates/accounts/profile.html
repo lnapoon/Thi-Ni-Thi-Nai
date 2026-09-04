@@ -7,74 +7,117 @@
   <div class="col-12 col-md-8 col-lg-7">
 
     <!-- Instagram-Style Profile Header Card -->
-    <div class="profile-header-card p-4 mb-4">
+    <div class="profile-header-card p-4 mb-4 bg-white rounded-4 shadow-sm border-0">
       
-      <!-- Top Row: Avatar & Bio & Follow Action -->
-      <div class="d-flex align-items-center gap-3 mb-3">
+      <!-- Top Section: Avatar (Left) + Name & Stats (Right) -->
+      <div class="d-flex align-items-center gap-3 gap-md-4 mb-3">
+        <!-- Left: Avatar -->
         <div class="position-relative flex-shrink-0">
           {% if profile.get_avatar_url %}
-            <img src="{{ profile.get_avatar_url }}" alt="{{ profile_user.username }}" class="profile-avatar-lg">
+            <img src="{{ profile.get_avatar_url }}" alt="{{ profile_user.username }}" class="rounded-circle shadow-sm border" style="width: 86px; height: 86px; object-fit: cover;">
           {% else %}
-            <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle" style="width: 96px; height: 96px;">
-              <i class="bi bi-person-fill" style="font-size: 3.2rem;"></i>
+            <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle shadow-sm" style="width: 86px; height: 86px;">
+              <i class="bi bi-person-fill" style="font-size: 2.8rem;"></i>
             </div>
           {% endif %}
         </div>
 
+        <!-- Right: Display Name & Stats in horizontal row like IG -->
         <div class="flex-grow-1">
-          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
-            <h5 class="fw-bold mb-0">
-              {% if profile_user.first_name %}
-                {{ profile_user.first_name }} {{ profile_user.last_name }}
-              {% else %}
-                {{ profile_user.username }}
-              {% endif %}
-            </h5>
+          <!-- Display Name -->
+          <h5 class="fw-bold mb-2 text-dark">
+            {{ profile.get_display_name }}
+          </h5>
 
-            <!-- Follow Action (if viewing other user) -->
-            {% if not is_owner %}
-              {% if is_following %}
-                <button class="btn btn-light border btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow following" data-username="{{ profile_user.username }}" data-url="{% url 'accounts:toggle_follow' username=profile_user.username %}">
-                  <i class="bi bi-check2 text-success me-1"></i> กำลังติดตาม
-                </button>
-              {% else %}
-                <button class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow shadow-sm" data-username="{{ profile_user.username }}" data-url="{% url 'accounts:toggle_follow' username=profile_user.username %}">
-                  <i class="bi bi-person-plus-fill me-1"></i> ติดตาม
-                </button>
-              {% endif %}
+          <!-- Stats Bar (posts | followers | following) -->
+          <div class="d-flex justify-content-between text-center pe-md-2" style="max-width: 320px;">
+            <!-- Posts count -->
+            <div class="profile-stat-box text-center cursor-pointer">
+              <div class="fw-bold text-dark fs-5 lh-1">{{ checkin_count }}</div>
+              <div class="text-muted small" style="font-size: 0.8rem;">posts</div>
+            </div>
+
+            <!-- Followers count (Clickable Modal) -->
+            <div class="profile-stat-box open-users-modal text-center cursor-pointer" data-url="{% url 'accounts:followers_list' username=profile_user.username %}" title="ดูผู้ติดตาม">
+              <div class="fw-bold text-dark fs-5 lh-1" id="profile-followers-count">{{ followers_count }}</div>
+              <div class="text-muted small" style="font-size: 0.8rem;">followers</div>
+            </div>
+
+            <!-- Following count (Clickable Modal) -->
+            <div class="profile-stat-box open-users-modal text-center cursor-pointer" data-url="{% url 'accounts:following_list' username=profile_user.username %}" title="ดูกำลังติดตาม">
+              <div class="fw-bold text-dark fs-5 lh-1">{{ following_count }}</div>
+              <div class="text-muted small" style="font-size: 0.8rem;">following</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bio & Details Section (Below Avatar/Stats) -->
+      <div class="mb-3">
+        <!-- Category / MBTI / Status -->
+        {% if profile.category %}
+          <div class="fw-bold text-dark small mb-1">
+            {{ profile.category }}
+          </div>
+        {% endif %}
+
+        <!-- Username handle -->
+        <div class="text-muted small mb-1">
+          @{{ profile_user.username }}
+        </div>
+
+        <!-- Bio text -->
+        {% if profile.bio %}
+          <div class="text-dark small mb-2" style="white-space: pre-line; line-height: 1.45;">
+            {{ profile.bio }}
+          </div>
+        {% endif %}
+
+        <!-- Links / Music Badges (Pills) -->
+        {% if profile.music_title or profile.website_title %}
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            {% if profile.music_title %}
+              <a href="{% if profile.music_url %}{{ profile.music_url }}{% else %}#{% endif %}" {% if profile.music_url %}target="_blank"{% endif %} class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-dark small fw-semibold d-inline-flex align-items-center shadow-2xs text-decoration-none">
+                <i class="bi bi-play-circle-fill text-danger me-1.5 fs-6"></i>
+                <span>{{ profile.music_title }}</span>
+              </a>
+            {% endif %}
+
+            {% if profile.website_title %}
+              <a href="{% if profile.website_url %}{{ profile.website_url }}{% else %}#{% endif %}" {% if profile.website_url %}target="_blank"{% endif %} class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-dark small fw-semibold d-inline-flex align-items-center shadow-2xs text-decoration-none">
+                <i class="bi bi-facebook text-primary me-1.5 fs-6"></i>
+                <span>{{ profile.website_title }}</span>
+              </a>
             {% endif %}
           </div>
+        {% endif %}
+      </div>
 
-          <p class="text-muted small mb-2">@{{ profile_user.username }}</p>
-
-          {% if profile.bio %}
-            <p class="text-dark small mb-0" style="line-height: 1.45;">{{ profile.bio }}</p>
+      <!-- Action Buttons Row (IG Style: Edit profile / Share profile / Follow) -->
+      <div class="d-flex gap-2">
+        {% if is_owner %}
+          <a href="{% url 'accounts:profile_edit' %}" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs">
+            Edit profile
+          </a>
+          <button type="button" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs" onclick="navigator.clipboard.writeText(window.location.href); alert('คัดลอกลิงก์โปรไฟล์เรียบร้อยแล้ว!');">
+            Share profile
+          </button>
+        {% else %}
+          {% if is_following %}
+            <button class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold btn-toggle-follow following" data-username="{{ profile_user.username }}" data-url="{% url 'accounts:toggle_follow' username=profile_user.username %}">
+              <i class="bi bi-check2 text-success me-1"></i> Following
+            </button>
           {% else %}
-            <p class="text-muted small fst-italic mb-0">ยังไม่มีคำอธิบายโปรไฟล์</p>
+            <button class="btn btn-primary btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold btn-toggle-follow shadow-sm" data-username="{{ profile_user.username }}" data-url="{% url 'accounts:toggle_follow' username=profile_user.username %}">
+              <i class="bi bi-person-plus-fill me-1"></i> Follow
+            </button>
           {% endif %}
-        </div>
+          <button type="button" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs" onclick="navigator.clipboard.writeText(window.location.href); alert('คัดลอกลิงก์โปรไฟล์เรียบร้อยแล้ว!');">
+            Share profile
+          </button>
+        {% endif %}
       </div>
 
-      <!-- Stats Bar 3 Columns (Instagram Style) -->
-      <div class="d-flex justify-content-around py-3 border-top border-light-subtle mt-3 mb-0">
-        <!-- Posts count -->
-        <div class="profile-stat-box">
-          <span class="profile-stat-num">{{ checkin_count }}</span>
-          <span class="profile-stat-label">โพสต์</span>
-        </div>
-
-        <!-- Followers count (Clickable Modal) -->
-        <div class="profile-stat-box open-users-modal" data-url="{% url 'accounts:followers_list' username=profile_user.username %}" title="ดูผู้ติดตาม">
-          <span class="profile-stat-num" id="profile-followers-count">{{ followers_count }}</span>
-          <span class="profile-stat-label">ผู้ติดตาม</span>
-        </div>
-
-        <!-- Following count (Clickable Modal) -->
-        <div class="profile-stat-box open-users-modal" data-url="{% url 'accounts:following_list' username=profile_user.username %}" title="ดูกำลังติดตาม">
-          <span class="profile-stat-num">{{ following_count }}</span>
-          <span class="profile-stat-label">กำลังติดตาม</span>
-        </div>
-      </div>
     </div>
 
     <!-- Profile Tabs: Posts / Bookmarks / Likes -->
