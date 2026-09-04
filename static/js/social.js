@@ -778,6 +778,111 @@ function initSocialInteractions() {
   });
 
   /* ----------------------------------------------------
+   * 8. MULTI-PHOTO INSTAGRAM CAROUSELS
+   * ---------------------------------------------------- */
+  function initMultiPhotoCarousels() {
+    document.querySelectorAll('.post-carousel-container').forEach(carousel => {
+      if (carousel.dataset.carouselInitialized) return;
+      carousel.dataset.carouselInitialized = 'true';
+
+      const track = carousel.querySelector('.post-carousel-track');
+      const slides = carousel.querySelectorAll('.post-carousel-slide');
+      const totalSlides = slides.length;
+      if (totalSlides <= 1) return;
+
+      const prevBtn = carousel.querySelector('.btn-prev');
+      const nextBtn = carousel.querySelector('.btn-next');
+      const counterBadge = carousel.querySelector('.post-carousel-badge-counter');
+      const dots = carousel.querySelectorAll('.post-carousel-dot');
+
+      let currentIndex = 0;
+
+      function goToSlide(index) {
+        if (index < 0) index = 0;
+        if (index >= totalSlides) index = totalSlides - 1;
+        currentIndex = index;
+
+        if (track) {
+          track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        }
+
+        if (counterBadge) {
+          counterBadge.textContent = `${currentIndex + 1}/${totalSlides}`;
+        }
+
+        dots.forEach((d, idx) => {
+          if (idx === currentIndex) {
+            d.classList.add('active');
+          } else {
+            d.classList.remove('active');
+          }
+        });
+
+        if (prevBtn) {
+          prevBtn.style.display = currentIndex === 0 ? 'none' : 'flex';
+        }
+        if (nextBtn) {
+          nextBtn.style.display = currentIndex === totalSlides - 1 ? 'none' : 'flex';
+        }
+      }
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goToSlide(currentIndex - 1);
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goToSlide(currentIndex + 1);
+        });
+      }
+
+      dots.forEach((dot, idx) => {
+        dot.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goToSlide(idx);
+        });
+      });
+
+      // Touch / Swipe Handling
+      let touchStartX = 0;
+      let touchEndX = 0;
+      let isSwiping = false;
+
+      carousel.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        isSwiping = true;
+      }, { passive: true });
+
+      carousel.addEventListener('touchend', (e) => {
+        if (!isSwiping) return;
+        touchEndX = e.changedTouches[0].screenX;
+        const diffX = touchStartX - touchEndX;
+        if (Math.abs(diffX) > 40) {
+          if (diffX > 0) {
+            goToSlide(currentIndex + 1); // Swipe Left -> Next
+          } else {
+            goToSlide(currentIndex - 1); // Swipe Right -> Prev
+          }
+        }
+        isSwiping = false;
+      }, { passive: true });
+
+      // Initialize initial state
+      goToSlide(0);
+    });
+  }
+
+  initMultiPhotoCarousels();
+  window.initMultiPhotoCarousels = initMultiPhotoCarousels;
+
+  /* ----------------------------------------------------
    * GLOBAL TOAST HELPER
    * ---------------------------------------------------- */
   function showToast(message, type = 'dark') {

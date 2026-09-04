@@ -25,7 +25,7 @@ class CheckInForm(forms.ModelForm):
 
     class Meta:
         model = CheckIn
-        fields = ['place_name', 'region', 'province', 'caption', 'photo', 'latitude', 'longitude']
+        fields = ['place_name', 'region', 'province', 'caption', 'photo', 'aspect_ratio', 'latitude', 'longitude']
         widgets = {
             'place_name': forms.TextInput(attrs={
                 'class': 'form-control form-control-lg',
@@ -45,6 +45,7 @@ class CheckInForm(forms.ModelForm):
                 'accept': 'image/jpeg,image/png,image/webp,image/gif,image/heic',
                 'id': 'id_photo',
             }),
+            'aspect_ratio': forms.HiddenInput(attrs={'id': 'id_aspect_ratio'}),
             'latitude': forms.HiddenInput(attrs={'id': 'id_latitude'}),
             'longitude': forms.HiddenInput(attrs={'id': 'id_longitude'}),
         }
@@ -54,16 +55,21 @@ class CheckInForm(forms.ModelForm):
             'province': 'จังหวัด',
             'caption': 'ข้อความบรรยาย * (สูงสุด 500 ตัวอักษร)',
             'photo': 'รูปภาพสถานที่ *',
+            'aspect_ratio': 'สัดส่วนภาพ',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # When editing an existing checkin, photo is optional (keeps existing photo if blank)
+        self.fields['photo'].required = False
         if self.instance and self.instance.pk:
-            self.fields['photo'].required = False
             self.fields['photo'].label = 'เปลี่ยนรูปภาพสถานที่ (เว้นว่างไว้หากใช้รูปเดิม)'
-        else:
-            self.fields['photo'].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        photo = cleaned_data.get('photo')
+        if not self.instance.pk and not photo and not self.files.getlist('photos') and not self.files.getlist('photo'):
+            self.add_error('photo', 'กรุณาเลือกรูปภาพสถานที่อย่างน้อย 1 รูป')
+        return cleaned_data
 
     def clean_photo(self):
         photo = self.cleaned_data.get('photo')
