@@ -34,19 +34,19 @@
             <!-- Posts count -->
             <div class="profile-stat-box text-center cursor-pointer">
               <div class="fw-bold text-dark fs-5 lh-1">{{ checkin_count }}</div>
-              <div class="text-muted small" style="font-size: 0.8rem;" data-i18n="profile_posts">posts</div>
+              <div class="text-muted small" style="font-size: 0.8rem;" data-i18n="profile_posts">โพสต์</div>
             </div>
 
             <!-- Followers count (Clickable Modal) -->
             <div class="profile-stat-box open-users-modal text-center cursor-pointer" data-url="{% url 'accounts:followers_list' username=profile_user.username %}" title="ดูผู้ติดตาม" data-i18n-title="profile_followers">
               <div class="fw-bold text-dark fs-5 lh-1" id="profile-followers-count">{{ followers_count }}</div>
-              <div class="text-muted small" style="font-size: 0.8rem;" data-i18n="profile_followers">followers</div>
+              <div class="text-muted small" style="font-size: 0.8rem;" data-i18n="profile_followers">ผู้ติดตาม</div>
             </div>
 
             <!-- Following count (Clickable Modal) -->
             <div class="profile-stat-box open-users-modal text-center cursor-pointer" data-url="{% url 'accounts:following_list' username=profile_user.username %}" title="ดูกำลังติดตาม" data-i18n-title="profile_following">
               <div class="fw-bold text-dark fs-5 lh-1">{{ following_count }}</div>
-              <div class="text-muted small" style="font-size: 0.8rem;" data-i18n="profile_following">following</div>
+              <div class="text-muted small" style="font-size: 0.8rem;" data-i18n="profile_following">กำลังติดตาม</div>
             </div>
           </div>
         </div>
@@ -97,23 +97,23 @@
       <div class="d-flex gap-2">
         {% if is_owner %}
           <a href="{% url 'accounts:profile_edit' %}" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs" data-i18n="profile_edit_btn">
-            Edit profile
+            แก้ไขโปรไฟล์
           </a>
-          <button type="button" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs btn-share-post" data-title="{{ profile_user.username }}" data-url="{{ request.build_absolute_uri }}">
-            Share profile
+          <button type="button" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs btn-share-post" data-title="{{ profile_user.username }}" data-url="{{ request.build_absolute_uri }}" data-i18n="profile_share_btn">
+            แชร์โปรไฟล์
           </button>
         {% else %}
           {% if is_following %}
             <button class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold btn-toggle-follow following" data-username="{{ profile_user.username }}" data-url="{% url 'accounts:toggle_follow' username=profile_user.username %}">
-              <i class="bi bi-check2 text-success me-1"></i> <span data-i18n="action_following">Following</span>
+              <i class="bi bi-check2 text-success me-1"></i> <span data-i18n="action_following">กำลังติดตาม</span>
             </button>
           {% else %}
             <button class="btn btn-primary btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold btn-toggle-follow shadow-sm" data-username="{{ profile_user.username }}" data-url="{% url 'accounts:toggle_follow' username=profile_user.username %}">
-              <i class="bi bi-person-plus-fill me-1"></i> <span data-i18n="action_follow">Follow</span>
+              <i class="bi bi-person-plus-fill me-1"></i> <span data-i18n="action_follow">ติดตาม</span>
             </button>
           {% endif %}
-          <button type="button" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs btn-share-post" data-title="{{ profile_user.username }}" data-url="{{ request.build_absolute_uri }}">
-            Share profile
+          <button type="button" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs btn-share-post" data-title="{{ profile_user.username }}" data-url="{{ request.build_absolute_uri }}" data-i18n="profile_share_btn">
+            แชร์โปรไฟล์
           </button>
         {% endif %}
       </div>
@@ -123,18 +123,18 @@
     <!-- Profile Tabs: Posts / Bookmarks / Likes (Clean Icons Only - Instagram Style) -->
     <ul class="nav nav-pills nav-justified mb-3 bg-white p-1 rounded-4 shadow-sm border" id="profileTab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active rounded-pill py-2.5 d-flex align-items-center justify-content-center" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-pane" type="button" role="tab" title="โพสต์">
+        <button class="nav-link active rounded-pill py-2.5 d-flex align-items-center justify-content-center" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-pane" type="button" role="tab" title="โพสต์" data-i18n-title="profile_posts">
           <i class="bi bi-grid-3x3 fs-5"></i>
         </button>
       </li>
       {% if is_owner %}
         <li class="nav-item" role="presentation">
-          <button class="nav-link rounded-pill py-2.5 d-flex align-items-center justify-content-center" id="bookmarks-tab" data-bs-toggle="tab" data-bs-target="#bookmarks-pane" type="button" role="tab" title="บันทึกไว้">
+          <button class="nav-link rounded-pill py-2.5 d-flex align-items-center justify-content-center" id="bookmarks-tab" data-bs-toggle="tab" data-bs-target="#bookmarks-pane" type="button" role="tab" title="บันทึกไว้" data-i18n-title="profile_tab_saved">
             <i class="bi bi-bookmark fs-5"></i>
           </button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link rounded-pill py-2.5 d-flex align-items-center justify-content-center" id="likes-tab" data-bs-toggle="tab" data-bs-target="#likes-pane" type="button" role="tab" title="ถูกใจ">
+          <button class="nav-link rounded-pill py-2.5 d-flex align-items-center justify-content-center" id="likes-tab" data-bs-toggle="tab" data-bs-target="#likes-pane" type="button" role="tab" title="ถูกใจ" data-i18n-title="action_like">
             <i class="bi bi-heart fs-5"></i>
           </button>
         </li>
@@ -163,11 +163,11 @@
             <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3 border shadow-2xs" style="width: 76px; height: 76px;">
               <i class="bi bi-camera fs-1 text-muted"></i>
             </div>
-            <h6 class="fw-bold text-dark mb-1">ยังไม่มีรายการเช็คอิน</h6>
-            <p class="text-muted small mb-3">เริ่มต้นแชร์สถานที่แรกที่คุณประทับใจได้เลย</p>
+            <h6 class="fw-bold text-dark mb-1" data-i18n="profile_empty_posts">ยังไม่มีรายการเช็คอิน</h6>
+            <p class="text-muted small mb-3" data-i18n="profile_empty_posts_desc">เริ่มต้นแชร์สถานที่แรกที่คุณประทับใจได้เลย</p>
             {% if is_owner %}
               <a href="{% url 'checkins:create' %}" class="btn btn-primary btn-sm rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center">
-                <i class="bi bi-plus-circle-fill me-1.5"></i> โพสต์เช็คอินแรก
+                <i class="bi bi-plus-circle-fill me-1.5"></i> <span data-i18n="profile_first_checkin_btn">โพสต์เช็คอินแรก</span>
               </a>
             {% endif %}
           </div>
@@ -194,8 +194,8 @@
               <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3 border shadow-2xs" style="width: 76px; height: 76px;">
                 <i class="bi bi-bookmark fs-1 text-muted"></i>
               </div>
-              <h6 class="fw-bold text-dark mb-1">ยังไม่มีโพสต์ที่บันทึกไว้</h6>
-              <p class="text-muted small mb-0">กดไอคอนบันทึกใต้โพสต์ที่คุณสนใจเพื่อเก็บไว้ดูภายหลัง</p>
+              <h6 class="fw-bold text-dark mb-1" data-i18n="profile_empty_saved">ยังไม่มีโพสต์ที่บันทึกไว้</h6>
+              <p class="text-muted small mb-0" data-i18n="profile_empty_saved_desc">กดไอคอนบันทึกใต้โพสต์ที่คุณสนใจเพื่อเก็บไว้ดูภายหลัง</p>
             </div>
           {% endif %}
         </div>
@@ -219,8 +219,8 @@
               <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3 border shadow-2xs" style="width: 76px; height: 76px;">
                 <i class="bi bi-heart fs-1 text-muted"></i>
               </div>
-              <h6 class="fw-bold text-dark mb-1">ยังไม่มีโพสต์ที่กดถูกใจ</h6>
-              <p class="text-muted small mb-0">แตะสองครั้งบนรูปภาพเพื่อกดถูกใจโพสต์ที่คุณชื่นชอบ</p>
+              <h6 class="fw-bold text-dark mb-1" data-i18n="profile_empty_likes">ยังไม่มีโพสต์ที่กดถูกใจ</h6>
+              <p class="text-muted small mb-0" data-i18n="profile_empty_likes_desc">แตะสองครั้งบนรูปภาพเพื่อกดถูกใจโพสต์ที่คุณชื่นชอบ</p>
             </div>
           {% endif %}
         </div>

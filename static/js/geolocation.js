@@ -13,20 +13,24 @@ document.addEventListener('DOMContentLoaded', function () {
       lngInput.value = lng;
     }
     if (geoStatus) {
+      const isEn = window.i18n && window.i18n.currentLang === 'en';
+      const label = isEn ? 'GPS Received' : 'ได้รับพิกัด';
       geoStatus.innerHTML = `
         <span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2 rounded-pill">
-          <i class="bi bi-geo-alt-fill me-1"></i> ได้รับพิกัด: ${lat.toFixed(4)}, ${lng.toFixed(4)}
+          <i class="bi bi-geo-alt-fill me-1"></i> <span data-i18n="form_gps_received">${label}</span>: ${lat.toFixed(4)}, ${lng.toFixed(4)}
         </span>
       `;
     }
   }
 
   function fetchCurrentLocation() {
+    const isEn = window.i18n && window.i18n.currentLang === 'en';
     if (!navigator.geolocation) {
       if (geoStatus) {
+        const label = isEn ? 'GPS Not Supported' : 'ไม่รองรับ GPS';
         geoStatus.innerHTML = `
           <span class="badge bg-secondary-subtle text-secondary py-1 px-2 rounded-pill">
-            <i class="bi bi-info-circle me-1"></i> ไม่รองรับ GPS
+            <i class="bi bi-info-circle me-1"></i> <span data-i18n="form_gps_unsupported">${label}</span>
           </span>
         `;
       }
@@ -34,9 +38,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (geoStatus) {
+      const label = isEn ? 'Locating GPS coordinates...' : 'กำลังจับพิกัด GPS...';
       geoStatus.innerHTML = `
         <span class="badge bg-primary-subtle text-primary py-1 px-2 rounded-pill">
-          <span class="spinner-border spinner-border-sm me-1" role="status"></span> กำลังดึงพิกัด...
+          <span class="spinner-border spinner-border-sm me-1" role="status"></span> <span data-i18n="form_gps_locating">${label}</span>
         </span>
       `;
     }
@@ -48,14 +53,20 @@ document.addEventListener('DOMContentLoaded', function () {
         updateLocationDisplay(lat, lng);
       },
       function (error) {
-        let msg = 'ไม่ได้ระบุพิกัด';
+        let i18nKey = 'form_gps_none';
+        let defaultTh = 'ไม่ได้ระบุพิกัด';
+        let defaultEn = 'No GPS coordinates';
         if (error.code === error.PERMISSION_DENIED) {
-          msg = 'ปฏิเสธการเข้าถึงพิกัด';
+          i18nKey = 'form_gps_denied';
+          defaultTh = 'ปฏิเสธการเข้าถึงพิกัด';
+          defaultEn = 'GPS Access Denied';
         }
+        const activeEn = window.i18n && window.i18n.currentLang === 'en';
+        const label = activeEn ? defaultEn : defaultTh;
         if (geoStatus) {
           geoStatus.innerHTML = `
             <span class="badge bg-light text-muted border py-1 px-2 rounded-pill">
-              <i class="bi bi-geo me-1"></i> ${msg}
+              <i class="bi bi-geo me-1"></i> <span data-i18n="${i18nKey}">${label}</span>
             </span>
           `;
         }

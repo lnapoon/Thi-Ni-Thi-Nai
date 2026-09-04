@@ -114,33 +114,33 @@
         <div class="form-section-card mb-4">
           <div class="d-flex align-items-center justify-content-between mb-2">
             <label class="form-label fw-bold mb-0 text-dark small">
-              <i class="bi bi-images text-primary me-1"></i><span data-i18n="form_photo_label">รูปภาพสถานที่</span> (สูงสุด 10 รูป) {% if not is_edit %}<span class="text-danger">*</span>{% endif %}
+              <i class="bi bi-images text-primary me-1"></i><span data-i18n="form_photo_label">รูปภาพสถานที่</span> <span data-i18n="form_photo_max_hint">(สูงสุด 10 รูป)</span> {% if not is_edit %}<span class="text-danger">*</span>{% endif %}
             </label>
-            <span class="badge bg-primary-subtle text-primary rounded-pill small" id="form-photo-count-badge">0/10 รูป</span>
+            <span class="badge bg-primary-subtle text-primary rounded-pill small" id="form-photo-count-badge" data-i18n="composer_photo_count_badge">0/10 รูป</span>
           </div>
 
           <!-- Aspect Ratio Selector Toolbar -->
           <div id="form-aspect-ratio-wrapper" class="mb-3">
             <div class="d-flex align-items-center justify-content-between mb-1">
               <span class="text-muted extra-small fw-semibold" style="font-size: 0.75rem;">
-                <i class="bi bi-aspect-ratio me-1 text-primary"></i>เลือกสัดส่วนภาพ (Aspect Ratio):
+                <i class="bi bi-aspect-ratio me-1 text-primary"></i><span data-i18n="composer_aspect_ratio_label">เลือกสัดส่วนภาพ:</span>
               </span>
             </div>
             <div class="aspect-ratio-selector-bar">
               <button type="button" class="aspect-ratio-pill-btn {% if form.aspect_ratio.value == 'original' or not form.aspect_ratio.value %}active{% endif %}" data-ratio="original">
-                <i class="bi bi-arrows-fullscreen"></i> Original (พอดีเฟรม)
+                <i class="bi bi-arrows-fullscreen"></i> <span data-i18n="composer_ratio_original">ออริจินัล (พอดีเฟรม)</span>
               </button>
               <button type="button" class="aspect-ratio-pill-btn {% if form.aspect_ratio.value == '1:1' %}active{% endif %}" data-ratio="1:1">
-                <i class="bi bi-square"></i> 1:1 (จัตุรัส)
+                <i class="bi bi-square"></i> <span data-i18n="composer_ratio_1_1">1:1 (จัตุรัส)</span>
               </button>
               <button type="button" class="aspect-ratio-pill-btn {% if form.aspect_ratio.value == '4:5' %}active{% endif %}" data-ratio="4:5">
-                <i class="bi bi-phone"></i> 4:5 (แนวตั้ง IG)
+                <i class="bi bi-phone"></i> <span data-i18n="composer_ratio_4_5">4:5 (แนวตั้ง)</span>
               </button>
               <button type="button" class="aspect-ratio-pill-btn {% if form.aspect_ratio.value == '16:9' %}active{% endif %}" data-ratio="16:9">
-                <i class="bi bi-tv"></i> 16:9 (แนวนอน)
+                <i class="bi bi-tv"></i> <span data-i18n="composer_ratio_16_9">16:9 (แนวนอน)</span>
               </button>
               <button type="button" class="aspect-ratio-pill-btn {% if form.aspect_ratio.value == '9:16' %}active{% endif %}" data-ratio="9:16">
-                <i class="bi bi-phone-fill"></i> 9:16 (Story)
+                <i class="bi bi-phone-fill"></i> <span data-i18n="composer_ratio_9_16">9:16 (เต็มจอ)</span>
               </button>
             </div>
           </div>
@@ -273,7 +273,7 @@
         <div class="d-flex flex-column gap-2 pt-2">
           <button type="submit" id="btn-submit-form" class="btn btn-warning btn-lg rounded-pill fw-bold shadow py-2 text-dark d-flex align-items-center justify-content-center gap-2">
             <i class="bi bi-check-circle-fill fs-5"></i>
-            <span>{{ button_text }}</span>
+            <span data-i18n="{% if is_edit %}form_btn_update{% else %}composer_post_btn{% endif %}">{{ button_text }}</span>
           </button>
           <a href="{% if is_edit %}{% url 'checkins:detail' pk=object.pk %}{% else %}{% url 'checkins:feed' %}{% endif %}" class="btn btn-light rounded-pill py-2 text-muted fw-semibold text-center text-decoration-none" data-i18n="form_btn_cancel">
             ยกเลิก
@@ -311,7 +311,7 @@
               <i class="bi bi-camera fs-4"></i>
             </div>
             <div class="flex-grow-1">
-              <div class="fw-bold text-dark mb-0" data-i18n="composer_source_camera">เปิดกล้องถ่ายรูป (Camera)</div>
+              <div class="fw-bold text-dark mb-0" data-i18n="composer_source_camera">เปิดกล้องถ่ายรูป</div>
               <span class="text-muted small" style="font-size: 0.78rem;" data-i18n="composer_source_camera_sub">ถ่ายภาพสถานที่จริงสดๆ ด้วยกล้องของคุณทันที</span>
             </div>
             <i class="bi bi-chevron-right text-muted"></i>
@@ -323,7 +323,7 @@
               <i class="bi bi-images fs-4"></i>
             </div>
             <div class="flex-grow-1">
-              <div class="fw-bold text-dark mb-0" data-i18n="composer_source_gallery">เลือกจากคลังรูปภาพ (Gallery / Files)</div>
+              <div class="fw-bold text-dark mb-0" data-i18n="composer_source_gallery">เลือกจากคลังรูปภาพ</div>
               <span class="text-muted small" style="font-size: 0.78rem;" data-i18n="composer_source_gallery_sub">เลือกไฟล์รูปภาพที่มีอยู่แล้วในเครื่องของคุณ</span>
             </div>
             <i class="bi bi-chevron-right text-muted"></i>
@@ -478,7 +478,9 @@
 
       // Update badge
       if (photoCountBadge) {
-        photoCountBadge.textContent = `${selectedFiles.length}/${maxPhotos} รูป`;
+        const isEn = window.i18n && window.i18n.currentLang === 'en';
+        const unit = isEn ? 'photos' : 'รูป';
+        photoCountBadge.textContent = `${selectedFiles.length}/${maxPhotos} ${unit}`;
       }
 
       // Toggle thumbnail container visibility
@@ -788,53 +790,100 @@
       });
     }
 
-    // Cascading Region -> Province Select
-    if (regionSelect && provinceSelect) {
-      regionSelect.addEventListener('change', function() {
-        const selectedRegion = this.value;
-        const currentProv = provinceSelect.value;
+    // Bilingual Cascading Region -> Province Select
+    function populateRegionAndProvinceOptions(keepValues = true) {
+      if (!regionSelect || !provinceSelect) return;
+      const isEn = window.i18n && window.i18n.currentLang === 'en';
+      const curReg = regionSelect.value;
+      const curProv = provinceSelect.value;
 
-        provinceSelect.innerHTML = '<option value="">-- เลือกจังหวัด --</option>';
+      // 1. Populate Region Options
+      const regPlaceholder = isEn ? '-- All Regions --' : '-- ทุกภูมิภาค --';
+      regionSelect.innerHTML = `<option value="">${regPlaceholder}</option>`;
+      for (let r in regionsData) {
+        const opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = isEn ? (regionsData[r].name_en || r) : r;
+        if (keepValues && r === curReg) opt.selected = true;
+        regionSelect.appendChild(opt);
+      }
 
-        let provList = [];
-        if (selectedRegion && regionsData[selectedRegion]) {
-          provList = regionsData[selectedRegion].provinces.map(p => p.name);
-        } else {
-          for (let r in regionsData) {
-            provList.push(...regionsData[r].provinces.map(p => p.name));
-          }
+      // 2. Populate Province Options
+      const provPlaceholder = isEn ? '-- Select Province --' : '-- เลือกจังหวัด --';
+      provinceSelect.innerHTML = `<option value="">${provPlaceholder}</option>`;
+
+      let provList = [];
+      const activeReg = regionSelect.value;
+      if (activeReg && regionsData[activeReg]) {
+        provList = regionsData[activeReg].provinces;
+      } else {
+        for (let r in regionsData) {
+          provList.push(...regionsData[r].provinces);
         }
+      }
 
-        provList.sort().forEach(function(prov) {
-          const opt = document.createElement('option');
-          opt.value = prov;
-          opt.textContent = prov;
-          if (prov === currentProv) opt.selected = true;
-          provinceSelect.appendChild(opt);
-        });
+      // Sort provinces alphabetically based on active language
+      const sortedProvs = [...provList].sort((a, b) => {
+        const nameA = isEn ? (a.name_en || a.name) : a.name;
+        const nameB = isEn ? (b.name_en || b.name) : b.name;
+        return nameA.localeCompare(nameB, isEn ? 'en' : 'th');
+      });
+
+      sortedProvs.forEach(function(p) {
+        const opt = document.createElement('option');
+        opt.value = p.name;
+        opt.textContent = isEn ? (p.name_en || p.name) : p.name;
+        if (keepValues && p.name === curProv) opt.selected = true;
+        provinceSelect.appendChild(opt);
       });
     }
 
+    if (regionSelect && provinceSelect) {
+      regionSelect.addEventListener('change', function() {
+        populateRegionAndProvinceOptions(false);
+      });
+      // Initial render on load
+      populateRegionAndProvinceOptions(true);
+    }
+
     // Caption Live Character Counter
+    function updateCounter() {
+      if (!captionTextarea || !captionCounter) return;
+      const len = captionTextarea.value.length;
+      const isEn = window.i18n && window.i18n.currentLang === 'en';
+      const unit = isEn ? 'characters' : 'ตัวอักษร';
+      captionCounter.textContent = `${len}/500 ${unit}`;
+    }
+
     if (captionTextarea && captionCounter) {
-      function updateCounter() {
-        const len = captionTextarea.value.length;
-        captionCounter.textContent = `${len}/500 ตัวอักษร`;
-      }
       captionTextarea.addEventListener('input', updateCounter);
       updateCounter();
     }
+
+    // Listen to language change to update dynamic strings & options
+    window.addEventListener('languagechange', function() {
+      if (photoCountBadge) {
+        const isEn = window.i18n && window.i18n.currentLang === 'en';
+        const unit = isEn ? 'photos' : 'รูป';
+        photoCountBadge.textContent = `${selectedFiles.length}/${maxPhotos} ${unit}`;
+      }
+      populateRegionAndProvinceOptions(true);
+      updateCounter();
+    });
 
     // Form Submit Loading State & Validation
     if (formEl && submitBtn) {
       formEl.addEventListener('submit', function(e) {
         if (!isEdit && selectedFiles.length === 0) {
           e.preventDefault();
-          alert('กรุณาเลือกรูปภาพอย่างน้อย 1 รูปสำหรับจุดเช็คอิน');
+          const isEn = window.i18n && window.i18n.currentLang === 'en';
+          alert(isEn ? 'Please select at least 1 photo for your check-in' : 'กรุณาเลือกรูปภาพอย่างน้อย 1 รูปสำหรับจุดเช็คอิน');
           return;
         }
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> กำลังบันทึกข้อมูล...';
+        const isEn = window.i18n && window.i18n.currentLang === 'en';
+        const savingText = isEn ? 'Saving data...' : 'กำลังบันทึกข้อมูล...';
+        submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span> ${savingText}`;
       });
     }
   })();

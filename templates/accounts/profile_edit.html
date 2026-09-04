@@ -29,11 +29,11 @@
           </div>
         {% endfor %}
 
-        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4" data-i18n="edit_profile_category">รายละเอียดโปรไฟล์สไตล์ IG</h6>
+        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4" data-i18n="edit_profile_ig_details">ข้อมูลโปรไฟล์เพิ่มเติม</h6>
 
         <!-- Display Name -->
         <div class="mb-3">
-          <label for="{{ p_form.display_name.id_for_label }}" class="form-label small fw-semibold" data-i18n="edit_profile_display_name">ชื่อที่แสดง (Display Name)</label>
+          <label for="{{ p_form.display_name.id_for_label }}" class="form-label small fw-semibold" data-i18n="edit_profile_display_name">ชื่อที่แสดง</label>
           {{ p_form.display_name }}
           {% if p_form.display_name.errors %}
             <div class="text-danger small mt-1">{{ p_form.display_name.errors.0 }}</div>
@@ -51,7 +51,7 @@
 
         <!-- Bio -->
         <div class="mb-3">
-          <label for="{{ p_form.bio.id_for_label }}" class="form-label small fw-semibold" data-i18n="edit_profile_bio">ข้อความแนะนำตัว (Bio)</label>
+          <label for="{{ p_form.bio.id_for_label }}" class="form-label small fw-semibold" data-i18n="edit_profile_bio">ข้อความแนะนำตัว</label>
           {{ p_form.bio }}
           {% if p_form.bio.errors %}
             <div class="text-danger small mt-1">{{ p_form.bio.errors.0 }}</div>
@@ -79,7 +79,7 @@
             {{ p_form.music_title }}
           </div>
           <div>
-            <label for="{{ p_form.music_url.id_for_label }}" class="form-label micro-text text-muted mb-1" data-i18n="edit_profile_music_url">URL ลิงก์เพลง (Optional)</label>
+            <label for="{{ p_form.music_url.id_for_label }}" class="form-label micro-text text-muted mb-1" data-i18n="edit_profile_music_url">URL ลิงก์เพลง</label>
             {{ p_form.music_url }}
           </div>
         </div>

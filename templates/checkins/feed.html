@@ -11,9 +11,9 @@
       <div class="stories-carousel-card">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <span class="fw-bold text-dark small">
-            <i class="bi bi-compass-fill text-primary me-1"></i> นักเดินทางแนะนำ (Top Travelers)
+            <i class="bi bi-compass-fill text-primary me-1"></i> <span data-i18n="feed_stories_title">นักเดินทางแนะนำ</span>
           </span>
-          <a href="{% url 'accounts:search' %}" class="small text-primary text-decoration-none fw-semibold">
+          <a href="{% url 'accounts:search' %}" class="small text-primary text-decoration-none fw-semibold" data-i18n="feed_find_more">
             ค้นหาเพิ่ม &rarr;
           </a>
         </div>
@@ -29,7 +29,7 @@
                 </div>
               {% endif %}
             </div>
-            <span class="story-username text-primary fw-bold">คุณ</span>
+            <span class="story-username text-primary fw-bold" data-i18n="feed_story_you">คุณ</span>
           </a>
 
           <!-- Active Creators Bubbles -->
@@ -135,25 +135,25 @@
             <div id="feed-aspect-ratio-wrapper" class="d-none mb-2 px-1">
               <div class="d-flex align-items-center justify-content-between mb-1">
                 <span class="text-muted extra-small fw-semibold" style="font-size: 0.75rem;">
-                  <i class="bi bi-aspect-ratio me-1 text-primary"></i>เลือกสัดส่วนภาพ (Aspect Ratio):
+                  <i class="bi bi-aspect-ratio me-1 text-primary"></i><span data-i18n="composer_aspect_ratio_label">เลือกสัดส่วนภาพ:</span>
                 </span>
                 <span class="badge bg-primary-subtle text-primary rounded-pill small" id="feed-photo-count-badge" style="font-size: 0.72rem;">0/10 รูป</span>
               </div>
               <div class="aspect-ratio-selector-bar">
                 <button type="button" class="aspect-ratio-pill-btn active" data-ratio="original">
-                  <i class="bi bi-arrows-fullscreen"></i> Original (พอดีเฟรม)
+                  <i class="bi bi-arrows-fullscreen"></i> <span data-i18n="composer_ratio_original">ออริจินัล (พอดีเฟรม)</span>
                 </button>
                 <button type="button" class="aspect-ratio-pill-btn" data-ratio="1:1">
-                  <i class="bi bi-square"></i> 1:1 (จัตุรัส)
+                  <i class="bi bi-square"></i> <span data-i18n="composer_ratio_1_1">1:1 (จัตุรัส)</span>
                 </button>
                 <button type="button" class="aspect-ratio-pill-btn" data-ratio="4:5">
-                  <i class="bi bi-phone"></i> 4:5 (แนวตั้ง IG)
+                  <i class="bi bi-phone"></i> <span data-i18n="composer_ratio_4_5">4:5 (แนวตั้ง)</span>
                 </button>
                 <button type="button" class="aspect-ratio-pill-btn" data-ratio="16:9">
-                  <i class="bi bi-tv"></i> 16:9 (แนวนอน)
+                  <i class="bi bi-tv"></i> <span data-i18n="composer_ratio_16_9">16:9 (แนวนอน)</span>
                 </button>
                 <button type="button" class="aspect-ratio-pill-btn" data-ratio="9:16">
-                  <i class="bi bi-phone-fill"></i> 9:16 (Story)
+                  <i class="bi bi-phone-fill"></i> <span data-i18n="composer_ratio_9_16">9:16 (เต็มจอ)</span>
                 </button>
               </div>
             </div>
@@ -414,20 +414,20 @@
       {% if is_guest %}
         <div class="guest-feed-gate-card shadow-lg border-0 rounded-4 p-4 text-center my-4 animate__animated animate__fadeInUp">
           <div class="mb-3">
-            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm" style="font-size: 0.82rem;">
-              <i class="bi bi-sparkles me-1"></i> บัญชีผู้เยี่ยมชม (Guest Mode)
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm" style="font-size: 0.82rem;" data-i18n="feed_guest_badge">
+              บัญชีผู้เยี่ยมชม
             </span>
           </div>
-          <h4 class="fw-bold text-dark mb-2">อยากสำรวจจุดเช็คอินเพิ่มเติม?</h4>
-          <p class="text-muted small mb-4 mx-auto" style="max-width: 440px; line-height: 1.6;">
-            คุณกำลังรับชมในโหมดผู้เยี่ยมชม (แสดงตัวอย่าง {{ checkins|length }} โพสต์ล่าสุด) เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อปลดล็อกฟีดทั้งหมด ค้นหาเพื่อนใหม่ กดถูกใจ และแชร์รูปภาพสถานที่สวยๆ ของคุณเอง
+          <h4 class="fw-bold text-dark mb-2" data-i18n="feed_guest_title">อยากสำรวจจุดเช็คอินเพิ่มเติม?</h4>
+          <p class="text-muted small mb-4 mx-auto" style="max-width: 440px; line-height: 1.6;" data-i18n="feed_guest_desc">
+            คุณกำลังรับชมในโหมดผู้เยี่ยมชม เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อปลดล็อกฟีดทั้งหมด ค้นหาเพื่อนใหม่ กดถูกใจ และแชร์รูปภาพสถานที่สวยๆ ของคุณเอง
           </p>
           <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
             <a href="{% url 'accounts:login' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
-              <i class="bi bi-box-arrow-in-right me-1"></i> เข้าสู่ระบบ
+              <i class="bi bi-box-arrow-in-right me-1"></i> <span data-i18n="nav_login">เข้าสู่ระบบ</span>
             </a>
             <a href="{% url 'accounts:signup' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow-sm">
-              <i class="bi bi-person-plus-fill me-1"></i> สมัครสมาชิกฟรี
+              <i class="bi bi-person-plus-fill me-1"></i> <span data-i18n="feed_empty_guest_btn">สมัครสมาชิกฟรี</span>
             </a>
           </div>
         </div>
@@ -439,7 +439,7 @@
           <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
               <li class="page-item">
-                <a class="page-link rounded-pill px-3 me-2 border-0 shadow-sm" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                <a class="page-link rounded-pill px-3 me-2 border-0 shadow-sm" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous" data-i18n="feed_pagination_prev">
                   &laquo; ก่อนหน้า
                 </a>
               </li>
@@ -447,13 +447,13 @@
 
             <li class="page-item active">
               <span class="page-link rounded-pill px-3 border-0 shadow-sm">
-                หน้า {{ page_obj.number }} จาก {{ page_obj.paginator.num_pages }}
+                <span data-i18n="feed_pagination_page">หน้า</span> {{ page_obj.number }} <span data-i18n="feed_pagination_of">จาก</span> {{ page_obj.paginator.num_pages }}
               </span>
             </li>
 
             {% if page_obj.has_next %}
               <li class="page-item">
-                <a class="page-link rounded-pill px-3 ms-2 border-0 shadow-sm" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                <a class="page-link rounded-pill px-3 ms-2 border-0 shadow-sm" href="?page={{ page_obj.next_page_number }}" aria-label="Next" data-i18n="feed_pagination_next">
                   ถัดไป &raquo;
                 </a>
               </li>
@@ -470,15 +470,15 @@
             <i class="bi bi-geo-alt fs-1"></i>
           </div>
         </div>
-        <h5 class="fw-bold text-dark">ยังไม่มีจุดเช็คอินในขณะนี้</h5>
-        <p class="text-muted small mb-4">มาเป็นคนแรกที่เริ่มบันทึกและแชร์ภาพถ่ายสถานที่สวยๆ กันเถอะ!</p>
+        <h5 class="fw-bold text-dark" data-i18n="feed_empty_title">ยังไม่มีจุดเช็คอินในขณะนี้</h5>
+        <p class="text-muted small mb-4" data-i18n="feed_empty_desc">มาเป็นคนแรกที่เริ่มบันทึกและแชร์ภาพถ่ายสถานที่สวยๆ กันเถอะ!</p>
         {% if user.is_authenticated %}
           <a href="{% url 'checkins:create' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow">
-            <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินสถานที่แรกเลย
+            <i class="bi bi-plus-circle-fill me-1"></i> <span data-i18n="feed_empty_btn">เช็คอินสถานที่แรกเลย</span>
           </a>
         {% else %}
           <button type="button" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
-            <i class="bi bi-plus-circle-fill me-1"></i> เข้าสู่ระบบเพื่อเริ่มเช็คอิน
+            <i class="bi bi-plus-circle-fill me-1"></i> <span data-i18n="feed_empty_guest_btn">เข้าสู่ระบบเพื่อเริ่มเช็คอิน</span>
           </button>
         {% endif %}
       </div>

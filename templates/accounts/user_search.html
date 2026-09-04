@@ -14,7 +14,7 @@
           <i class="bi bi-search fs-5"></i>
         </div>
         <div>
-          <h5 class="fw-bold mb-0 text-dark" data-i18n="search_title">ค้นหาผู้ใช้งาน (Search Users)</h5>
+          <h5 class="fw-bold mb-0 text-dark" data-i18n="search_title">ค้นหาผู้ใช้งาน</h5>
           <span class="text-muted" style="font-size: 0.78rem;" data-i18n="search_subtitle">ค้นหาเพื่อนหรือคนที่คุณสนใจเพื่อติดตามดูจุดเช็คอิน</span>
         </div>
       </div>
@@ -49,7 +49,7 @@
         {% if query %}
           <span data-i18n="search_results_for">ผลการค้นหาสำหรับ</span> "{{ query }}" ({{ users|length }})
         {% else %}
-          <i class="bi bi-stars text-warning me-1"></i> <span data-i18n="search_suggested_header">ผู้ใช้แนะนำสำหรับคุณ (Suggested)</span>
+          <span data-i18n="search_suggested_header">ผู้ใช้แนะนำสำหรับคุณ</span>
         {% endif %}
       </span>
       {% if query %}
@@ -163,7 +163,7 @@
           if (data.query) {
             headerTitle.innerHTML = `ผลการค้นหาสำหรับ "${escapeHtml(data.query)}" (${data.users.length})`;
           } else {
-            headerTitle.innerHTML = `<i class="bi bi-stars text-warning me-1"></i> ผู้ใช้แนะนำสำหรับคุณ (Suggested)`;
+            headerTitle.innerHTML = `ผู้ใช้แนะนำสำหรับคุณ`;
           }
 
           if (data.users.length === 0) {
@@ -190,8 +190,8 @@
               : '';
 
             const followBtnHtml = u.is_following
-              ? `<button type="button" class="btn btn-light border btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow following" data-username="${escapeHtml(u.username)}" data-url="/accounts/follow/${encodeURIComponent(u.username)}/"><i class="bi bi-check2 me-1 text-success"></i> กำลังติดตาม</button>`
-              : `<button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow shadow-sm" data-username="${escapeHtml(u.username)}" data-url="/accounts/follow/${encodeURIComponent(u.username)}/"><i class="bi bi-person-plus-fill me-1"></i> ติดตาม</button>`;
+              ? `<button type="button" class="btn btn-light border btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow following" data-username="${escapeHtml(u.username)}" data-url="/accounts/follow/${encodeURIComponent(u.username)}/" data-i18n="action_following"><i class="bi bi-check2 me-1 text-success"></i> กำลังติดตาม</button>`
+              : `<button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow shadow-sm" data-username="${escapeHtml(u.username)}" data-url="/accounts/follow/${encodeURIComponent(u.username)}/" data-i18n="action_follow"><i class="bi bi-person-plus-fill me-1"></i> ติดตาม</button>`;
 
             html += `
               <div class="card border-0 shadow-sm rounded-4 p-3 mb-2 bg-white user-search-card">
@@ -203,8 +203,8 @@
                       <div class="text-muted small text-truncate">@${escapeHtml(u.username)}</div>
                       ${bioHtml}
                       <div class="d-flex gap-2 mt-1" style="font-size: 0.75rem;">
-                        <span class="text-muted"><i class="bi bi-geo-alt-fill text-primary"></i> ${u.num_checkins} เช็คอิน</span>
-                        <span class="text-muted"><i class="bi bi-people-fill text-secondary"></i> ${u.num_followers} ผู้ติดตาม</span>
+                        <span class="text-muted"><i class="bi bi-geo-alt-fill text-primary"></i> ${u.num_checkins} <span data-i18n="search_checkin_unit">เช็คอิน</span></span>
+                        <span class="text-muted"><i class="bi bi-people-fill text-secondary"></i> ${u.num_followers} <span data-i18n="search_follower_unit">ผู้ติดตาม</span></span>
                       </div>
                     </div>
                   </a>
@@ -217,6 +217,7 @@
           });
 
           usersContainer.innerHTML = html;
+          if (window.i18n) window.i18n.translateEntireDocument();
         })
         .catch(err => console.error('Search error:', err));
       }, 250);

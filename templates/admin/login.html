@@ -121,18 +121,18 @@
     {% csrf_token %}
     
     <div class="form-row">
-      <label for="id_username"><i class="bi bi-person-fill me-1 text-primary"></i> ชื่อผู้ใช้ (Username):</label>
+      <label for="id_username"><i class="bi bi-person-fill me-1 text-primary"></i> ชื่อผู้ใช้:</label>
       {{ form.username }}
     </div>
 
     <div class="form-row">
-      <label for="id_password"><i class="bi bi-lock-fill me-1 text-primary"></i> รหัสผ่าน (Password):</label>
+      <label for="id_password"><i class="bi bi-lock-fill me-1 text-primary"></i> รหัสผ่าน:</label>
       {{ form.password }}
       <input type="hidden" name="next" value="{{ next }}">
     </div>
 
     <div class="submit-row">
-      <input type="submit" value="เข้าสู่ระบบหลังบ้าน 🔐">
+      <input type="submit" value="เข้าสู่ระบบหลังบ้าน">
     </div>
   </form>
 
