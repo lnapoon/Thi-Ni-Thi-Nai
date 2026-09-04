@@ -73,7 +73,15 @@
       <form method="post" enctype="multipart/form-data" novalidate id="main-checkin-form">
         {% csrf_token %}
 
-        <!-- Actual File Input for Form Submission -->
+        <!-- Actual File Input for Form Submission (Multiple photos supported) -->
+        <input 
+          type="file" 
+          name="photos" 
+          id="id_photos" 
+          accept="image/jpeg,image/png,image/webp,image/gif,image/heic"
+          multiple
+          style="position: fixed; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;"
+        >
         <input 
           type="file" 
           name="photo" 
@@ -81,6 +89,9 @@
           accept="image/jpeg,image/png,image/webp,image/gif,image/heic"
           style="position: fixed; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;"
         >
+
+        <!-- Hidden Aspect Ratio Input -->
+        {{ form.aspect_ratio }}
 
         <!-- Native Camera Fallback Input (for mobile browsers) -->
         <input 
@@ -99,37 +110,57 @@
           </div>
         {% endif %}
 
-        <!-- 1. Hero Photo Upload Section -->
+        <!-- 1. Multi-Photo Upload & Aspect Ratio Section -->
         <div class="form-section-card mb-4">
           <div class="d-flex align-items-center justify-content-between mb-2">
             <label class="form-label fw-bold mb-0 text-dark small">
-              <i class="bi bi-camera-fill text-primary me-1"></i><span data-i18n="form_photo_label">รูปภาพสถานที่</span> {% if not is_edit %}<span class="text-danger">*</span>{% endif %}
+              <i class="bi bi-images text-primary me-1"></i><span data-i18n="form_photo_label">รูปภาพสถานที่</span> (สูงสุด 10 รูป) {% if not is_edit %}<span class="text-danger">*</span>{% endif %}
             </label>
-            <span class="text-muted small" style="font-size: 0.75rem;" data-i18n="form_photo_hint">JPG, PNG, WEBP (สูงสุด 5 MB)</span>
+            <span class="badge bg-primary-subtle text-primary rounded-pill small" id="form-photo-count-badge">0/10 รูป</span>
+          </div>
+
+          <!-- Aspect Ratio Selector Toolbar -->
+          <div id="form-aspect-ratio-wrapper" class="mb-3">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+              <span class="text-muted extra-small fw-semibold" style="font-size: 0.75rem;">
+                <i class="bi bi-aspect-ratio me-1 text-primary"></i>เลือกสัดส่วนภาพ (Aspect Ratio):
+              </span>
+            </div>
+            <div class="aspect-ratio-selector-bar">
+              <button type="button" class="aspect-ratio-pill-btn {% if form.aspect_ratio.value == 'original' or not form.aspect_ratio.value %}active{% endif %}" data-ratio="original">
+                <i class="bi bi-arrows-fullscreen"></i> Original (พอดีเฟรม)
+              </button>
+              <button type="button" class="aspect-ratio-pill-btn {% if form.aspect_ratio.value == '1:1' %}active{% endif %}" data-ratio="1:1">
+                <i class="bi bi-square"></i> 1:1 (จัตุรัส)
+              </button>
+              <button type="button" class="aspect-ratio-pill-btn {% if form.aspect_ratio.value == '4:5' %}active{% endif %}" data-ratio="4:5">
+                <i class="bi bi-phone"></i> 4:5 (แนวตั้ง IG)
+              </button>
+              <button type="button" class="aspect-ratio-pill-btn {% if form.aspect_ratio.value == '16:9' %}active{% endif %}" data-ratio="16:9">
+                <i class="bi bi-tv"></i> 16:9 (แนวนอน)
+              </button>
+              <button type="button" class="aspect-ratio-pill-btn {% if form.aspect_ratio.value == '9:16' %}active{% endif %}" data-ratio="9:16">
+                <i class="bi bi-phone-fill"></i> 9:16 (Story)
+              </button>
+            </div>
+          </div>
+
+          <!-- Multi-Photo Selected Thumbnails Strip -->
+          <div id="form-photo-preview-wrapper" class="mb-3 d-none">
+            <div class="multi-photo-thumbs-strip" id="form-thumbs-container">
+              <!-- Dynamically injected thumbnail cards -->
+            </div>
           </div>
 
           <!-- Photo Dropzone / Trigger Area -->
           <div class="photo-upload-dropzone rounded-4 text-center position-relative overflow-hidden cursor-pointer" id="photo-dropzone-box" role="button" tabindex="0" title="คลิกเพื่อเลือกกล้องหรือคลังภาพ" data-i18n-title="composer_tap_photo">
-            
-            <!-- Preview Image (shown when image exists) -->
-            <div id="photo-preview-box" class="{% if not is_edit or not object.get_photo_url %}d-none{% endif %} position-relative w-100 h-100">
-              <img id="photo-preview-img" src="{% if is_edit and object.get_photo_url %}{{ object.get_photo_url }}{% endif %}" alt="Preview" class="w-100" style="object-fit: cover; min-height: 240px; max-height: 320px; border-radius: 16px;">
-              
-              <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 d-flex justify-content-between align-items-center text-white" style="backdrop-filter: blur(4px);">
-                <span class="small ps-2" id="photo-selected-filename">{% if is_edit %}รูปภาพปัจจุบัน{% else %}เลือกรูปภาพแล้ว{% endif %}</span>
-                <span class="badge bg-light text-dark rounded-pill px-3 py-1 fw-semibold small">
-                  <i class="bi bi-pencil-fill me-1"></i><span data-i18n="composer_change_photo">แตะเพื่อเปลี่ยนรูป</span>
-                </span>
+            <!-- Placeholder State -->
+            <div id="photo-preview-placeholder" class="py-4 px-3">
+              <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-2 shadow-sm" style="width: 56px; height: 56px;">
+                <i class="bi bi-cloud-arrow-up-fill fs-3"></i>
               </div>
-            </div>
-
-            <!-- Placeholder State (shown when no image selected) -->
-            <div id="photo-preview-placeholder" class="{% if is_edit and object.get_photo_url %}d-none{% endif %} py-4 px-3">
-              <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-2 shadow-sm" style="width: 64px; height: 64px;">
-                <i class="bi bi-camera-fill fs-2"></i>
-              </div>
-              <h6 class="fw-bold text-dark mb-1" data-i18n="composer_tap_photo">แตะเพื่อถ่ายรูป หรือเลือกรูปภาพ</h6>
-              <p class="text-muted small mb-0" style="font-size: 0.78rem;" data-i18n="composer_photo_tip">รองรับการเปิดกล้องถ่ายภาพสด หรือเลือกจากคลังรูปภาพในเครื่อง</p>
+              <h6 class="fw-bold text-dark mb-1" data-i18n="composer_tap_photo">แตะเพื่อถ่ายรูป หรือเพิ่มรูปภาพ (สูงสุด 10 รูป)</h6>
+              <p class="text-muted small mb-0" style="font-size: 0.78rem;" data-i18n="composer_photo_tip">รองรับทั้งรูปแนวนอน แนวตั้ง และจัตุรัส สามารถเลือกปรับสัดส่วนได้</p>
             </div>
           </div>
           {% if form.photo.errors %}
@@ -401,18 +432,111 @@
     const regionSelect = document.getElementById('id_region');
     const provinceSelect = document.getElementById('id_province');
     const photoInput = document.getElementById('id_photo');
+    const photosInput = document.getElementById('id_photos');
     const photoCameraFallback = document.getElementById('id_photo_camera_fallback');
     const dropzoneBox = document.getElementById('photo-dropzone-box');
-    const previewBox = document.getElementById('photo-preview-box');
-    const previewImg = document.getElementById('photo-preview-img');
-    const previewPlaceholder = document.getElementById('photo-preview-placeholder');
-    const filenameSpan = document.getElementById('photo-selected-filename');
+    const previewWrapper = document.getElementById('form-photo-preview-wrapper');
+    const thumbsContainer = document.getElementById('form-thumbs-container');
+    const photoCountBadge = document.getElementById('form-photo-count-badge');
     const captionTextarea = document.getElementById('id_caption');
     const captionCounter = document.getElementById('caption-char-count');
     const formEl = document.getElementById('main-checkin-form');
     const submitBtn = document.getElementById('btn-submit-form');
+    const aspectRatioInput = document.getElementById('id_aspect_ratio');
+    const aspectPillButtons = document.querySelectorAll('.aspect-ratio-pill-btn');
 
-    // Modals (Move to document.body to prevent CSS transform / stacking context issues)
+    let selectedFiles = [];
+    const maxPhotos = 10;
+    const isEdit = {% if is_edit %}true{% else %}false{% endif %};
+
+    // Aspect Ratio Buttons
+    aspectPillButtons.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        aspectPillButtons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        if (aspectRatioInput) {
+          aspectRatioInput.value = this.dataset.ratio || 'original';
+        }
+      });
+    });
+
+    function syncInputFiles() {
+      const dt = new DataTransfer();
+      selectedFiles.forEach(file => dt.items.add(file));
+      
+      if (photosInput) photosInput.files = dt.files;
+      if (photoInput) {
+        if (selectedFiles.length > 0) {
+          const singleDt = new DataTransfer();
+          singleDt.items.add(selectedFiles[0]);
+          photoInput.files = singleDt.files;
+        } else {
+          photoInput.value = '';
+        }
+      }
+
+      // Update badge
+      if (photoCountBadge) {
+        photoCountBadge.textContent = `${selectedFiles.length}/${maxPhotos} รูป`;
+      }
+
+      // Toggle thumbnail container visibility
+      if (selectedFiles.length > 0) {
+        if (previewWrapper) previewWrapper.classList.remove('d-none');
+      } else {
+        if (previewWrapper) previewWrapper.classList.add('d-none');
+      }
+
+      renderThumbnails();
+    }
+
+    function renderThumbnails() {
+      if (!thumbsContainer) return;
+      thumbsContainer.innerHTML = '';
+
+      selectedFiles.forEach((file, idx) => {
+        const card = document.createElement('div');
+        card.className = 'multi-photo-thumb-card';
+
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = file.name;
+
+        const btnRemove = document.createElement('button');
+        btnRemove.type = 'button';
+        btnRemove.className = 'btn-remove-thumb';
+        btnRemove.innerHTML = '<i class="bi bi-x"></i>';
+        btnRemove.title = 'ลบรูปนี้';
+        btnRemove.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          selectedFiles.splice(idx, 1);
+          syncInputFiles();
+        });
+
+        card.appendChild(img);
+        card.appendChild(btnRemove);
+        thumbsContainer.appendChild(card);
+      });
+    }
+
+    function addFiles(fileList) {
+      for (const file of fileList) {
+        if (selectedFiles.length >= maxPhotos) {
+          alert(`สามารถเลือกรูปภาพได้สูงสุด ${maxPhotos} รูปต่อโพสต์`);
+          break;
+        }
+        if (file.size > 8 * 1024 * 1024) {
+          alert(`ไฟล์ ${file.name} มีขนาดเกิน 8MB กรุณาเลือกรูปภาพที่มีขนาดเล็กลง`);
+          continue;
+        }
+        selectedFiles.push(file);
+      }
+      syncInputFiles();
+    }
+
+    // Modals
     const photoSourceModalEl = document.getElementById('photoSourceModal');
     if (photoSourceModalEl && photoSourceModalEl.parentElement !== document.body) {
       document.body.appendChild(photoSourceModalEl);
@@ -441,7 +565,7 @@
     const btnCloseCameraModal = document.getElementById('btn-close-camera-modal');
 
     let currentStream = null;
-    let currentFacingMode = 'environment'; // default to back camera
+    let currentFacingMode = 'environment';
     let capturedBlob = null;
 
     // 1. Photo Dropzone Click -> Open Consent & Source Choice Modal
@@ -449,10 +573,14 @@
       dropzoneBox.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
+        if (selectedFiles.length >= maxPhotos) {
+          alert(`คุณได้เลือกรูปภาพครบ ${maxPhotos} รูปแล้ว`);
+          return;
+        }
         if (photoSourceModal) {
           photoSourceModal.show();
-        } else if (photoInput) {
-          photoInput.click();
+        } else if (photosInput) {
+          photosInput.click();
         }
       });
       dropzoneBox.addEventListener('keydown', function(e) {
@@ -481,8 +609,8 @@
         e.preventDefault();
         e.stopPropagation();
         if (photoSourceModal) photoSourceModal.hide();
-        if (photoInput) {
-          photoInput.click();
+        if (photosInput) {
+          photosInput.click();
         }
       });
     }
@@ -500,15 +628,13 @@
       stopCameraStream();
       if (cameraLoadingSpinner) cameraLoadingSpinner.classList.remove('d-none');
 
-      // Check if getUserMedia is supported
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         if (cameraLoadingSpinner) cameraLoadingSpinner.classList.add('d-none');
         if (cameraCaptureModal) cameraCaptureModal.hide();
-        // Fallback to native camera input on mobile
         if (photoCameraFallback) {
           photoCameraFallback.click();
-        } else if (photoInput) {
-          photoInput.click();
+        } else if (photosInput) {
+          photosInput.click();
         }
         return;
       }
@@ -534,12 +660,12 @@
       } catch (err) {
         console.warn('Camera access issue:', err);
         if (cameraLoadingSpinner) cameraLoadingSpinner.classList.add('d-none');
-        alert('ไม่สามารถเข้าถึงกล้องเว็บแคมได้ หรือยังไม่ได้รับอนุญาต ระบบจะเปิดกล้องของอุปกรณ์แทน');
+        alert('ไม่สามารถเข้าถึงกล้องเว็บแคมได้ ระบบจะเปิดกล้องของอุปกรณ์แทน');
         if (cameraCaptureModal) cameraCaptureModal.hide();
         if (photoCameraFallback) {
           photoCameraFallback.click();
-        } else if (photoInput) {
-          photoInput.click();
+        } else if (photosInput) {
+          photosInput.click();
         }
       }
     }
@@ -561,7 +687,6 @@
       capturedBlob = null;
     }
 
-    // Switch camera front/back
     if (btnSwitchCamera) {
       btnSwitchCamera.addEventListener('click', async function() {
         currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
@@ -569,7 +694,6 @@
       });
     }
 
-    // Shutter Snap Button
     if (btnShutterSnap && videoStreamEl && canvasEl) {
       btnShutterSnap.addEventListener('click', function() {
         if (!videoStreamEl.videoWidth) return;
@@ -580,7 +704,6 @@
         canvasEl.height = h;
 
         const ctx = canvasEl.getContext('2d');
-        // If front camera, flip horizontally for mirror effect
         if (currentFacingMode === 'user') {
           ctx.translate(w, 0);
           ctx.scale(-1, 1);
@@ -599,47 +722,25 @@
       });
     }
 
-    // Retake Button
     if (btnCameraRetake) {
       btnCameraRetake.addEventListener('click', function() {
         resetCameraPreviewState();
       });
     }
 
-    // Confirm & Use Captured Photo
-    if (btnCameraConfirm && photoInput) {
+    if (btnCameraConfirm) {
       btnCameraConfirm.addEventListener('click', function() {
         if (!capturedBlob) return;
 
         const filename = `photo_camera_${Date.now()}.jpg`;
         const file = new File([capturedBlob], filename, { type: 'image/jpeg' });
+        addFiles([file]);
 
-        // Set to photoInput using DataTransfer
-        try {
-          const dt = new DataTransfer();
-          dt.items.add(file);
-          photoInput.files = dt.files;
-        } catch (e) {
-          console.warn('DataTransfer not supported:', e);
-        }
-
-        // Update preview in main form
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          if (previewImg) previewImg.src = e.target.result;
-          if (previewBox) previewBox.classList.remove('d-none');
-          if (previewPlaceholder) previewPlaceholder.classList.add('d-none');
-          if (filenameSpan) filenameSpan.textContent = filename;
-        };
-        reader.readAsDataURL(file);
-
-        // Close modal and stop stream
         stopCameraStream();
         if (cameraCaptureModal) cameraCaptureModal.hide();
       });
     }
 
-    // Native Camera Trigger
     if (btnTriggerNative && photoCameraFallback) {
       btnTriggerNative.addEventListener('click', function() {
         stopCameraStream();
@@ -648,7 +749,6 @@
       });
     }
 
-    // Close Camera Modal
     if (btnCloseCameraModal) {
       btnCloseCameraModal.addEventListener('click', function() {
         stopCameraStream();
@@ -662,49 +762,33 @@
       });
     }
 
-    // Native Camera Fallback Change Event
-    if (photoCameraFallback && photoInput) {
+    if (photoCameraFallback) {
       photoCameraFallback.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-          try {
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            photoInput.files = dt.files;
-          } catch(e) {}
-          handleSelectedFile(file);
+        if (this.files && this.files.length > 0) {
+          addFiles(Array.from(this.files));
         }
       });
     }
 
-    // Standard Photo Input Change Event
+    if (photosInput) {
+      photosInput.addEventListener('change', function() {
+        if (photoSourceModal) photoSourceModal.hide();
+        if (this.files && this.files.length > 0) {
+          addFiles(Array.from(this.files));
+        }
+      });
+    }
+
     if (photoInput) {
       photoInput.addEventListener('change', function() {
         if (photoSourceModal) photoSourceModal.hide();
-        const file = this.files[0];
-        if (file) {
-          handleSelectedFile(file);
+        if (this.files && this.files.length > 0) {
+          addFiles(Array.from(this.files));
         }
       });
     }
 
-    function handleSelectedFile(file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('คำเตือน: ขนาดไฟล์เกิน 5MB กรุณาเลือกรูปภาพที่มีขนาดเล็กลง');
-        if (photoInput) photoInput.value = '';
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        if (previewImg) previewImg.src = e.target.result;
-        if (previewBox) previewBox.classList.remove('d-none');
-        if (previewPlaceholder) previewPlaceholder.classList.add('d-none');
-        if (filenameSpan) filenameSpan.textContent = file.name;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    // 4. Cascading Region -> Province Select
+    // Cascading Region -> Province Select
     if (regionSelect && provinceSelect) {
       regionSelect.addEventListener('change', function() {
         const selectedRegion = this.value;
@@ -731,7 +815,7 @@
       });
     }
 
-    // 5. Caption Live Character Counter
+    // Caption Live Character Counter
     if (captionTextarea && captionCounter) {
       function updateCounter() {
         const len = captionTextarea.value.length;
@@ -741,9 +825,14 @@
       updateCounter();
     }
 
-    // 6. Form Submit Loading State
+    // Form Submit Loading State & Validation
     if (formEl && submitBtn) {
-      formEl.addEventListener('submit', function() {
+      formEl.addEventListener('submit', function(e) {
+        if (!isEdit && selectedFiles.length === 0) {
+          e.preventDefault();
+          alert('กรุณาเลือกรูปภาพอย่างน้อย 1 รูปสำหรับจุดเช็คอิน');
+          return;
+        }
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> กำลังบันทึกข้อมูล...';
       });
