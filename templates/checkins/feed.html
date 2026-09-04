@@ -252,8 +252,9 @@
               <!-- Comment Button -->
               <button 
                 type="button" 
-                class="btn-action-icon btn-comment-focus" 
+                class="btn-action-icon btn-open-comments" 
                 data-checkin-id="{{ checkin.id }}"
+                data-comment-url="{% url 'checkins:comment_create' pk=checkin.pk %}"
                 title="ความคิดเห็น"
               >
                 <i class="bi bi-chat"></i>
@@ -262,7 +263,7 @@
               <!-- Share Button -->
               <button 
                 type="button" 
-                class="btn-action-icon btn-share" 
+                class="btn-action-icon btn-share-post" 
                 data-title="{{ checkin.place_name }}"
                 data-text="ดูจุดเช็คอิน {{ checkin.place_name }} บน ที่นี่ Check-in"
                 data-url="{{ request.scheme }}://{{ request.get_host }}{% url 'checkins:detail' pk=checkin.pk %}"
@@ -307,7 +308,7 @@
             <!-- Comments Count Link -->
             {% if checkin.num_comments > 0 %}
               <div class="mb-2">
-                <a href="{% url 'checkins:detail' pk=checkin.pk %}" class="text-muted small text-decoration-none">
+                <a href="javascript:void(0)" class="text-muted small text-decoration-none btn-open-comments" data-checkin-id="{{ checkin.id }}" data-comment-url="{% url 'checkins:comment_create' pk=checkin.pk %}">
                   ดูความคิดเห็นทั้งหมด <span class="comments-count-badge" data-checkin-id="{{ checkin.id }}">{{ checkin.num_comments }}</span> รายการ
                 </a>
               </div>
@@ -333,31 +334,6 @@
             </div>
 
           </div>
-
-          <!-- Quick Comment Input Box -->
-          {% if user.is_authenticated %}
-            <form class="feed-quick-comment-box" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:comment_create' pk=checkin.pk %}">
-              {% csrf_token %}
-              <input 
-                type="text" 
-                name="text" 
-                class="quick-comment-input feed-comment-input-{{ checkin.id }}" 
-                placeholder="เพิ่มความคิดเห็นในฐานะ @{{ user.username }}..."
-                autocomplete="off"
-                required
-              >
-              <button type="submit" class="btn-quick-comment-submit">
-                โพสต์
-              </button>
-            </form>
-          {% else %}
-            <div class="px-3 pb-3">
-              <button type="button" class="btn btn-light w-100 text-start rounded-pill py-2 px-3 small text-muted border-0 d-flex align-items-center justify-content-between" data-bs-toggle="modal" data-bs-target="#authRequiredModal" style="font-size: 0.82rem; background: rgba(0,0,0,0.03);">
-                <span><i class="bi bi-chat-dots me-2 text-primary"></i> เข้าสู่ระบบเพื่อร่วมแสดงความคิดเห็น...</span>
-                <span class="badge bg-primary-subtle text-primary rounded-pill">เข้าสู่ระบบ</span>
-              </button>
-            </div>
-          {% endif %}
 
         </div>
       {% endfor %}

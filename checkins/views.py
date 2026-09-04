@@ -339,6 +339,34 @@ class ToggleBookmarkView(View):
 
 
 class CommentCreateView(View):
+    def get(self, request, pk):
+        checkin = get_object_or_404(CheckIn.objects.select_related('user', 'user__profile'), pk=pk)
+        comments = checkin.comments.select_related('user', 'user__profile').order_by('created_at')
+        comments_data = []
+        for c in comments:
+            can_delete = request.user.is_authenticated and (c.user == request.user or checkin.user == request.user or request.user.is_staff)
+            comments_data.append({
+                'id': c.id,
+                'username': c.user.username,
+                'user_display': c.user.get_full_name() or c.user.username,
+                'avatar_url': c.user.get_avatar_url,
+                'text': c.text,
+                'created_at_text': c.created_at.strftime('%d/%m/%Y %H:%M') if c.created_at else '',
+                'can_delete': can_delete,
+            })
+        return JsonResponse({
+            'success': True,
+            'checkin_id': checkin.id,
+            'place_name': checkin.place_name,
+            'author_username': checkin.user.username,
+            'author_display': checkin.user.get_full_name() or checkin.user.username,
+            'author_avatar': checkin.user.get_avatar_url,
+            'caption': checkin.caption,
+            'created_at_text': checkin.created_at.strftime('%d/%m/%Y %H:%M') if checkin.created_at else '',
+            'comments_count': len(comments_data),
+            'comments': comments_data,
+        })
+
     def post(self, request, pk):
         if not request.user.is_authenticated:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':

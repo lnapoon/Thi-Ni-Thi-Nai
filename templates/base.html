@@ -310,6 +310,75 @@
     </div>
   </div>
 
+  <!-- Global Post Comments Modal / Drawer -->
+  <div class="modal fade" id="postCommentsModal" tabindex="-1" aria-labelledby="postCommentsModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="max-height: 85vh;">
+        <!-- Modal Header -->
+        <div class="modal-header border-bottom py-2 px-3 bg-light bg-opacity-75">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-chat-dots-fill text-primary"></i>
+            <h6 class="modal-title fw-bold mb-0 text-dark" id="postCommentsModalTitle" style="font-size: 0.95rem;">ความคิดเห็น</h6>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- Modal Body (Post Author Card + Scrollable Comments List) -->
+        <div class="modal-body p-0 d-flex flex-column" style="overflow-y: auto;">
+          <!-- Post Author & Caption Preview Header -->
+          <div id="modalPostHeader" class="p-3 bg-white border-bottom">
+            <div class="d-flex align-items-start gap-2">
+              <a href="#" id="modalPostAuthorLink" class="text-decoration-none flex-shrink-0">
+                <div id="modalPostAuthorAvatar"></div>
+              </a>
+              <div class="flex-grow-1" style="font-size: 0.88rem;">
+                <div class="d-flex align-items-center justify-content-between">
+                  <a href="#" id="modalPostAuthorName" class="fw-bold text-dark text-decoration-none me-1"></a>
+                  <span id="modalPostPlaceName" class="badge bg-light text-secondary border"></span>
+                </div>
+                <div id="modalPostCaption" class="text-dark mt-1" style="line-height: 1.45; white-space: pre-line;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comments List Container -->
+          <div id="modalCommentsList" class="p-3 flex-grow-1" style="min-height: 150px;">
+            <!-- Loaded dynamically via AJAX -->
+          </div>
+        </div>
+
+        <!-- Modal Footer (Interactive Comment Input Form) -->
+        <div class="modal-footer p-2 bg-light border-top">
+          {% if user.is_authenticated %}
+            <form id="modalCommentForm" class="w-100 d-flex align-items-center gap-2 m-0" method="post">
+              {% csrf_token %}
+              {% if user.get_avatar_url %}
+                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle border flex-shrink-0" width="34" height="34" style="object-fit:cover;">
+              {% else %}
+                <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:34px; height:34px; font-size:0.8rem;">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+              {% endif %}
+              <div class="input-group input-group-sm flex-grow-1">
+                <input type="text" name="text" id="modalCommentInput" class="form-control rounded-start-pill py-2 ps-3 border shadow-none" placeholder="เขียนความคิดเห็นของคุณ..." autocomplete="off" required maxlength="500">
+                <button type="submit" id="btnModalSubmitComment" class="btn btn-primary rounded-end-pill px-3 fw-bold">
+                  <i class="bi bi-send-fill me-1"></i> ส่ง
+                </button>
+              </div>
+            </form>
+          {% else %}
+            <div class="w-100 text-center py-2">
+              <span class="text-muted small me-2">เข้าสู่ระบบเพื่อร่วมแสดงความคิดเห็น</span>
+              <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
+                เข้าสู่ระบบ / สมัครสมาชิก
+              </button>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Global Users List Modal (Followers / Following) -->
   <div class="modal fade" id="usersListModal" tabindex="-1" aria-labelledby="usersListModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
