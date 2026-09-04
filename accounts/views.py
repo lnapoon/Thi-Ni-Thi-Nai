@@ -72,18 +72,20 @@ class CustomLogoutView(View):
         return redirect("accounts:login")
 
 
-@method_decorator(login_required, name="dispatch")
 class ProfileView(View):
     def get(self, request, username=None):
         if username:
             user_obj = get_object_or_404(User, username=username)
         else:
+            if not request.user.is_authenticated:
+                messages.info(request, "กรุณาเข้าสู่ระบบเพื่อดูหน้าโปรไฟล์ของคุณ")
+                return redirect("accounts:login")
             user_obj = request.user
 
         profile, _ = Profile.objects.select_related("user").get_or_create(user=user_obj)
         user_checkins = user_obj.checkins.select_related("user", "user__profile").order_by("-created_at")
 
-        is_owner = user_obj == request.user
+        is_owner = request.user.is_authenticated and (user_obj == request.user)
         is_following = False
         if not is_owner and request.user.is_authenticated:
             is_following = Follow.objects.filter(
@@ -138,10 +140,10 @@ def profile_edit(request):
         if u_form.is_valid() and p_form.is_valid():
             u_form.save()
             p_form.save()
-            messages.success(request, "อัปเดตข้อมูลโปรไฟล์เรียบร้อยแล้ว!")
+            messages.success(request, "อัปเดตข้อมูลโปรไฟล์ของคุณสำเร็จแล้ว!")
             return redirect("accounts:profile_me")
         else:
-            messages.error(request, "เกิดข้อผิดพลาด กรุณาตรวจสอบข้อมูลที่กรอก")
+            messages.error(request, "เกิดข้อผิดพลาดในการอัปเดตข้อมูล โปรดตรวจสอบความถูกต้อง")
     else:
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileEditForm(instance=profile)
@@ -153,8 +155,19 @@ def profile_edit(request):
     return render(request, "accounts/profile_edit.html", context)
 
 
-class ToggleFollowView(LoginRequiredMixin, View):
+class ToggleFollowView(View):
     def post(self, request, username):
+        if not request.user.is_authenticated:
+            if (
+                request.headers.get("x-requested-with") == "XMLHttpRequest"
+                or request.GET.get("format") == "json"
+            ):
+                return JsonResponse(
+                    {"success": False, "login_required": True, "error": "กรุณาเข้าสู่ระบบก่อนกดติดตาม"},
+                    status=401,
+                )
+            return redirect("accounts:login")
+
         target_user = get_object_or_404(User, username=username)
 
         if target_user == request.user:

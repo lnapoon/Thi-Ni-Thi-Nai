@@ -177,24 +177,35 @@
           </div>
 
           <!-- Add Comment Form -->
-          <form action="{% url 'checkins:comment_create' pk=checkin.pk %}" method="post" class="ajax-comment-form mt-3" data-checkin-id="{{ checkin.id }}" id="comment-input-box">
-            {% csrf_token %}
-            <div class="d-flex gap-2 align-items-center">
-              {% if user.get_avatar_url %}
-                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle border flex-shrink-0" width="34" height="34" style="object-fit: cover;">
-              {% else %}
-                <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px;">
-                  <i class="bi bi-person-fill"></i>
+          {% if user.is_authenticated %}
+            <form action="{% url 'checkins:comment_create' pk=checkin.pk %}" method="post" class="ajax-comment-form mt-3" data-checkin-id="{{ checkin.id }}" id="comment-input-box">
+              {% csrf_token %}
+              <div class="d-flex gap-2 align-items-center">
+                {% if user.get_avatar_url %}
+                  <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle border flex-shrink-0" width="34" height="34" style="object-fit: cover;">
+                {% else %}
+                  <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px;">
+                    <i class="bi bi-person-fill"></i>
+                  </div>
+                {% endif %}
+                <div class="quick-comment-box flex-grow-1 m-0">
+                  <input type="text" name="text" placeholder="แสดงความคิดเห็นต่อสถานที่นี้..." autocomplete="off" required>
+                  <button type="submit" title="ส่งความคิดเห็น">
+                    <i class="bi bi-arrow-up"></i>
+                  </button>
                 </div>
-              {% endif %}
-              <div class="quick-comment-box flex-grow-1 m-0">
-                <input type="text" name="text" placeholder="แสดงความคิดเห็นต่อสถานที่นี้..." autocomplete="off" required>
-                <button type="submit" title="ส่งความคิดเห็น">
-                  <i class="bi bi-arrow-up"></i>
+              </div>
+            </form>
+          {% else %}
+            <div class="card bg-light border-0 rounded-4 p-3 text-center mt-3">
+              <p class="text-muted small mb-2"><i class="bi bi-lock-fill me-1"></i> เข้าสู่ระบบเพื่อร่วมพูดคุยและแสดงความคิดเห็น</p>
+              <div>
+                <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
+                  เข้าสู่ระบบ / สมัครสมาชิก
                 </button>
               </div>
             </div>
-          </form>
+          {% endif %}
 
         </div>
 

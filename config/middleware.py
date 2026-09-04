@@ -24,3 +24,21 @@ class DebugExceptionMiddleware:
                     status=500
                 )
             return custom_500_view(request)
+
+
+class RestrictAdminMiddleware:
+    """
+    Blocks regular authenticated users who are not staff from accessing /admin/.
+    Redirects them to the feed with an informative error message.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.path.startswith('/admin/'):
+            if request.user.is_authenticated and not (request.user.is_staff or request.user.is_superuser):
+                from django.contrib import messages
+                from django.shortcuts import redirect
+                messages.error(request, "คุณไม่มีสิทธิ์เข้าถึงส่วนผู้ดูแลระบบ (Admin) เฉพาะผู้ดูแลเท่านั้น")
+                return redirect('checkins:feed')
+        return self.get_response(request)

@@ -335,26 +335,58 @@
           </div>
 
           <!-- Quick Comment Input Box -->
-          <form class="feed-quick-comment-box" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:comment_create' pk=checkin.pk %}">
-            {% csrf_token %}
-            <input 
-              type="text" 
-              name="text" 
-              class="quick-comment-input feed-comment-input-{{ checkin.id }}" 
-              placeholder="เพิ่มความคิดเห็นในฐานะ @{{ user.username }}..."
-              autocomplete="off"
-              required
-            >
-            <button type="submit" class="btn-quick-comment-submit">
-              โพสต์
-            </button>
-          </form>
+          {% if user.is_authenticated %}
+            <form class="feed-quick-comment-box" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:comment_create' pk=checkin.pk %}">
+              {% csrf_token %}
+              <input 
+                type="text" 
+                name="text" 
+                class="quick-comment-input feed-comment-input-{{ checkin.id }}" 
+                placeholder="เพิ่มความคิดเห็นในฐานะ @{{ user.username }}..."
+                autocomplete="off"
+                required
+              >
+              <button type="submit" class="btn-quick-comment-submit">
+                โพสต์
+              </button>
+            </form>
+          {% else %}
+            <div class="px-3 pb-3">
+              <button type="button" class="btn btn-light w-100 text-start rounded-pill py-2 px-3 small text-muted border-0 d-flex align-items-center justify-content-between" data-bs-toggle="modal" data-bs-target="#authRequiredModal" style="font-size: 0.82rem; background: rgba(0,0,0,0.03);">
+                <span><i class="bi bi-chat-dots me-2 text-primary"></i> เข้าสู่ระบบเพื่อร่วมแสดงความคิดเห็น...</span>
+                <span class="badge bg-primary-subtle text-primary rounded-pill">เข้าสู่ระบบ</span>
+              </button>
+            </div>
+          {% endif %}
 
         </div>
       {% endfor %}
 
-      <!-- Pagination -->
-      {% if is_paginated %}
+      <!-- Guest Feed Gate Card (Shown when guest reaches the end of preview posts) -->
+      {% if is_guest %}
+        <div class="guest-feed-gate-card shadow-lg border-0 rounded-4 p-4 text-center my-4 animate__animated animate__fadeInUp">
+          <div class="mb-3">
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm" style="font-size: 0.82rem;">
+              <i class="bi bi-sparkles me-1"></i> บัญชีผู้เยี่ยมชม (Guest Mode)
+            </span>
+          </div>
+          <h4 class="fw-bold text-dark mb-2">อยากสำรวจจุดเช็คอินเพิ่มเติม?</h4>
+          <p class="text-muted small mb-4 mx-auto" style="max-width: 440px; line-height: 1.6;">
+            คุณกำลังรับชมในโหมดผู้เยี่ยมชม (แสดงตัวอย่าง {{ checkins|length }} โพสต์ล่าสุด) เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อปลดล็อกฟีดทั้งหมด ค้นหาเพื่อนใหม่ กดถูกใจ และแชร์รูปภาพสถานที่สวยๆ ของคุณเอง
+          </p>
+          <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+            <a href="{% url 'accounts:login' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+              <i class="bi bi-box-arrow-in-right me-1"></i> เข้าสู่ระบบ
+            </a>
+            <a href="{% url 'accounts:signup' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow-sm">
+              <i class="bi bi-person-plus-fill me-1"></i> สมัครสมาชิกฟรี
+            </a>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Pagination (Only for authenticated members) -->
+      {% if is_paginated and not is_guest %}
         <nav aria-label="Page navigation" class="mt-4 mb-5">
           <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
@@ -392,9 +424,15 @@
         </div>
         <h5 class="fw-bold text-dark">ยังไม่มีจุดเช็คอินในขณะนี้</h5>
         <p class="text-muted small mb-4">มาเป็นคนแรกที่เริ่มบันทึกและแชร์ภาพถ่ายสถานที่สวยๆ กันเถอะ!</p>
-        <a href="{% url 'checkins:create' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow">
-          <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินสถานที่แรกเลย
-        </a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'checkins:create' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow">
+            <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินสถานที่แรกเลย
+          </a>
+        {% else %}
+          <button type="button" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
+            <i class="bi bi-plus-circle-fill me-1"></i> เข้าสู่ระบบเพื่อเริ่มเช็คอิน
+          </button>
+        {% endif %}
       </div>
     {% endif %}
 

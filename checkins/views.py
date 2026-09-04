@@ -18,11 +18,20 @@ from .constants import REGIONS_DATA, ALL_PROVINCES, PROVINCE_COORDINATES, PROVIN
 from accounts.models import Follow, Profile
 
 
-class FeedView(LoginRequiredMixin, ListView):
+GUEST_FEED_LIMIT = 4
+
+
+class FeedView(ListView):
     model = CheckIn
     template_name = 'checkins/feed.html'
     context_object_name = 'checkins'
     paginate_by = 10
+
+    def get_paginate_by(self, queryset):
+        # Guests do not get pagination; they are limited to GUEST_FEED_LIMIT posts
+        if not self.request.user.is_authenticated:
+            return None
+        return self.paginate_by
 
     def get_queryset(self):
         qs = CheckIn.objects.select_related('user', 'user__profile').prefetch_related(
@@ -34,10 +43,18 @@ class FeedView(LoginRequiredMixin, ListView):
         ).annotate(
             num_likes=Count('likes', distinct=True),
             num_comments=Count('comments', distinct=True)
-        )
-        return qs.order_by('-created_at')
+        ).order_by('-created_at')
+
+        # Limit to 4 posts for unauthenticated visitors
+        if not self.request.user.is_authenticated:
+            return qs[:GUEST_FEED_LIMIT]
+        return qs
 
     def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.warning(request, 'กรุณาเข้าสู่ระบบก่อนทำการโพสต์เช็คอิน')
+            return redirect('accounts:login')
+
         form = CheckInForm(request.POST, request.FILES)
         if form.is_valid():
             checkin = form.save(commit=False)
@@ -54,6 +71,13 @@ class FeedView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         checkins_list = context.get('checkins', [])
+        is_guest = not self.request.user.is_authenticated
+        total_posts = CheckIn.objects.count()
+
+        context['is_guest'] = is_guest
+        context['guest_feed_limit'] = GUEST_FEED_LIMIT
+        context['total_posts_count'] = total_posts
+        context['has_more_for_guest'] = (is_guest and total_posts > GUEST_FEED_LIMIT)
 
         if 'form' not in context:
             context['form'] = CheckInForm()
@@ -61,7 +85,7 @@ class FeedView(LoginRequiredMixin, ListView):
         context['regions_data_json'] = json.dumps(REGIONS_DATA, ensure_ascii=False)
         context['all_provinces_json'] = json.dumps(ALL_PROVINCES, ensure_ascii=False)
 
-        if self.request.user.is_authenticated:
+        if not is_guest:
             # Set of check-in IDs liked by current user
             context['user_liked_ids'] = set(
                 Like.objects.filter(
@@ -82,9 +106,16 @@ class FeedView(LoginRequiredMixin, ListView):
                     follower=self.request.user
                 ).values_list('following_id', flat=True)
             )
+        else:
+            context['user_liked_ids'] = set()
+            context['user_bookmarked_ids'] = set()
+            context['user_following_ids'] = set()
 
         # Featured Active Travelers for Top Stories Bar
-        context['featured_creators'] = User.objects.exclude(id=self.request.user.id).select_related('profile').annotate(
+        creators_qs = User.objects
+        if not is_guest:
+            creators_qs = creators_qs.exclude(id=self.request.user.id)
+        context['featured_creators'] = creators_qs.select_related('profile').annotate(
             post_count=Count('checkins')
         ).filter(post_count__gt=0).order_by('-post_count')[:10]
 
@@ -92,7 +123,7 @@ class FeedView(LoginRequiredMixin, ListView):
         return context
 
 
-class CheckInDetailView(LoginRequiredMixin, DetailView):
+class CheckInDetailView(DetailView):
     model = CheckIn
     template_name = 'checkins/detail.html'
     context_object_name = 'checkin'
@@ -198,7 +229,7 @@ class CheckInDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class CheckInMapView(LoginRequiredMixin, TemplateView):
+class CheckInMapView(TemplateView):
     template_name = 'checkins/map.html'
 
     def get_context_data(self, **kwargs):
@@ -249,8 +280,13 @@ class CheckInMapView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ToggleLikeView(LoginRequiredMixin, View):
+class ToggleLikeView(View):
     def post(self, request, pk):
+        if not request.user.is_authenticated:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+                return JsonResponse({'success': False, 'login_required': True, 'error': 'กรุณาเข้าสู่ระบบก่อนกดถูกใจ'}, status=401)
+            return redirect('accounts:login')
+
         checkin = get_object_or_404(CheckIn, pk=pk)
         like_obj, created = Like.objects.get_or_create(user=request.user, checkin=checkin)
 
@@ -273,8 +309,13 @@ class ToggleLikeView(LoginRequiredMixin, View):
         return redirect(next_url)
 
 
-class ToggleBookmarkView(LoginRequiredMixin, View):
+class ToggleBookmarkView(View):
     def post(self, request, pk):
+        if not request.user.is_authenticated:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+                return JsonResponse({'success': False, 'login_required': True, 'error': 'กรุณาเข้าสู่ระบบก่อนบันทึกสถานที่'}, status=401)
+            return redirect('accounts:login')
+
         checkin = get_object_or_404(CheckIn, pk=pk)
         bm_obj, created = Bookmark.objects.get_or_create(user=request.user, checkin=checkin)
 
@@ -297,8 +338,13 @@ class ToggleBookmarkView(LoginRequiredMixin, View):
         return redirect(next_url)
 
 
-class CommentCreateView(LoginRequiredMixin, View):
+class CommentCreateView(View):
     def post(self, request, pk):
+        if not request.user.is_authenticated:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+                return JsonResponse({'success': False, 'login_required': True, 'error': 'กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น'}, status=401)
+            return redirect('accounts:login')
+
         checkin = get_object_or_404(CheckIn, pk=pk)
         text = request.POST.get('text', '').strip()
 
