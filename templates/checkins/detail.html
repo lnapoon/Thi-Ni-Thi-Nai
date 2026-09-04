@@ -9,16 +9,16 @@
     <!-- Top Navigation Bar -->
     <div class="d-flex justify-content-between align-items-center mb-3">
       <a href="{% url 'checkins:feed' %}" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm">
-        <i class="bi bi-arrow-left me-1"></i> ย้อนกลับ
+        <i class="bi bi-arrow-left me-1"></i> <span data-i18n="action_back">ย้อนกลับ</span>
       </a>
 
       {% if is_owner %}
         <div class="d-flex gap-2">
           <a href="{% url 'checkins:edit' pk=checkin.pk %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-            <i class="bi bi-pencil me-1"></i> แก้ไข
+            <i class="bi bi-pencil me-1"></i> <span data-i18n="action_edit">แก้ไข</span>
           </a>
           <a href="{% url 'checkins:delete' pk=checkin.pk %}" class="btn btn-outline-danger btn-sm rounded-pill px-3">
-            <i class="bi bi-trash3 me-1"></i> ลบ
+            <i class="bi bi-trash3 me-1"></i> <span data-i18n="action_delete">ลบ</span>
           </a>
         </div>
       {% endif %}
@@ -52,11 +52,11 @@
         <!-- Follow Button (if not author) -->
         {% if user != checkin.user %}
           {% if is_following_author %}
-            <button class="btn btn-light border btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow following" data-username="{{ checkin.user.username }}" data-url="{% url 'accounts:toggle_follow' username=checkin.user.username %}" style="font-size: 0.8rem;">
+            <button class="btn btn-light border btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow following" data-username="{{ checkin.user.username }}" data-url="{% url 'accounts:toggle_follow' username=checkin.user.username %}" data-i18n="action_following" style="font-size: 0.8rem;">
               <i class="bi bi-check2 text-success"></i> กำลังติดตาม
             </button>
           {% else %}
-            <button class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow" data-username="{{ checkin.user.username }}" data-url="{% url 'accounts:toggle_follow' username=checkin.user.username %}" style="font-size: 0.8rem;">
+            <button class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow" data-username="{{ checkin.user.username }}" data-url="{% url 'accounts:toggle_follow' username=checkin.user.username %}" data-i18n="action_follow" style="font-size: 0.8rem;">
               <i class="bi bi-person-plus-fill me-1"></i> ติดตาม
             </button>
           {% endif %}
@@ -72,24 +72,24 @@
       <div class="ig-action-bar">
         <div class="ig-action-left">
           <!-- Like Button -->
-          <button type="button" class="ig-action-btn btn-like {% if is_liked %}liked{% endif %}" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:like' pk=checkin.pk %}" title="ถูกใจ">
+          <button type="button" class="ig-action-btn btn-like {% if is_liked %}liked{% endif %}" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:like' pk=checkin.pk %}" title="ถูกใจ" data-i18n-title="action_like">
             <i class="bi {% if is_liked %}bi-heart-fill text-danger{% else %}bi-heart{% endif %}"></i>
           </button>
 
           <!-- Comment Button -->
-          <a href="#comment-input-box" class="ig-action-btn" title="แสดงความคิดเห็น">
+          <a href="#comment-input-box" class="ig-action-btn" title="แสดงความคิดเห็น" data-i18n-title="action_comment">
             <i class="bi bi-chat"></i>
           </a>
 
           <!-- Share Button -->
-          <button type="button" class="ig-action-btn btn-share-post" data-title="{{ checkin.place_name }}" data-url="{{ request.build_absolute_uri }}" title="แชร์">
+          <button type="button" class="ig-action-btn btn-share-post" data-title="{{ checkin.place_name }}" data-url="{{ request.build_absolute_uri }}" title="แชร์" data-i18n-title="action_share">
             <i class="bi bi-send"></i>
           </button>
         </div>
 
         <!-- Bookmark Button -->
         <div>
-          <button type="button" class="ig-action-btn btn-bookmark {% if is_bookmarked %}bookmarked{% endif %}" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:bookmark' pk=checkin.pk %}" title="บันทึก">
+          <button type="button" class="ig-action-btn btn-bookmark {% if is_bookmarked %}bookmarked{% endif %}" data-checkin-id="{{ checkin.id }}" data-url="{% url 'checkins:bookmark' pk=checkin.pk %}" title="บันทึก" data-i18n-title="action_bookmark">
             <i class="bi {% if is_bookmarked %}bi-bookmark-fill text-warning{% else %}bi-bookmark{% endif %}"></i>
           </button>
         </div>
@@ -99,7 +99,7 @@
       <div class="card-body px-4 pt-1 pb-4">
         <!-- Likes Count -->
         <div class="fw-bold mb-2" style="font-size: 0.95rem;">
-          ถูกใจ <span class="like-count" data-checkin-id="{{ checkin.id }}">{{ likes_count }}</span> คน
+          <span data-i18n="action_likes_count">ถูกใจ</span> <span class="like-count" data-checkin-id="{{ checkin.id }}">{{ likes_count }}</span> <span data-i18n="action_comments_count">คน</span>
         </div>
 
         <!-- Place Name Title -->
@@ -113,12 +113,12 @@
         {% if checkin.has_location %}
           <div class="p-3 bg-light rounded-3 border mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
             <div>
-              <span class="badge bg-primary me-2"><i class="bi bi-crosshair me-1"></i>พิกัด GPS</span>
+              <span class="badge bg-primary me-2"><i class="bi bi-crosshair me-1"></i><span data-i18n="action_gps_badge">พิกัด GPS</span></span>
               <span class="text-secondary small fw-medium font-monospace">{{ checkin.latitude|floatformat:5 }}, {{ checkin.longitude|floatformat:5 }}</span>
             </div>
             <div class="d-flex gap-2">
               <a href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm rounded-pill px-3">
-                <i class="bi bi-geo-alt me-1"></i> เปิด Google Maps
+                <i class="bi bi-geo-alt me-1"></i> <span data-i18n="action_open_gmaps">เปิด Google Maps</span>
               </a>
             </div>
           </div>
@@ -136,7 +136,7 @@
         <div id="comments-section" class="mb-3">
           <div class="d-flex align-items-center justify-content-between mb-3">
             <h6 class="fw-bold mb-0">
-              <i class="bi bi-chat-dots-fill text-primary me-1"></i> ความคิดเห็น 
+              <i class="bi bi-chat-dots-fill text-primary me-1"></i> <span data-i18n="comments_title">ความคิดเห็น</span> 
               (<span class="comment-count" data-checkin-id="{{ checkin.id }}">{{ comments_count }}</span>)
             </h6>
           </div>
@@ -160,9 +160,9 @@
                     <span class="text-secondary">{{ c.text }}</span>
                   </div>
                   <div class="d-flex align-items-center gap-2 text-muted mt-1" style="font-size: 0.75rem;">
-                    <span>{{ c.created_at|timesince }} ที่แล้ว</span>
+                    <span>{{ c.created_at|timesince }} <span data-i18n="ago_suffix">ที่แล้ว</span></span>
                     {% if c.user == user or checkin.user == user %}
-                      <button type="button" class="btn btn-link btn-sm text-danger p-0 border-0 btn-delete-comment" data-url="{% url 'checkins:comment_delete' pk=c.pk %}" style="font-size: 0.75rem;">
+                      <button type="button" class="btn btn-link btn-sm text-danger p-0 border-0 btn-delete-comment" data-url="{% url 'checkins:comment_delete' pk=c.pk %}" data-i18n="comments_delete_btn" style="font-size: 0.75rem;">
                         ลบ
                       </button>
                     {% endif %}
@@ -170,8 +170,8 @@
                 </div>
               </div>
             {% empty %}
-              <div class="text-center py-3 text-muted small empty-comments-placeholder" data-checkin-id="{{ checkin.id }}">
-                ยังไม่มีความคิดเห็น เป็นคนแรกที่แสดงความคิดเห็นเลย! 💬
+              <div class="text-center py-3 text-muted small empty-comments-placeholder" data-checkin-id="{{ checkin.id }}" data-i18n="comments_empty_desc">
+                ยังไม่มีความคิดเห็น เป็นคนแรกที่แสดงความคิดเห็นเลย!
               </div>
             {% endfor %}
           </div>
@@ -189,8 +189,8 @@
                   </div>
                 {% endif %}
                 <div class="quick-comment-box flex-grow-1 m-0">
-                  <input type="text" name="text" placeholder="แสดงความคิดเห็นต่อสถานที่นี้..." autocomplete="off" required>
-                  <button type="submit" title="ส่งความคิดเห็น">
+                  <input type="text" name="text" placeholder="แสดงความคิดเห็นต่อสถานที่นี้..." data-i18n-placeholder="comments_placeholder_detail" autocomplete="off" required>
+                  <button type="submit" title="ส่งความคิดเห็น" data-i18n-title="comments_send">
                     <i class="bi bi-arrow-up"></i>
                   </button>
                 </div>
@@ -198,9 +198,9 @@
             </form>
           {% else %}
             <div class="card bg-light border-0 rounded-4 p-3 text-center mt-3">
-              <p class="text-muted small mb-2"><i class="bi bi-lock-fill me-1"></i> เข้าสู่ระบบเพื่อร่วมพูดคุยและแสดงความคิดเห็น</p>
+              <p class="text-muted small mb-2" data-i18n="comments_login_prompt"><i class="bi bi-lock-fill me-1"></i> เข้าสู่ระบบเพื่อร่วมพูดคุยและแสดงความคิดเห็น</p>
               <div>
-                <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
+                <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#authRequiredModal" data-i18n="nav_login">
                   เข้าสู่ระบบ / สมัครสมาชิก
                 </button>
               </div>

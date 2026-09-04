@@ -10,7 +10,7 @@
     <!-- Top Navigation Header -->
     <div class="d-flex align-items-center justify-content-between mb-3">
       <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1.5 border d-inline-flex align-items-center gap-1.5 shadow-sm fw-semibold">
-        <i class="bi bi-chevron-left"></i> กลับไปการตั้งค่า
+        <i class="bi bi-chevron-left"></i> <span data-i18n="about_back_to_settings">กลับไปการตั้งค่า</span>
       </a>
       <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1.5 small fw-semibold">
         <i class="bi bi-code-slash me-1"></i> App Info
@@ -28,7 +28,7 @@
           TINIMEEARAI v1.0.0
         </span>
       </div>
-      <p class="text-secondary small mb-0 px-2" style="line-height: 1.65; font-size: 0.925rem;">
+      <p class="text-secondary small mb-0 px-2" style="line-height: 1.65; font-size: 0.925rem;" data-i18n="about_slogan">
         แพลตฟอร์มคอมมูนิตี้ท่องเที่ยวและเช็คอินสถานที่จริง แบ่งปันภาพถ่าย พิกัด GPS และเรื่องราวการเดินทางทั่วไทย
       </p>
     </div>
@@ -41,8 +41,8 @@
           <i class="bi bi-cloud-arrow-up-fill fs-4"></i>
         </div>
         <div class="flex-grow-1">
-          <h6 class="fw-bold mb-1 small">อัปโหลดภาพถ่ายเก็บไว้บน Cloudinary Storage ปลอดภัย</h6>
-          <p class="text-muted small mb-0" style="font-size: 0.825rem;">จัดเก็บและประมวลผลรูปภาพความเร็วสูง พร้อมระบบสำรองข้อมูลบน Cloud</p>
+          <h6 class="fw-bold mb-1 small" data-i18n="about_feat1_title">อัปโหลดภาพถ่ายเก็บไว้บน Cloudinary Storage ปลอดภัย</h6>
+          <p class="text-muted small mb-0" style="font-size: 0.825rem;" data-i18n="about_feat1_desc">จัดเก็บและประมวลผลรูปภาพความเร็วสูง พร้อมระบบสำรองข้อมูลบน Cloud</p>
         </div>
       </div>
 
@@ -52,8 +52,8 @@
           <i class="bi bi-geo-alt-fill fs-4"></i>
         </div>
         <div class="flex-grow-1">
-          <h6 class="fw-bold mb-1 small">ดึงพิกัด Geolocation อัตโนมัติและแสดงบนแผนที่ Leaflet</h6>
-          <p class="text-muted small mb-0" style="font-size: 0.825rem;">ระบุตำแหน่งสถานที่จริงด้วย GPS และแสดงหมุดจุดเช็คอินบนแผนที่แบบ Interactive</p>
+          <h6 class="fw-bold mb-1 small" data-i18n="about_feat2_title">ดึงพิกัด Geolocation อัตโนมัติและแสดงบนแผนที่ Leaflet</h6>
+          <p class="text-muted small mb-0" style="font-size: 0.825rem;" data-i18n="about_feat2_desc">ระบุตำแหน่งสถานที่จริงด้วย GPS และแสดงหมุดจุดเช็คอินบนแผนที่แบบ Interactive</p>
         </div>
       </div>
 
@@ -63,8 +63,8 @@
           <i class="bi bi-database-fill-check fs-4"></i>
         </div>
         <div class="flex-grow-1">
-          <h6 class="fw-bold mb-1 small">ฐานข้อมูลความเร็วสูง Neon PostgreSQL Cloud Database</h6>
-          <p class="text-muted small mb-0" style="font-size: 0.825rem;">เชื่อมต่อฐานข้อมูลระบบคลาวด์ เสถียร และรองรับการค้นหาพิกัดพื้นที่อย่างรวดเร็ว</p>
+          <h6 class="fw-bold mb-1 small" data-i18n="about_feat3_title">ฐานข้อมูลความเร็วสูง Neon PostgreSQL Cloud Database</h6>
+          <p class="text-muted small mb-0" style="font-size: 0.825rem;" data-i18n="about_feat3_desc">เชื่อมต่อฐานข้อมูลระบบคลาวด์ เสถียร และรองรับการค้นหาพิกัดพื้นที่อย่างรวดเร็ว</p>
         </div>
       </div>
     </div>
@@ -77,8 +77,8 @@
             <i class="bi bi-people-fill small"></i>
           </div>
           <div>
-            <h6 class="fw-bold mb-0">พัฒนาโดยทีม CS68</h6>
-            <span class="text-muted extra-small" style="font-size: 0.75rem;">ผู้รับผิดชอบและออกแบบแอปพลิเคชัน</span>
+            <h6 class="fw-bold mb-0" data-i18n="about_team_title">พัฒนาโดยทีม CS68</h6>
+            <span class="text-muted extra-small" style="font-size: 0.75rem;" data-i18n="about_team_desc">ผู้รับผิดชอบและออกแบบแอปพลิเคชัน</span>
           </div>
         </div>
         <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 small fw-bold font-monospace">

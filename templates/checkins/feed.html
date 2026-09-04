@@ -85,6 +85,7 @@
                   rows="2" 
                   maxlength="500" 
                   placeholder="เขียนบรรยาย หรือแชร์ความรู้สึกที่นี่..."
+                  data-i18n-placeholder="composer_caption_placeholder"
                   style="resize: none; font-size: 0.95rem;"
                   required
                 >{{ form.caption.value|default:'' }}</textarea>
@@ -103,6 +104,7 @@
                   id="feed_place_name" 
                   class="form-control bg-light border-0 rounded-end-pill py-1 pe-3" 
                   placeholder="ชื่อสถานที่ / คาเฟ่ / แหล่งท่องเที่ยวที่นี่..." 
+                  data-i18n-placeholder="composer_place_placeholder"
                   value="{{ form.place_name.value|default:'' }}"
                   required
                   autocomplete="off"
@@ -142,22 +144,22 @@
             <div class="d-flex justify-content-between align-items-center pt-2 border-top">
               <div class="d-flex align-items-center gap-2">
                 <!-- Small Photo Upload Trigger Icon -->
-                <label for="feed_photo_input" class="btn btn-sm btn-light rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 border text-secondary cursor-pointer shadow-none" style="font-size: 0.82rem;" title="เพิ่มรูปภาพ">
+                <label for="feed_photo_input" class="btn btn-sm btn-light rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 border text-secondary cursor-pointer shadow-none" style="font-size: 0.82rem;" title="เพิ่มรูปภาพ" data-i18n-title="composer_add_photo">
                   <i class="bi bi-image text-success fs-6"></i>
-                  <span class="fw-semibold">เพิ่มรูปภาพ</span>
+                  <span class="fw-semibold" data-i18n="composer_add_photo">เพิ่มรูปภาพ</span>
                 </label>
 
                 <!-- Small GPS Geolocation Trigger / Status -->
-                <button type="button" id="btn-feed-get-location" class="btn btn-sm btn-light rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1 border text-secondary shadow-none" style="font-size: 0.82rem;" title="จับพิกัด GPS">
+                <button type="button" id="btn-feed-get-location" class="btn btn-sm btn-light rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1 border text-secondary shadow-none" style="font-size: 0.82rem;" title="จับพิกัด GPS" data-i18n-title="composer_gps">
                   <i class="bi bi-crosshair text-primary fs-6"></i>
-                  <span id="feed-geo-status" class="small text-muted">พิกัด</span>
+                  <span id="feed-geo-status" class="small text-muted" data-i18n="composer_gps">พิกัด</span>
                 </button>
               </div>
 
               <!-- Submit Post Button -->
               <button type="submit" id="btn-submit-checkin" class="btn btn-warning btn-sm rounded-pill px-4 py-1 fw-bold shadow-sm d-flex align-items-center gap-1">
                 <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
-                <span>โพสต์</span>
+                <span data-i18n="composer_post">โพสต์</span>
               </button>
             </div>
 
@@ -292,7 +294,7 @@
             
             <!-- Likes Counter -->
             <div class="fw-bold mb-1" style="font-size: 0.88rem;">
-              <span class="like-count" data-checkin-id="{{ checkin.id }}">{{ checkin.num_likes }}</span> ถูกใจ
+              <span class="like-count" data-checkin-id="{{ checkin.id }}">{{ checkin.num_likes }}</span> <span data-i18n="action_likes_count">ถูกใจ</span>
             </div>
 
             <!-- Caption -->
@@ -309,7 +311,7 @@
             {% if checkin.num_comments > 0 %}
               <div class="mb-2">
                 <a href="javascript:void(0)" class="text-muted small text-decoration-none btn-open-comments" data-checkin-id="{{ checkin.id }}" data-comment-url="{% url 'checkins:comment_create' pk=checkin.pk %}">
-                  ดูความคิดเห็นทั้งหมด <span class="comments-count-badge" data-checkin-id="{{ checkin.id }}">{{ checkin.num_comments }}</span> รายการ
+                  <span data-i18n="action_view_all_comments">ดูความคิดเห็นทั้งหมด</span> <span class="comments-count-badge" data-checkin-id="{{ checkin.id }}">{{ checkin.num_comments }}</span> <span data-i18n="action_comments_count">รายการ</span>
                 </a>
               </div>
             {% endif %}

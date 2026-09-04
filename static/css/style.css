@@ -549,6 +549,55 @@ body::before {
 }
 
 /* ==========================================================================
+   Language Switcher (TH / EN) Pill
+   ========================================================================== */
+.lang-switcher-pill {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 2px;
+  user-select: none;
+}
+
+[data-bs-theme="dark"] .lang-switcher-pill {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(71, 85, 105, 0.5);
+}
+
+.btn-lang-toggle {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1.2;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-lang-toggle:hover {
+  color: #1e293b;
+}
+
+[data-bs-theme="dark"] .btn-lang-toggle:hover {
+  color: #f8fafc;
+}
+
+.btn-lang-toggle.active {
+  background: var(--app-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(30, 58, 138, 0.28);
+}
+
+/* ==========================================================================
    Instagram-Style Comments Fullscreen / Bottom Sheet Drawer
    ========================================================================== */
 .modal-instagram-comments .modal-dialog {
