@@ -120,22 +120,22 @@
 
     </div>
 
-    <!-- Profile Tabs: Posts / Bookmarks / Likes -->
+    <!-- Profile Tabs: Posts / Bookmarks / Likes (Clean Icons Only - Instagram Style) -->
     <ul class="nav nav-pills nav-justified mb-3 bg-white p-1 rounded-4 shadow-sm border" id="profileTab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active rounded-pill fw-semibold py-2" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-pane" type="button" role="tab">
-          <i class="bi bi-grid-3x3 me-1"></i> โพสต์ ({{ checkin_count }})
+        <button class="nav-link active rounded-pill py-2.5 d-flex align-items-center justify-content-center" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-pane" type="button" role="tab" title="โพสต์">
+          <i class="bi bi-grid-3x3 fs-5"></i>
         </button>
       </li>
       {% if is_owner %}
         <li class="nav-item" role="presentation">
-          <button class="nav-link rounded-pill fw-semibold py-2" id="bookmarks-tab" data-bs-toggle="tab" data-bs-target="#bookmarks-pane" type="button" role="tab">
-            <i class="bi bi-bookmark-fill me-1 text-warning"></i> บันทึกไว้ ({{ bookmarked_count }})
+          <button class="nav-link rounded-pill py-2.5 d-flex align-items-center justify-content-center" id="bookmarks-tab" data-bs-toggle="tab" data-bs-target="#bookmarks-pane" type="button" role="tab" title="บันทึกไว้">
+            <i class="bi bi-bookmark fs-5"></i>
           </button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link rounded-pill fw-semibold py-2" id="likes-tab" data-bs-toggle="tab" data-bs-target="#likes-pane" type="button" role="tab">
-            <i class="bi bi-heart-fill me-1 text-danger"></i> ถูกใจ ({{ liked_count }})
+          <button class="nav-link rounded-pill py-2.5 d-flex align-items-center justify-content-center" id="likes-tab" data-bs-toggle="tab" data-bs-target="#likes-pane" type="button" role="tab" title="ถูกใจ">
+            <i class="bi bi-heart fs-5"></i>
           </button>
         </li>
       {% endif %}
