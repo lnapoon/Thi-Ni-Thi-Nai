@@ -1900,6 +1900,20 @@ body.dark-mode .share-grid-item:hover {
   background-color: #1e293b;
 }
 
+/* Bilingual Native File Input Selector Button Overrides */
+html[lang="en"] input[type="file"]::file-selector-button {
+  content: "Choose File";
+}
+html[lang="en"] input[type="file"]::-webkit-file-upload-button {
+  content: "Choose File";
+}
+html[lang="th"] input[type="file"]::file-selector-button {
+  content: "เลือกไฟล์";
+}
+html[lang="th"] input[type="file"]::-webkit-file-upload-button {
+  content: "เลือกไฟล์";
+}
+
 [data-bs-theme="dark"] .share-grid-label,
 body.dark-mode .share-grid-label {
   color: #cbd5e1;

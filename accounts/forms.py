@@ -65,6 +65,11 @@ class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["first_name", "last_name", "email"]
+        labels = {
+            "first_name": "ชื่อ",
+            "last_name": "นามสกุล",
+            "email": "อีเมล",
+        }
         widgets = {
             "first_name": forms.TextInput(
                 attrs={"class": "form-control rounded-pill px-3", "placeholder": "ชื่อ"}
@@ -94,6 +99,16 @@ class ProfileEditForm(forms.ModelForm):
             "music_title",
             "music_url",
         ]
+        labels = {
+            "display_name": "ชื่อที่แสดง",
+            "category": "หมวดหมู่ / MBTI / สถานะ",
+            "bio": "ข้อความแนะนำตัว",
+            "website_title": "ชื่อปุ่ม/โซเชียล",
+            "website_url": "URL ลิงก์",
+            "music_title": "ชื่อเพลง / ข้อความเสียง",
+            "music_url": "URL ลิงก์เพลง",
+            "avatar": "รูปภาพโปรไฟล์",
+        }
         widgets = {
             "display_name": forms.TextInput(
                 attrs={

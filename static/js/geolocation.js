@@ -140,24 +140,24 @@ document.addEventListener('DOMContentLoaded', function () {
           'X-Requested-With': 'XMLHttpRequest'
         }
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.liked) {
-          likeBtn.classList.add('liked');
-          likeBtn.querySelector('i').className = 'bi bi-heart-fill text-danger';
-        } else {
-          likeBtn.classList.remove('liked');
-          likeBtn.querySelector('i').className = 'bi bi-heart';
-        }
-        if (likeCountSpan) {
-          likeCountSpan.textContent = data.likes_count;
-        }
-      })
-      .catch(err => {
-        console.error('Like toggle error:', err);
-        // Fallback to regular submit if ajax fails
-        form.submit();
-      });
+        .then(response => response.json())
+        .then(data => {
+          if (data.liked) {
+            likeBtn.classList.add('liked');
+            likeBtn.querySelector('i').className = 'bi bi-heart-fill text-danger';
+          } else {
+            likeBtn.classList.remove('liked');
+            likeBtn.querySelector('i').className = 'bi bi-heart';
+          }
+          if (likeCountSpan) {
+            likeCountSpan.textContent = data.likes_count;
+          }
+        })
+        .catch(err => {
+          console.error('Like toggle error:', err);
+          // Fallback to regular submit if ajax fails
+          form.submit();
+        });
     });
   });
 });
