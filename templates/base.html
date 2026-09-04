@@ -54,8 +54,14 @@
 
       <!-- Desktop Header Actions -->
       <div class="d-none d-md-flex align-items-center gap-2">
+        <!-- Language Switcher Toggle (TH / EN) -->
+        <div class="lang-switcher-pill" title="เปลี่ยนภาษา / Switch Language">
+          <button type="button" class="btn-lang-toggle btn-lang-th active" data-lang="th" title="ภาษาไทย">TH</button>
+          <button type="button" class="btn-lang-toggle btn-lang-en" data-lang="en" title="English">EN</button>
+        </div>
+
         <!-- Sun/Moon Slider Theme Switch -->
-        <button type="button" class="theme-toggle-btn btn-toggle-theme me-2" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">
+        <button type="button" class="theme-toggle-btn btn-toggle-theme me-2" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง" data-i18n-title="theme_toggle">
           <div class="theme-toggle-track">
             <i class="bi bi-sun-fill theme-icon-sun"></i>
             <i class="bi bi-moon-stars-fill theme-icon-moon"></i>
@@ -65,16 +71,16 @@
 
         {% if user.is_authenticated %}
           <a href="{% url 'checkins:feed' %}" class="nav-custom-link {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
-            <i class="bi bi-house-door me-1"></i> หน้าหลัก
+            <i class="bi bi-house-door me-1"></i> <span data-i18n="nav_home">หน้าหลัก</span>
           </a>
           <a href="{% url 'checkins:map' %}" class="nav-custom-link {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
-            <i class="bi bi-map me-1"></i> แผนที่
+            <i class="bi bi-map me-1"></i> <span data-i18n="nav_map">แผนที่</span>
           </a>
           <a href="{% url 'accounts:search' %}" class="nav-custom-link {% if request.resolver_match.url_name == 'search' %}active{% endif %}">
-            <i class="bi bi-search me-1"></i> ค้นหาเพื่อน
+            <i class="bi bi-search me-1"></i> <span data-i18n="nav_search_friends">ค้นหาเพื่อน</span>
           </a>
           <a href="{% url 'checkins:create' %}" class="btn btn-create-checkin btn-sm rounded-pill px-3 fw-bold shadow-sm ms-1">
-            <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินใหม่
+            <i class="bi bi-plus-circle-fill me-1"></i> <span data-i18n="nav_create_checkin">เช็คอินใหม่</span>
           </a>
           <div class="dropdown ms-1">
             <a href="#" class="nav-user-dropdown d-flex align-items-center text-decoration-none dropdown-toggle rounded-pill px-2 py-1" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -87,41 +93,56 @@
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 mt-2" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:profile_me' %}"><i class="bi bi-person me-2 text-primary"></i> โปรไฟล์ของฉัน</a></li>
-              <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:profile_edit' %}"><i class="bi bi-gear me-2 text-warning"></i> ตั้งค่าโปรไฟล์</a></li>
-              <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:about' %}"><i class="bi bi-info-circle me-2 text-info"></i> เกี่ยวกับแอปพลิเคชัน</a></li>
+              <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:profile_me' %}"><i class="bi bi-person me-2 text-primary"></i> <span data-i18n="nav_my_profile">โปรไฟล์ของฉัน</span></a></li>
+              <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:profile_edit' %}"><i class="bi bi-gear me-2 text-warning"></i> <span data-i18n="nav_profile_settings">ตั้งค่าโปรไฟล์</span></a></li>
+              <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:about' %}"><i class="bi bi-info-circle me-2 text-info"></i> <span data-i18n="nav_about">เกี่ยวกับแอปพลิเคชัน</span></a></li>
               {% if user.is_staff %}
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item rounded-3 py-2 text-primary fw-semibold" href="{% url 'checkins:admin_dashboard' %}"><i class="bi bi-speedometer2 me-2"></i> แดชบอร์ดจัดการระบบ (Admin)</a></li>
+                <li><a class="dropdown-item rounded-3 py-2 text-primary fw-semibold" href="{% url 'checkins:admin_dashboard' %}"><i class="bi bi-speedometer2 me-2"></i> <span data-i18n="nav_admin_dashboard">แดชบอร์ดจัดการระบบ (Admin)</span></a></li>
               {% endif %}
+              <li><hr class="dropdown-divider"></li>
+              <!-- Language Row in Dropdown -->
+              <li class="px-3 py-2 d-flex align-items-center justify-content-between">
+                <span class="small text-muted d-flex align-items-center"><i class="bi bi-globe2 me-2 text-primary"></i> <span data-i18n="lang_switch">ภาษา</span></span>
+                <div class="lang-switcher-pill">
+                  <button type="button" class="btn-lang-toggle btn-lang-th" data-lang="th">TH</button>
+                  <button type="button" class="btn-lang-toggle btn-lang-en" data-lang="en">EN</button>
+                </div>
+              </li>
               <li><hr class="dropdown-divider"></li>
               <li>
                 <form action="{% url 'accounts:logout' %}" method="post" class="px-1 py-1">
                   {% csrf_token %}
-                  <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-pill"><i class="bi bi-box-arrow-right me-1"></i> ออกจากระบบ</button>
+                  <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-pill"><i class="bi bi-box-arrow-right me-1"></i> <span data-i18n="nav_logout">ออกจากระบบ</span></button>
                 </form>
               </li>
             </ul>
           </div>
         {% else %}
           <a href="{% url 'checkins:feed' %}" class="nav-custom-link {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
-            <i class="bi bi-house-door me-1"></i> หน้าหลัก
+            <i class="bi bi-house-door me-1"></i> <span data-i18n="nav_home">หน้าหลัก</span>
           </a>
           <a href="{% url 'checkins:map' %}" class="nav-custom-link {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
-            <i class="bi bi-map me-1"></i> แผนที่
+            <i class="bi bi-map me-1"></i> <span data-i18n="nav_map">แผนที่</span>
           </a>
           <button type="button" class="btn btn-create-checkin btn-sm rounded-pill px-3 fw-bold shadow-sm ms-1" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
-            <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินใหม่
+            <i class="bi bi-plus-circle-fill me-1"></i> <span data-i18n="nav_create_checkin">เช็คอินใหม่</span>
           </button>
-          <a href="{% url 'accounts:login' %}" class="btn btn-nav-login btn-sm rounded-pill px-3 fw-semibold ms-1">เข้าสู่ระบบ</a>
-          <a href="{% url 'accounts:signup' %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-sm">สมัครสมาชิก</a>
+          <a href="{% url 'accounts:login' %}" class="btn btn-nav-login btn-sm rounded-pill px-3 fw-semibold ms-1" data-i18n="nav_login">เข้าสู่ระบบ</a>
+          <a href="{% url 'accounts:signup' %}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-sm" data-i18n="nav_signup">สมัครสมาชิก</a>
         {% endif %}
       </div>
 
-      <!-- Mobile Right Controls (Theme Switcher Slider + Profile Avatar / Login) -->
-      <div class="d-flex d-md-none align-items-center gap-2">
+      <!-- Mobile Right Controls (Language Switcher + Theme Switcher Slider + Profile Avatar / Login) -->
+      <div class="d-flex d-md-none align-items-center gap-1">
+        <!-- Mobile Language Switcher Toggle Pill -->
+        <div class="lang-switcher-pill" title="เปลี่ยนภาษา / Switch Language">
+          <button type="button" class="btn-lang-toggle btn-lang-th active" data-lang="th" title="ภาษาไทย">TH</button>
+          <button type="button" class="btn-lang-toggle btn-lang-en" data-lang="en" title="English">EN</button>
+        </div>
+
         <!-- Mobile Sun/Moon Slider Theme Switch -->
-        <button type="button" class="theme-toggle-btn btn-toggle-theme me-1" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">
+        <button type="button" class="theme-toggle-btn btn-toggle-theme" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง" data-i18n-title="theme_toggle">
           <div class="theme-toggle-track">
             <i class="bi bi-sun-fill theme-icon-sun"></i>
             <i class="bi bi-moon-stars-fill theme-icon-moon"></i>
@@ -130,7 +151,7 @@
         </button>
 
         {% if user.is_authenticated %}
-          <button type="button" class="btn p-0 border-0 bg-transparent text-white shadow-none d-flex align-items-center" data-bs-toggle="offcanvas" data-bs-target="#mobileUserDrawer" aria-controls="mobileUserDrawer" title="เมนูผู้ใช้งาน">
+          <button type="button" class="btn p-0 border-0 bg-transparent text-white shadow-none d-flex align-items-center ms-1" data-bs-toggle="offcanvas" data-bs-target="#mobileUserDrawer" aria-controls="mobileUserDrawer" title="เมนูผู้ใช้งาน">
             {% if user.get_avatar_url %}
               <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle border border-2 border-primary shadow-sm" width="36" height="36" style="object-fit: cover;">
             {% else %}
@@ -140,7 +161,7 @@
             {% endif %}
           </button>
         {% else %}
-          <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm rounded-pill px-2 py-1 fw-bold shadow-sm" style="font-size: 0.78rem;">
+          <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm rounded-pill px-2 py-1 fw-bold shadow-sm ms-1" style="font-size: 0.78rem;" data-i18n="nav_login">
             เข้าสู่ระบบ
           </a>
         {% endif %}
@@ -185,18 +206,18 @@
       <!-- 1. หน้าหลัก -->
       <a href="{% url 'checkins:feed' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
         <i class="bi {% if request.resolver_match.url_name == 'feed' %}bi-house-door-fill{% else %}bi-house-door{% endif %}"></i>
-        <span>หน้าหลัก</span>
+        <span data-i18n="nav_home">หน้าหลัก</span>
       </a>
 
       <!-- 2. แผนที่ -->
       <a href="{% url 'checkins:map' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
         <i class="bi {% if request.resolver_match.url_name == 'map' %}bi-map-fill{% else %}bi-map{% endif %}"></i>
-        <span>แผนที่</span>
+        <span data-i18n="nav_map">แผนที่</span>
       </a>
 
       <!-- 3. ปุ่ม + สร้าง ปกติ -->
       <div class="nav-center-action">
-        <a href="{% url 'checkins:create' %}" class="nav-center-btn shadow" title="สร้างจุดเช็คอิน">
+        <a href="{% url 'checkins:create' %}" class="nav-center-btn shadow" title="สร้างจุดเช็คอิน" data-i18n-title="nav_create_checkin">
           <i class="bi bi-plus-lg"></i>
         </a>
       </div>
@@ -204,13 +225,13 @@
       <!-- 4. ค้นหาผู้ใช้งาน -->
       <a href="{% url 'accounts:search' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'search' %}active{% endif %}">
         <i class="bi {% if request.resolver_match.url_name == 'search' %}bi-search-heart-fill{% else %}bi-search{% endif %}"></i>
-        <span>ค้นหา</span>
+        <span data-i18n="nav_search">ค้นหา</span>
       </a>
 
       <!-- 5. โปรไฟล์ -->
       <a href="{% url 'accounts:profile_me' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'profile_me' or request.resolver_match.url_name == 'profile_user' %}active{% endif %}">
         <i class="bi {% if request.resolver_match.url_name == 'profile_me' %}bi-person-fill{% else %}bi-person{% endif %}"></i>
-        <span>โปรไฟล์</span>
+        <span data-i18n="nav_profile">โปรไฟล์</span>
       </a>
     </nav>
   {% else %}
@@ -218,18 +239,18 @@
       <!-- 1. หน้าหลัก -->
       <a href="{% url 'checkins:feed' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
         <i class="bi {% if request.resolver_match.url_name == 'feed' %}bi-house-door-fill{% else %}bi-house-door{% endif %}"></i>
-        <span>หน้าหลัก</span>
+        <span data-i18n="nav_home">หน้าหลัก</span>
       </a>
 
       <!-- 2. แผนที่ -->
       <a href="{% url 'checkins:map' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
         <i class="bi {% if request.resolver_match.url_name == 'map' %}bi-map-fill{% else %}bi-map{% endif %}"></i>
-        <span>แผนที่</span>
+        <span data-i18n="nav_map">แผนที่</span>
       </a>
 
       <!-- 3. ปุ่ม + สร้าง (เปิด Auth Modal สำหรับ Guest) -->
       <div class="nav-center-action">
-        <button type="button" class="nav-center-btn shadow border-0" data-bs-toggle="modal" data-bs-target="#authRequiredModal" title="เช็คอินใหม่">
+        <button type="button" class="nav-center-btn shadow border-0" data-bs-toggle="modal" data-bs-target="#authRequiredModal" title="เช็คอินใหม่" data-i18n-title="nav_create_checkin">
           <i class="bi bi-plus-lg"></i>
         </button>
       </div>
@@ -237,13 +258,13 @@
       <!-- 4. เข้าสู่ระบบ -->
       <a href="{% url 'accounts:login' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
         <i class="bi bi-box-arrow-in-right"></i>
-        <span>เข้าสู่ระบบ</span>
+        <span data-i18n="nav_login">เข้าสู่ระบบ</span>
       </a>
 
       <!-- 5. สมัครสมาชิก -->
       <a href="{% url 'accounts:signup' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'signup' %}active{% endif %}">
         <i class="bi bi-person-plus-fill text-warning"></i>
-        <span>สมัคร</span>
+        <span data-i18n="nav_signup">สมัคร</span>
       </a>
     </nav>
   {% endif %}
@@ -306,6 +327,86 @@
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Instagram-style Post Comments Drawer / Modal -->
+  <div class="modal fade modal-instagram-comments" id="postCommentsModal" tabindex="-1" aria-labelledby="postCommentsModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg overflow-hidden" style="display: flex; flex-direction: column;">
+        
+        <!-- Drag Handle Bar Indicator -->
+        <div class="modal-handle-bar"></div>
+
+        <!-- Header: Centered Comments Title -->
+        <div class="position-relative py-2 px-3 border-bottom text-center">
+          <h6 class="modal-title fw-bold mb-0 text-dark" id="postCommentsModalTitle" style="font-size: 1rem;">ความคิดเห็น</h6>
+          <button type="button" class="btn-close position-absolute end-0 top-50 translate-middle-y me-3" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.75rem;"></button>
+        </div>
+
+        <!-- Modal Body (Comments Stream & Empty State) -->
+        <div class="modal-body p-0 d-flex flex-column" style="overflow-y: auto; flex: 1 1 auto; min-height: 280px;">
+          <!-- Post Author & Caption Preview Header -->
+          <div id="modalPostHeader" class="p-3 bg-light bg-opacity-50 border-bottom">
+            <div class="d-flex align-items-start gap-2">
+              <a href="#" id="modalPostAuthorLink" class="text-decoration-none flex-shrink-0">
+                <div id="modalPostAuthorAvatar"></div>
+              </a>
+              <div class="flex-grow-1" style="font-size: 0.88rem;">
+                <div class="d-flex align-items-center justify-content-between">
+                  <a href="#" id="modalPostAuthorName" class="fw-bold text-dark text-decoration-none me-1"></a>
+                  <span id="modalPostPlaceName" class="badge bg-white text-secondary border"></span>
+                </div>
+                <div id="modalPostCaption" class="text-secondary mt-1" style="line-height: 1.45; white-space: pre-line; font-size: 0.85rem;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comments List Container -->
+          <div id="modalCommentsList" class="p-3 flex-grow-1 d-flex flex-column justify-content-start">
+            <!-- Loaded dynamically via AJAX -->
+          </div>
+        </div>
+
+        <!-- Modal Footer (Instagram-style Comment Input Bar - No Emojis) -->
+        <div class="modal-footer p-2 bg-white border-top">
+          {% if user.is_authenticated %}
+            <form id="modalCommentForm" class="w-100 d-flex align-items-center gap-2 m-0" method="post">
+              {% csrf_token %}
+              {% if user.get_avatar_url %}
+                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="rounded-circle border flex-shrink-0" width="36" height="36" style="object-fit:cover;">
+              {% else %}
+                <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px; height:36px; font-size:0.85rem;">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+              {% endif %}
+              
+              <div class="comments-input-pill flex-grow-1">
+                <input 
+                  type="text" 
+                  name="text" 
+                  id="modalCommentInput" 
+                  placeholder="แสดงความคิดเห็นในชื่อ {{ user.username }}..." 
+                  autocomplete="off" 
+                  required 
+                  maxlength="500"
+                >
+                <button type="submit" id="btnModalSubmitComment" class="btn-comments-send" title="ส่งความคิดเห็น">
+                  <i class="bi bi-arrow-up-circle-fill fs-5 text-primary"></i>
+                </button>
+              </div>
+            </form>
+          {% else %}
+            <div class="w-100 text-center py-2">
+              <span class="text-muted small me-2">เข้าสู่ระบบเพื่อร่วมแสดงความคิดเห็น</span>
+              <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
+                เข้าสู่ระบบ / สมัครสมาชิก
+              </button>
+            </div>
+          {% endif %}
+        </div>
+
       </div>
     </div>
   </div>
@@ -402,14 +503,14 @@
           <a href="{% url 'accounts:profile_me' %}" class="list-group-item list-group-item-action py-3 d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
               <i class="bi bi-person-circle fs-5 text-primary"></i>
-              <span class="fw-semibold text-dark">โปรไฟล์ของฉัน</span>
+              <span class="fw-semibold text-dark" data-i18n="nav_my_profile">โปรไฟล์ของฉัน</span>
             </div>
             <i class="bi bi-chevron-right text-muted small"></i>
           </a>
           <a href="{% url 'accounts:profile_edit' %}" class="list-group-item list-group-item-action py-3 d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
               <i class="bi bi-pencil-square fs-5 text-warning-emphasis"></i>
-              <span class="fw-semibold text-dark">แก้ไขข้อมูลและรูปโปรไฟล์</span>
+              <span class="fw-semibold text-dark" data-i18n="nav_edit_profile">แก้ไขข้อมูลและรูปโปรไฟล์</span>
             </div>
             <i class="bi bi-chevron-right text-muted small"></i>
           </a>
@@ -417,7 +518,7 @@
             <a href="{% url 'checkins:admin_dashboard' %}" class="list-group-item list-group-item-action py-3 d-flex align-items-center justify-content-between bg-primary-subtle text-primary">
               <div class="d-flex align-items-center gap-3">
                 <i class="bi bi-speedometer2 fs-5 text-primary"></i>
-                <span class="fw-bold">แดชบอร์ดจัดการระบบ (Admin)</span>
+                <span class="fw-bold" data-i18n="nav_admin_dashboard">แดชบอร์ดจัดการระบบ (Admin)</span>
               </div>
               <i class="bi bi-chevron-right text-primary small"></i>
             </a>
@@ -425,16 +526,28 @@
           <a href="#" data-bs-toggle="modal" data-bs-target="#pdpaModal" class="list-group-item list-group-item-action py-3 d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
               <i class="bi bi-shield-check fs-5 text-success"></i>
-              <span class="fw-semibold text-dark">นโยบายคุ้มครองข้อมูล (PDPA)</span>
+              <span class="fw-semibold text-dark" data-i18n="pdpa_title">นโยบายคุ้มครองข้อมูล (PDPA)</span>
             </div>
             <i class="bi bi-chevron-right text-muted small"></i>
           </a>
         </div>
 
+        <!-- Language Switcher Option in Mobile Drawer -->
+        <div class="p-3 bg-light rounded-4 mb-3 d-flex align-items-center justify-content-between border">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-globe2 text-primary fs-5"></i>
+            <span class="fw-semibold text-dark small" data-i18n="lang_switch">ภาษา / Language</span>
+          </div>
+          <div class="lang-switcher-pill">
+            <button type="button" class="btn-lang-toggle btn-lang-th" data-lang="th">TH</button>
+            <button type="button" class="btn-lang-toggle btn-lang-en" data-lang="en">EN</button>
+          </div>
+        </div>
+
         <form action="{% url 'accounts:logout' %}" method="post">
           {% csrf_token %}
           <button type="submit" class="btn btn-danger w-100 py-3 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm">
-            <i class="bi bi-box-arrow-right fs-5"></i> ออกจากระบบ
+            <i class="bi bi-box-arrow-right fs-5"></i> <span data-i18n="nav_logout">ออกจากระบบ</span>
           </button>
         </form>
       </div>
@@ -443,7 +556,8 @@
 
   <!-- Bootstrap 5 JS Bundle CDN -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-  <!-- Geolocation & Social JS -->
+  <!-- I18n, Geolocation & Social JS -->
+  <script src="{% static 'js/i18n.js' %}"></script>
   <script src="{% static 'js/geolocation.js' %}"></script>
   <script src="{% static 'js/social.js' %}"></script>
 

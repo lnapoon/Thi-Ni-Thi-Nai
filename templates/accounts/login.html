@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}เข้าสู่ระบบ - ที่นี่ Check-in{% endblock %}
+{% block title %}<span data-i18n="nav_login">เข้าสู่ระบบ</span> - ที่นี่ Check-in{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-3 mb-5">
@@ -11,8 +11,8 @@
       <!-- Header with 3D Embossed Diagonal Split Logo -->
       <div class="text-center mb-4">
         <img src="{% static 'img/logo-icon.svg' %}" alt="ที่นี่ Check-in Logo" width="68" height="68" class="mb-2">
-        <h4 class="fw-bold mb-1 text-dark">ยินดีต้อนรับกลับมา</h4>
-        <p class="text-muted small mb-0">เข้าสู่ระบบเพื่อแชร์และดูจุดเช็คอินของเพื่อนๆ</p>
+        <h4 class="fw-bold mb-1 text-dark" data-i18n="auth_login_welcome">ยินดีต้อนรับกลับมา</h4>
+        <p class="text-muted small mb-0" data-i18n="auth_login_welcome_sub">เข้าสู่ระบบเพื่อแชร์และดูจุดเช็คอินของเพื่อนๆ</p>
       </div>
 
       <!-- Password Login Form -->
@@ -29,10 +29,10 @@
 
         <div class="mb-3">
           <label for="id_username" class="form-label small fw-semibold text-dark">
-            <i class="bi bi-person me-1 text-primary"></i>ชื่อผู้ใช้ (Username)
+            <i class="bi bi-person me-1 text-primary"></i><span data-i18n="auth_username_label">ชื่อผู้ใช้ (Username)</span>
           </label>
           <div class="input-group">
-            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="form-control rounded-pill px-3 py-2 {% if form.username.errors %}is-invalid{% endif %}" placeholder="ระบุชื่อผู้ใช้">
+            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="form-control rounded-pill px-3 py-2 {% if form.username.errors %}is-invalid{% endif %}" placeholder="ระบุชื่อผู้ใช้" data-i18n-placeholder="auth_username_placeholder">
           </div>
           {% if form.username.errors %}
             <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
@@ -41,10 +41,10 @@
 
         <div class="mb-4">
           <label for="id_password" class="form-label small fw-semibold text-dark">
-            <i class="bi bi-lock me-1 text-primary"></i>รหัสผ่าน (Password)
+            <i class="bi bi-lock me-1 text-primary"></i><span data-i18n="auth_password_label">รหัสผ่าน (Password)</span>
           </label>
           <div class="input-group">
-            <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control rounded-pill px-3 py-2 {% if form.password.errors %}is-invalid{% endif %}" placeholder="ระบุรหัสผ่าน">
+            <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control rounded-pill px-3 py-2 {% if form.password.errors %}is-invalid{% endif %}" placeholder="ระบุรหัสผ่าน" data-i18n-placeholder="auth_password_placeholder">
           </div>
           {% if form.password.errors %}
             <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
@@ -52,14 +52,14 @@
         </div>
 
         <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm mb-3">
-          <i class="bi bi-box-arrow-in-right me-1"></i> เข้าสู่ระบบ
+          <i class="bi bi-box-arrow-in-right me-1"></i> <span data-i18n="nav_login">เข้าสู่ระบบ</span>
         </button>
       </form>
 
       <!-- Divider -->
       <div class="position-relative text-center my-3">
         <hr class="text-muted">
-        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small" style="font-size: 0.8rem;">หรือเข้าสู่ระบบด้วย</span>
+        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small" style="font-size: 0.8rem;" data-i18n="auth_or_login_with">หรือเข้าสู่ระบบด้วย</span>
       </div>
 
       <!-- Social Login Buttons -->
@@ -72,18 +72,18 @@
             <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
             <path fill="none" d="M0 0h48v48H0z"/>
           </svg>
-          เข้าสู่ระบบด้วย Google
+          <span data-i18n="auth_google_login">เข้าสู่ระบบด้วย Google</span>
         </a>
 
         <a href="{% url 'accounts:github_login' %}" class="btn btn-dark w-100 rounded-pill py-2 px-3 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="font-size: 0.9rem;">
-          <i class="bi bi-github fs-5"></i> เข้าสู่ระบบด้วย GitHub
+          <i class="bi bi-github fs-5"></i> <span data-i18n="auth_github_login">เข้าสู่ระบบด้วย GitHub</span>
         </a>
       </div>
 
       <!-- Footer Link -->
       <div class="text-center mt-2">
-        <span class="text-muted small">ยังไม่มีบัญชีผู้ใช้?</span>
-        <a href="{% url 'accounts:signup' %}" class="small fw-bold text-primary text-decoration-none ms-1">สมัครสมาชิกที่นี่</a>
+        <span class="text-muted small" data-i18n="auth_no_account">ยังไม่มีบัญชีผู้ใช้?</span>
+        <a href="{% url 'accounts:signup' %}" class="small fw-bold text-primary text-decoration-none ms-1" data-i18n="auth_signup_here">สมัครสมาชิกที่นี่</a>
       </div>
 
     </div>

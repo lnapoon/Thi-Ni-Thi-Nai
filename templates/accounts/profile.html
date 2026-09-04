@@ -34,19 +34,19 @@
             <!-- Posts count -->
             <div class="profile-stat-box text-center cursor-pointer">
               <div class="fw-bold text-dark fs-5 lh-1">{{ checkin_count }}</div>
-              <div class="text-muted small" style="font-size: 0.8rem;">posts</div>
+              <div class="text-muted small" style="font-size: 0.8rem;" data-i18n="profile_posts">posts</div>
             </div>
 
             <!-- Followers count (Clickable Modal) -->
-            <div class="profile-stat-box open-users-modal text-center cursor-pointer" data-url="{% url 'accounts:followers_list' username=profile_user.username %}" title="ดูผู้ติดตาม">
+            <div class="profile-stat-box open-users-modal text-center cursor-pointer" data-url="{% url 'accounts:followers_list' username=profile_user.username %}" title="ดูผู้ติดตาม" data-i18n-title="profile_followers">
               <div class="fw-bold text-dark fs-5 lh-1" id="profile-followers-count">{{ followers_count }}</div>
-              <div class="text-muted small" style="font-size: 0.8rem;">followers</div>
+              <div class="text-muted small" style="font-size: 0.8rem;" data-i18n="profile_followers">followers</div>
             </div>
 
             <!-- Following count (Clickable Modal) -->
-            <div class="profile-stat-box open-users-modal text-center cursor-pointer" data-url="{% url 'accounts:following_list' username=profile_user.username %}" title="ดูกำลังติดตาม">
+            <div class="profile-stat-box open-users-modal text-center cursor-pointer" data-url="{% url 'accounts:following_list' username=profile_user.username %}" title="ดูกำลังติดตาม" data-i18n-title="profile_following">
               <div class="fw-bold text-dark fs-5 lh-1">{{ following_count }}</div>
-              <div class="text-muted small" style="font-size: 0.8rem;">following</div>
+              <div class="text-muted small" style="font-size: 0.8rem;" data-i18n="profile_following">following</div>
             </div>
           </div>
         </div>
@@ -96,23 +96,23 @@
       <!-- Action Buttons Row (IG Style: Edit profile / Share profile / Follow) -->
       <div class="d-flex gap-2">
         {% if is_owner %}
-          <a href="{% url 'accounts:profile_edit' %}" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs">
+          <a href="{% url 'accounts:profile_edit' %}" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs" data-i18n="profile_edit_btn">
             Edit profile
           </a>
-          <button type="button" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs" onclick="navigator.clipboard.writeText(window.location.href); alert('คัดลอกลิงก์โปรไฟล์เรียบร้อยแล้ว!');">
+          <button type="button" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs btn-share-post" data-title="{{ profile_user.username }}" data-url="{{ request.build_absolute_uri }}">
             Share profile
           </button>
         {% else %}
           {% if is_following %}
             <button class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold btn-toggle-follow following" data-username="{{ profile_user.username }}" data-url="{% url 'accounts:toggle_follow' username=profile_user.username %}">
-              <i class="bi bi-check2 text-success me-1"></i> Following
+              <i class="bi bi-check2 text-success me-1"></i> <span data-i18n="action_following">Following</span>
             </button>
           {% else %}
             <button class="btn btn-primary btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold btn-toggle-follow shadow-sm" data-username="{{ profile_user.username }}" data-url="{% url 'accounts:toggle_follow' username=profile_user.username %}">
-              <i class="bi bi-person-plus-fill me-1"></i> Follow
+              <i class="bi bi-person-plus-fill me-1"></i> <span data-i18n="action_follow">Follow</span>
             </button>
           {% endif %}
-          <button type="button" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs" onclick="navigator.clipboard.writeText(window.location.href); alert('คัดลอกลิงก์โปรไฟล์เรียบร้อยแล้ว!');">
+          <button type="button" class="btn btn-light border btn-sm flex-grow-1 rounded-3 py-1.5 fw-semibold text-dark shadow-2xs btn-share-post" data-title="{{ profile_user.username }}" data-url="{{ request.build_absolute_uri }}">
             Share profile
           </button>
         {% endif %}
@@ -159,13 +159,15 @@
             {% endfor %}
           </div>
         {% else %}
-          <div class="empty-state py-5 my-2">
-            <i class="bi bi-camera"></i>
-            <h6 class="fw-bold text-secondary">ยังไม่มีรายการเช็คอิน</h6>
-            <p class="text-muted small">เริ่มต้นแชร์สถานที่แรกที่คุณประทับใจได้เลย</p>
+          <div class="empty-state text-center py-5 my-3 d-flex flex-column align-items-center justify-content-center">
+            <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3 border shadow-2xs" style="width: 76px; height: 76px;">
+              <i class="bi bi-camera fs-1 text-muted"></i>
+            </div>
+            <h6 class="fw-bold text-dark mb-1">ยังไม่มีรายการเช็คอิน</h6>
+            <p class="text-muted small mb-3">เริ่มต้นแชร์สถานที่แรกที่คุณประทับใจได้เลย</p>
             {% if is_owner %}
-              <a href="{% url 'checkins:create' %}" class="btn btn-primary btn-sm rounded-pill px-3 mt-2">
-                <i class="bi bi-plus-circle me-1"></i> โพสต์เช็คอินแรก
+              <a href="{% url 'checkins:create' %}" class="btn btn-primary btn-sm rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center">
+                <i class="bi bi-plus-circle-fill me-1.5"></i> โพสต์เช็คอินแรก
               </a>
             {% endif %}
           </div>
@@ -188,10 +190,12 @@
               {% endfor %}
             </div>
           {% else %}
-            <div class="empty-state py-5 my-2">
-              <i class="bi bi-bookmark"></i>
-              <h6 class="fw-bold text-secondary">ยังไม่มีโพสต์ที่บันทึกไว้</h6>
-              <p class="text-muted small">กดไอคอนบันทึก 🔖 ใต้โพสต์ที่คุณสนใจเพื่อเก็บไว้ดูภายหลัง</p>
+            <div class="empty-state text-center py-5 my-3 d-flex flex-column align-items-center justify-content-center">
+              <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3 border shadow-2xs" style="width: 76px; height: 76px;">
+                <i class="bi bi-bookmark fs-1 text-muted"></i>
+              </div>
+              <h6 class="fw-bold text-dark mb-1">ยังไม่มีโพสต์ที่บันทึกไว้</h6>
+              <p class="text-muted small mb-0">กดไอคอนบันทึกใต้โพสต์ที่คุณสนใจเพื่อเก็บไว้ดูภายหลัง</p>
             </div>
           {% endif %}
         </div>
@@ -211,10 +215,12 @@
               {% endfor %}
             </div>
           {% else %}
-            <div class="empty-state py-5 my-2">
-              <i class="bi bi-heart"></i>
-              <h6 class="fw-bold text-secondary">ยังไม่มีโพสต์ที่กดถูกใจ</h6>
-              <p class="text-muted small">แตะสองครั้งบนรูปภาพ ❤️ เพื่อกดถูกใจโพสต์ที่คุณชื่นชอบ</p>
+            <div class="empty-state text-center py-5 my-3 d-flex flex-column align-items-center justify-content-center">
+              <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3 border shadow-2xs" style="width: 76px; height: 76px;">
+                <i class="bi bi-heart fs-1 text-muted"></i>
+              </div>
+              <h6 class="fw-bold text-dark mb-1">ยังไม่มีโพสต์ที่กดถูกใจ</h6>
+              <p class="text-muted small mb-0">แตะสองครั้งบนรูปภาพเพื่อกดถูกใจโพสต์ที่คุณชื่นชอบ</p>
             </div>
           {% endif %}
         </div>

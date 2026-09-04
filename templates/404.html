@@ -9,10 +9,10 @@
       <div class="d-inline-flex align-items-center justify-content-center bg-warning-subtle text-warning-emphasis rounded-circle mx-auto mb-3" style="width: 80px; height: 80px;">
         <i class="bi bi-question-circle-fill fs-1"></i>
       </div>
-      <h3 class="fw-bold text-dark mb-2">404 - ไม่พบหน้าที่คุณค้นหา</h3>
-      <p class="text-muted mb-4">หน้าที่คุณพยายามเปิดอาจถูกย้าย ลบ หรือไม่มีอยู่ในระบบ</p>
+      <h3 class="fw-bold text-dark mb-2" data-i18n="error_404_title">404 - ไม่พบหน้าที่คุณค้นหา</h3>
+      <p class="text-muted mb-4" data-i18n="error_404_desc">หน้าที่คุณพยายามเปิดอาจถูกย้าย ลบ หรือไม่มีอยู่ในระบบ</p>
       <div>
-        <a href="{% url 'checkins:feed' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
+        <a href="{% url 'checkins:feed' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm" data-i18n="error_back_home">
           <i class="bi bi-house-door me-1"></i> กลับสู่หน้าหลัก
         </a>
       </div>
