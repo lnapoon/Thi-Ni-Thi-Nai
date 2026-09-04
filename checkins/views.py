@@ -12,13 +12,47 @@ from django.utils import timezone
 from datetime import timedelta
 import json
 
-from .models import CheckIn, Like, Comment, Bookmark
+from .models import CheckIn, CheckInImage, Like, Comment, Bookmark
 from .forms import CheckInForm
 from .constants import REGIONS_DATA, ALL_PROVINCES, PROVINCE_COORDINATES, PROVINCE_TO_REGION
 from accounts.models import Follow, Profile
 
 
 GUEST_FEED_LIMIT = 4
+
+
+def handle_multi_photo_upload(checkin, request, is_update=False):
+    """Save multiple uploaded photos to CheckInImage objects (up to 10 photos)."""
+    # Check for 'photos' multiple input or fallback to 'photo'
+    photo_files = request.FILES.getlist('photos')
+    if not photo_files:
+        photo_files = request.FILES.getlist('photo')
+
+    # Limit to maximum 10 photos
+    photo_files = photo_files[:10]
+
+    if photo_files:
+        if is_update:
+            checkin.images.all().delete()
+
+        # Update primary photo if needed
+        if not checkin.photo or is_update:
+            checkin.photo = photo_files[0]
+            checkin.save(update_fields=['photo'])
+
+        for idx, f in enumerate(photo_files):
+            CheckInImage.objects.create(
+                checkin=checkin,
+                photo=f,
+                order=idx
+            )
+    elif not is_update and checkin.photo and not checkin.images.exists():
+        # Ensure single photo also has a CheckInImage record for consistent carousel logic
+        CheckInImage.objects.create(
+            checkin=checkin,
+            photo=checkin.photo,
+            order=0
+        )
 
 
 class FeedView(ListView):
@@ -35,6 +69,7 @@ class FeedView(ListView):
 
     def get_queryset(self):
         qs = CheckIn.objects.select_related('user', 'user__profile').prefetch_related(
+            'images',
             'likes',
             'bookmarks',
             'comments',
@@ -60,6 +95,7 @@ class FeedView(ListView):
             checkin = form.save(commit=False)
             checkin.user = request.user
             checkin.save()
+            handle_multi_photo_upload(checkin, request, is_update=False)
             messages.success(request, f'🎉 เช็คอินที่ "{checkin.place_name}" สำเร็จแล้ว!')
             return redirect('checkins:feed')
         else:
@@ -161,8 +197,10 @@ class CheckInCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        response = super().form_valid(form)
+        handle_multi_photo_upload(self.object, self.request, is_update=False)
         messages.success(self.request, f'🎉 เช็คอินที่ "{form.instance.place_name}" สำเร็จแล้ว!')
-        return super().form_valid(form)
+        return response
 
     def form_invalid(self, form):
         messages.error(self.request, 'เกิดข้อผิดพลาดในการสร้างเช็คอิน กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง')
@@ -191,8 +229,10 @@ class CheckInUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return super().handle_no_permission()
 
     def form_valid(self, form):
+        response = super().form_valid(form)
+        handle_multi_photo_upload(self.object, self.request, is_update=True)
         messages.success(self.request, f'✏️ แก้ไขข้อมูลเช็คอิน "{form.instance.place_name}" สำเร็จแล้ว!')
-        return super().form_valid(form)
+        return response
 
     def form_invalid(self, form):
         messages.error(self.request, 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล กรุณาตรวจสอบข้อมูลอีกครั้ง')

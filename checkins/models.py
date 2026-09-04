@@ -12,6 +12,15 @@ def checkin_photo_path(instance, filename):
     return f"checkins/user_{instance.user_id}/{filename}"
 
 
+ASPECT_RATIO_CHOICES = (
+    ("original", "ต้นฉบับ / พอดีเฟรม (Original / Smart Fit)"),
+    ("1:1", "1:1 สี่เหลี่ยมจัตุรัส (Square)"),
+    ("4:5", "4:5 แนวตั้งพอดีจอ (Portrait)"),
+    ("16:9", "16:9 แนวนอนมุมกว้าง (Landscape)"),
+    ("9:16", "9:16 แนวตั้งเต็มจอ (Story)"),
+)
+
+
 class CheckIn(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="checkins")
     place_name = models.CharField(max_length=200, verbose_name="ชื่อสถานที่")
@@ -25,6 +34,12 @@ class CheckIn(models.Model):
     longitude = models.FloatField(null=True, blank=True, verbose_name="ลองจิจูด")
     caption = models.TextField(max_length=500, verbose_name="ข้อความบรรยาย")
     photo = CloudinaryField("รูปภาพสถานที่", folder="checkins")
+    aspect_ratio = models.CharField(
+        max_length=20,
+        choices=ASPECT_RATIO_CHOICES,
+        default="original",
+        verbose_name="สัดส่วนภาพ",
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="สร้างเมื่อ")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="แก้ไขล่าสุด")
 
@@ -64,6 +79,24 @@ class CheckIn(models.Model):
         cloud = getattr(settings, "CLOUDINARY_CLOUD_NAME", "pkxxxmpn")
         return f"https://res.cloudinary.com/{cloud}/image/upload/f_auto,q_auto:good,w_900,c_limit/{val}"
 
+    def get_all_photos(self):
+        """Return a list of dicts with all image URLs and ordering for carousel display."""
+        imgs = list(self.images.all().order_by("order", "id"))
+        if imgs:
+            return [{"url": img.get_photo_url, "id": img.id, "order": img.order} for img in imgs]
+        # Fallback to main photo if no separate images
+        main_url = self.get_photo_url
+        if main_url:
+            return [{"url": main_url, "id": None, "order": 0}]
+        return []
+
+    @property
+    def photos_count(self):
+        count = self.images.count()
+        if count > 0:
+            return count
+        return 1 if self.photo else 0
+
     def get_absolute_url(self):
         return reverse("checkins:detail", kwargs={"pk": self.pk})
 
@@ -97,6 +130,63 @@ class CheckIn(models.Model):
                     self.region = inf_reg
 
         # Optimize image with Pillow prior to uploading to Cloudinary
+        if (
+            self.pk is None
+            and self.photo
+            and hasattr(self.photo, "file")
+            and not getattr(self, "_photo_optimized", False)
+        ):
+            if hasattr(self.photo, "seek"):
+                self.photo.seek(0)
+            self.photo = optimize_checkin_image(self.photo)
+            self._photo_optimized = True
+        super().save(*args, **kwargs)
+
+
+class CheckInImage(models.Model):
+    checkin = models.ForeignKey(
+        CheckIn, on_delete=models.CASCADE, related_name="images", verbose_name="เช็คอิน"
+    )
+    photo = CloudinaryField("รูปภาพสถานที่", folder="checkins")
+    order = models.PositiveIntegerField(default=0, verbose_name="ลำดับ")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="สร้างเมื่อ")
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "รูปภาพเช็คอิน"
+        verbose_name_plural = "รูปภาพเช็คอินทั้งหมด"
+
+    def __str__(self):
+        return f"รูปที่ {self.order + 1} ของ {self.checkin.place_name}"
+
+    @property
+    def get_photo_url(self):
+        if not self.photo:
+            return ""
+        try:
+            url = self.photo.url
+            if url:
+                if "/image/upload/" in url and "/image/upload/f_auto" not in url:
+                    url = url.replace(
+                        "/image/upload/",
+                        "/image/upload/f_auto,q_auto:good,w_900,c_limit/",
+                    )
+                return url
+        except Exception:
+            pass
+        val = str(self.photo)
+        if val.startswith("http"):
+            if "/image/upload/" in val and "/image/upload/f_auto" not in val:
+                return val.replace(
+                    "/image/upload/", "/image/upload/f_auto,q_auto:good,w_900,c_limit/"
+                )
+            return val
+        from django.conf import settings
+
+        cloud = getattr(settings, "CLOUDINARY_CLOUD_NAME", "pkxxxmpn")
+        return f"https://res.cloudinary.com/{cloud}/image/upload/f_auto,q_auto:good,w_900,c_limit/{val}"
+
+    def save(self, *args, **kwargs):
         if (
             self.pk is None
             and self.photo

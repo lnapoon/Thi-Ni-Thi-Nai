@@ -633,8 +633,10 @@ function initSocialInteractions() {
   });
 
   /* ----------------------------------------------------
-   * 7. SHARE & REPOST (Web Share API + Modal Fallback)
+   * 7. SOCIAL SHARE MODAL & EXTERNAL PLATFORM LINKS
    * ---------------------------------------------------- */
+  let currentShareData = { title: '', text: '', url: '' };
+
   document.body.addEventListener('click', function (e) {
     const btn = e.target.closest('.btn-share, .btn-share-post, [data-action="share"]');
     if (!btn) return;
@@ -644,68 +646,118 @@ function initSocialInteractions() {
     const text = btn.dataset.text || `ดูจุดเช็คอิน ${title} บน ที่นี่ Check-in`;
     const url = btn.dataset.url || window.location.href;
 
-    if (navigator.share) {
-      navigator.share({
-        title: title,
-        text: text,
-        url: url
-      }).catch(err => {
-        // If aborted/cancelled by user, do nothing; if unsupported/error, open modal
-        if (err.name !== 'AbortError') {
-          openShareModal(title, url);
-        }
-      });
-    } else {
-      openShareModal(title, url);
-    }
+    openShareModal(title, text, url);
   });
 
-  function openShareModal(title, url) {
+  function openShareModal(title, text, url) {
     const modalEl = document.getElementById('shareModal');
     if (!modalEl || !window.bootstrap) return;
 
-    const titleEl = document.getElementById('shareModalTitle');
-    if (titleEl) titleEl.textContent = title ? `แชร์: ${title}` : 'แชร์จุดเช็คอิน';
+    currentShareData = { title, text, url };
 
     const linkInput = document.getElementById('shareModalLinkInput');
     if (linkInput) linkInput.value = url;
 
     const encUrl = encodeURIComponent(url);
-    const encText = encodeURIComponent((title || 'ที่นี่ Check-in') + ' - ' + url);
+    const encText = encodeURIComponent((title || 'ที่นี่ Check-in') + '\n' + url);
 
+    // 1. LINE
     const lineBtn = document.getElementById('shareLineBtn');
     if (lineBtn) lineBtn.href = `https://social-plugins.line.me/lineit/share?url=${encUrl}`;
 
+    // 2. Facebook
     const fbBtn = document.getElementById('shareFbBtn');
     if (fbBtn) fbBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encUrl}`;
 
+    // 3. Messenger
+    const messengerBtn = document.getElementById('shareMessengerBtn');
+    if (messengerBtn) {
+      messengerBtn.href = `https://www.facebook.com/dialog/send?link=${encUrl}&app_id=291494419107518&redirect_uri=${encUrl}`;
+      messengerBtn.onclick = function(e) {
+        window.open(`https://www.facebook.com/dialog/send?link=${encUrl}&app_id=291494419107518&redirect_uri=${encUrl}`, '_blank');
+        e.preventDefault();
+      };
+    }
+
+    // 4. X (Twitter)
     const twitterBtn = document.getElementById('shareTwitterBtn');
-    if (twitterBtn) twitterBtn.href = `https://twitter.com/intent/tweet?url=${encUrl}&text=${encText}`;
+    if (twitterBtn) twitterBtn.href = `https://twitter.com/intent/tweet?url=${encUrl}&text=${encodeURIComponent(title || 'ที่นี่ Check-in')}`;
+
+    // 5. WhatsApp
+    const whatsappBtn = document.getElementById('shareWhatsappBtn');
+    if (whatsappBtn) whatsappBtn.href = `https://api.whatsapp.com/send?text=${encText}`;
+
+    // 6. Telegram
+    const telegramBtn = document.getElementById('shareTelegramBtn');
+    if (telegramBtn) telegramBtn.href = `https://t.me/share/url?url=${encUrl}&text=${encodeURIComponent(title || 'ที่นี่ Check-in')}`;
+
+    // 7. Email
+    const emailBtn = document.getElementById('shareEmailBtn');
+    if (emailBtn) emailBtn.href = `mailto:?subject=${encodeURIComponent(title || 'ที่นี่ Check-in')}&body=${encText}`;
 
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
   }
 
+  // Copy Link Button
   const copyShareBtn = document.getElementById('copyShareLinkBtn');
+  const copyBtnText = document.getElementById('copyShareBtnText');
+
   if (copyShareBtn) {
     copyShareBtn.addEventListener('click', function () {
-      const input = document.getElementById('shareModalLinkInput');
-      if (input && input.value) {
-        navigator.clipboard.writeText(input.value).then(() => {
-          showToast('คัดลอกลิงก์สำเร็จแล้ว');
-          copyShareBtn.innerHTML = '<i class="bi bi-check2 text-white me-1"></i> คัดลอกแล้ว';
-          copyShareBtn.classList.remove('btn-primary');
-          copyShareBtn.classList.add('btn-success');
-          setTimeout(() => {
-            copyShareBtn.innerHTML = '<i class="bi bi-clipboard me-1"></i> คัดลอก';
-            copyShareBtn.classList.remove('btn-success');
-            copyShareBtn.classList.add('btn-primary');
-          }, 2000);
-        }).catch(err => {
-          input.select();
-          document.execCommand('copy');
-          showToast('คัดลอกลิงก์สำเร็จแล้ว');
+      const url = currentShareData.url || window.location.href;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          showCopyFeedback();
+        }).catch(() => {
+          fallbackCopyText(url);
         });
+      } else {
+        fallbackCopyText(url);
+      }
+    });
+  }
+
+  function showCopyFeedback() {
+    showToast('📋 คัดลอกลิงก์เรียบร้อยแล้ว!');
+    if (copyShareBtn) {
+      const originalHTML = copyShareBtn.innerHTML;
+      copyShareBtn.innerHTML = '<i class="bi bi-check2 me-1"></i> คัดลอกแล้ว';
+      copyShareBtn.classList.remove('btn-primary');
+      copyShareBtn.classList.add('btn-success');
+      setTimeout(() => {
+        copyShareBtn.innerHTML = originalHTML;
+        copyShareBtn.classList.remove('btn-success');
+        copyShareBtn.classList.add('btn-primary');
+      }, 2000);
+    }
+  }
+
+  function fallbackCopyText(text) {
+    const input = document.getElementById('shareModalLinkInput');
+    if (input) {
+      input.select();
+      document.execCommand('copy');
+      showCopyFeedback();
+    }
+  }
+
+  // Native System Share Button
+  const shareNativeBtn = document.getElementById('shareNativeSystemBtn');
+  if (shareNativeBtn) {
+    shareNativeBtn.addEventListener('click', function () {
+      if (navigator.share) {
+        navigator.share({
+          title: currentShareData.title || 'ที่นี่ Check-in',
+          text: currentShareData.text || 'ดูจุดเช็คอินนี้บน ที่นี่ Check-in',
+          url: currentShareData.url || window.location.href
+        }).catch(err => {
+          if (err.name !== 'AbortError') {
+            showToast('อุปกรณ์ไม่รองรับการแชร์ระบบ');
+          }
+        });
+      } else {
+        showToast('อุปกรณ์ไม่รองรับระบบแชร์ของเครื่อง กรุณาเลือกคัดลอกลิงก์หรือแชร์ผ่านแอป');
       }
     });
   }
@@ -776,6 +828,111 @@ function initSocialInteractions() {
       });
     });
   });
+
+  /* ----------------------------------------------------
+   * 8. MULTI-PHOTO INSTAGRAM CAROUSELS
+   * ---------------------------------------------------- */
+  function initMultiPhotoCarousels() {
+    document.querySelectorAll('.post-carousel-container').forEach(carousel => {
+      if (carousel.dataset.carouselInitialized) return;
+      carousel.dataset.carouselInitialized = 'true';
+
+      const track = carousel.querySelector('.post-carousel-track');
+      const slides = carousel.querySelectorAll('.post-carousel-slide');
+      const totalSlides = slides.length;
+      if (totalSlides <= 1) return;
+
+      const prevBtn = carousel.querySelector('.btn-prev');
+      const nextBtn = carousel.querySelector('.btn-next');
+      const counterBadge = carousel.querySelector('.post-carousel-badge-counter');
+      const dots = carousel.querySelectorAll('.post-carousel-dot');
+
+      let currentIndex = 0;
+
+      function goToSlide(index) {
+        if (index < 0) index = 0;
+        if (index >= totalSlides) index = totalSlides - 1;
+        currentIndex = index;
+
+        if (track) {
+          track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        }
+
+        if (counterBadge) {
+          counterBadge.textContent = `${currentIndex + 1}/${totalSlides}`;
+        }
+
+        dots.forEach((d, idx) => {
+          if (idx === currentIndex) {
+            d.classList.add('active');
+          } else {
+            d.classList.remove('active');
+          }
+        });
+
+        if (prevBtn) {
+          prevBtn.style.display = currentIndex === 0 ? 'none' : 'flex';
+        }
+        if (nextBtn) {
+          nextBtn.style.display = currentIndex === totalSlides - 1 ? 'none' : 'flex';
+        }
+      }
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goToSlide(currentIndex - 1);
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goToSlide(currentIndex + 1);
+        });
+      }
+
+      dots.forEach((dot, idx) => {
+        dot.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          goToSlide(idx);
+        });
+      });
+
+      // Touch / Swipe Handling
+      let touchStartX = 0;
+      let touchEndX = 0;
+      let isSwiping = false;
+
+      carousel.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        isSwiping = true;
+      }, { passive: true });
+
+      carousel.addEventListener('touchend', (e) => {
+        if (!isSwiping) return;
+        touchEndX = e.changedTouches[0].screenX;
+        const diffX = touchStartX - touchEndX;
+        if (Math.abs(diffX) > 40) {
+          if (diffX > 0) {
+            goToSlide(currentIndex + 1); // Swipe Left -> Next
+          } else {
+            goToSlide(currentIndex - 1); // Swipe Right -> Prev
+          }
+        }
+        isSwiping = false;
+      }, { passive: true });
+
+      // Initialize initial state
+      goToSlide(0);
+    });
+  }
+
+  initMultiPhotoCarousels();
+  window.initMultiPhotoCarousels = initMultiPhotoCarousels;
 
   /* ----------------------------------------------------
    * GLOBAL TOAST HELPER

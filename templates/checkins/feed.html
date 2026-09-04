@@ -118,25 +118,50 @@
             <input type="hidden" name="province" id="feed_province" value="">
             <input type="hidden" name="latitude" id="feed_latitude" value="{{ form.latitude.value|default:'' }}">
             <input type="hidden" name="longitude" id="feed_longitude" value="{{ form.longitude.value|default:'' }}">
+            <input type="hidden" name="aspect_ratio" id="feed_aspect_ratio" value="original">
 
-            <!-- Photo Upload: Hidden File Input -->
+            <!-- Photo Upload: Hidden Multiple File Input -->
             <input 
               type="file" 
-              name="photo" 
+              name="photos" 
               id="feed_photo_input" 
               class="d-none" 
               accept="image/jpeg,image/png,image/webp,image/gif,image/heic"
+              multiple
               required
             >
 
-            <!-- Photo Selected Preview Chip (Compact) -->
-            <div id="feed-photo-preview-wrapper" class="d-none mb-2 position-relative d-inline-block">
-              <div class="d-flex align-items-center gap-2 p-1 pe-3 bg-light rounded-pill border">
-                <img id="feed-photo-preview-img" src="" alt="Preview" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
-                <span id="feed-photo-filename" class="small text-truncate" style="max-width: 160px; font-size: 0.8rem;">รูปภาพที่เลือก</span>
-                <button type="button" id="btn-remove-preview" class="btn btn-link text-danger p-0 ms-1 text-decoration-none" title="ลบรูป">
-                  <i class="bi bi-x-circle-fill fs-6"></i>
+            <!-- Aspect Ratio Selector Toolbar -->
+            <div id="feed-aspect-ratio-wrapper" class="d-none mb-2 px-1">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="text-muted extra-small fw-semibold" style="font-size: 0.75rem;">
+                  <i class="bi bi-aspect-ratio me-1 text-primary"></i>เลือกสัดส่วนภาพ (Aspect Ratio):
+                </span>
+                <span class="badge bg-primary-subtle text-primary rounded-pill small" id="feed-photo-count-badge" style="font-size: 0.72rem;">0/10 รูป</span>
+              </div>
+              <div class="aspect-ratio-selector-bar">
+                <button type="button" class="aspect-ratio-pill-btn active" data-ratio="original">
+                  <i class="bi bi-arrows-fullscreen"></i> Original (พอดีเฟรม)
                 </button>
+                <button type="button" class="aspect-ratio-pill-btn" data-ratio="1:1">
+                  <i class="bi bi-square"></i> 1:1 (จัตุรัส)
+                </button>
+                <button type="button" class="aspect-ratio-pill-btn" data-ratio="4:5">
+                  <i class="bi bi-phone"></i> 4:5 (แนวตั้ง IG)
+                </button>
+                <button type="button" class="aspect-ratio-pill-btn" data-ratio="16:9">
+                  <i class="bi bi-tv"></i> 16:9 (แนวนอน)
+                </button>
+                <button type="button" class="aspect-ratio-pill-btn" data-ratio="9:16">
+                  <i class="bi bi-phone-fill"></i> 9:16 (Story)
+                </button>
+              </div>
+            </div>
+
+            <!-- Multi-Photo Selected Thumbnails Strip -->
+            <div id="feed-photo-preview-wrapper" class="d-none mb-2">
+              <div class="multi-photo-thumbs-strip" id="feed-thumbs-container">
+                <!-- Dynamically injected thumbnails -->
               </div>
             </div>
 
@@ -144,9 +169,9 @@
             <div class="d-flex justify-content-between align-items-center pt-2 border-top">
               <div class="d-flex align-items-center gap-2">
                 <!-- Small Photo Upload Trigger Icon -->
-                <label for="feed_photo_input" class="btn btn-sm btn-light rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 border text-secondary cursor-pointer shadow-none" style="font-size: 0.82rem;" title="เพิ่มรูปภาพ" data-i18n-title="composer_add_photo">
-                  <i class="bi bi-image text-success fs-6"></i>
-                  <span class="fw-semibold" data-i18n="composer_add_photo">เพิ่มรูปภาพ</span>
+                <label for="feed_photo_input" class="btn btn-sm btn-light rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 border text-secondary cursor-pointer shadow-none" style="font-size: 0.82rem;" title="เพิ่มรูปภาพ (สูงสุด 10 รูป)" data-i18n-title="composer_add_photo">
+                  <i class="bi bi-images text-success fs-6"></i>
+                  <span class="fw-semibold" data-i18n="composer_add_photo">เพิ่มรูปภาพ (สูงสุด 10 รูป)</span>
                 </label>
 
                 <!-- Small GPS Geolocation Trigger / Status -->
@@ -207,35 +232,76 @@
 
             <!-- Header Options / Timestamp -->
             <div class="d-flex align-items-center gap-2">
-              <span class="text-muted" style="font-size: 0.72rem;">{{ checkin.created_at|timesince }} ที่แล้ว</span>
+              <span class="text-muted" style="font-size: 0.72rem;">{{ checkin.created_at|timesince }} <span data-i18n="ago_suffix">ที่แล้ว</span></span>
               <div class="dropdown">
                 <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="bi bi-three-dots fs-5"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
-                  <li><a class="dropdown-item small" href="{% url 'checkins:detail' pk=checkin.pk %}"><i class="bi bi-eye me-2"></i>ดูรายละเอียด</a></li>
+                  <li><a class="dropdown-item small" href="{% url 'checkins:detail' pk=checkin.pk %}"><i class="bi bi-eye me-2"></i><span data-i18n="map_view_detail">ดูรายละเอียด</span></a></li>
                   {% if checkin.has_location %}
                     <li>
                       <a class="dropdown-item small" href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener">
-                        <i class="bi bi-geo-alt me-2 text-danger"></i>เปิด Google Maps
+                        <i class="bi bi-geo-alt me-2 text-danger"></i><span data-i18n="action_open_gmaps">เปิด Google Maps</span>
                       </a>
                     </li>
                   {% endif %}
                   {% if checkin.user == user or user.is_staff %}
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item small text-primary" href="{% url 'checkins:edit' pk=checkin.pk %}"><i class="bi bi-pencil me-2"></i>แก้ไข</a></li>
-                    <li><a class="dropdown-item small text-danger" href="{% url 'checkins:delete' pk=checkin.pk %}"><i class="bi bi-trash3 me-2"></i>ลบโพสต์</a></li>
+                    <li><a class="dropdown-item small text-primary" href="{% url 'checkins:edit' pk=checkin.pk %}"><i class="bi bi-pencil me-2"></i><span data-i18n="action_edit">แก้ไข</span></a></li>
+                    <li><a class="dropdown-item small text-danger" href="{% url 'checkins:delete' pk=checkin.pk %}"><i class="bi bi-trash3 me-2"></i><span data-i18n="action_delete">ลบโพสต์</span></a></li>
                   {% endif %}
                 </ul>
               </div>
             </div>
           </div>
 
-          <!-- Card Photo with Double Tap Heart Animation -->
-          <div class="card-img-wrapper" data-checkin-id="{{ checkin.id }}">
-            <img src="{{ checkin.get_photo_url }}" alt="{{ checkin.place_name }}" loading="lazy">
-            <i class="bi bi-heart-fill double-tap-heart"></i>
-          </div>
+          <!-- Card Photo / Multi-Photo Carousel with Double Tap Heart Animation -->
+          {% with photos=checkin.get_all_photos %}
+            {% if photos|length > 1 %}
+              <div class="post-carousel-container ratio-{{ checkin.aspect_ratio|default:'original' }}" data-checkin-id="{{ checkin.id }}">
+                <!-- Badge Counter (e.g. 1/4) -->
+                <div class="post-carousel-badge-counter">1/{{ photos|length }}</div>
+
+                <!-- Navigation Arrows -->
+                <button type="button" class="post-carousel-nav-btn btn-prev" style="display: none;" aria-label="Previous image">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" class="post-carousel-nav-btn btn-next" aria-label="Next image">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+
+                <!-- Track & Slides -->
+                <div class="post-carousel-track double-tap-like-area" data-checkin-id="{{ checkin.id }}">
+                  {% for item in photos %}
+                    <div class="post-carousel-slide">
+                      {% if checkin.aspect_ratio == 'original' %}
+                        <img src="{{ item.url }}" alt="" class="post-carousel-slide-bg" loading="lazy">
+                      {% endif %}
+                      <img src="{{ item.url }}" alt="{{ checkin.place_name }}" class="post-carousel-img" loading="lazy">
+                    </div>
+                  {% endfor %}
+                </div>
+
+                <!-- Pagination Indicator Dots -->
+                <div class="post-carousel-dots">
+                  {% for item in photos %}
+                    <span class="post-carousel-dot {% if forloop.first %}active{% endif %}" data-slide-index="{{ forloop.counter0 }}"></span>
+                  {% endfor %}
+                </div>
+
+                <i class="bi bi-heart-fill double-tap-heart"></i>
+              </div>
+            {% else %}
+              <div class="card-img-wrapper post-carousel-container ratio-{{ checkin.aspect_ratio|default:'original' }} double-tap-like-area" data-checkin-id="{{ checkin.id }}">
+                {% if checkin.aspect_ratio == 'original' %}
+                  <img src="{{ checkin.get_photo_url }}" alt="" class="post-carousel-slide-bg" loading="lazy">
+                {% endif %}
+                <img src="{{ checkin.get_photo_url }}" alt="{{ checkin.place_name }}" class="post-carousel-img" loading="lazy">
+                <i class="bi bi-heart-fill double-tap-heart"></i>
+              </div>
+            {% endif %}
+          {% endwith %}
 
           <!-- Action Bar (Like, Comment, Share, Bookmark) -->
           <div class="card-actions-bar d-flex align-items-center justify-content-between px-3 pt-2 pb-1">
@@ -247,6 +313,7 @@
                 data-checkin-id="{{ checkin.id }}"
                 data-url="{% url 'checkins:like' pk=checkin.pk %}"
                 title="ถูกใจ"
+                data-i18n-title="action_like"
               >
                 <i class="bi {% if checkin.id in user_liked_ids %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
               </button>
@@ -258,6 +325,7 @@
                 data-checkin-id="{{ checkin.id }}"
                 data-comment-url="{% url 'checkins:comment_create' pk=checkin.pk %}"
                 title="ความคิดเห็น"
+                data-i18n-title="action_comment"
               >
                 <i class="bi bi-chat"></i>
               </button>
@@ -270,6 +338,7 @@
                 data-text="ดูจุดเช็คอิน {{ checkin.place_name }} บน ที่นี่ Check-in"
                 data-url="{{ request.scheme }}://{{ request.get_host }}{% url 'checkins:detail' pk=checkin.pk %}"
                 title="แชร์จุดเช็คอิน"
+                data-i18n-title="action_share"
               >
                 <i class="bi bi-send"></i>
               </button>
@@ -283,6 +352,7 @@
                 data-checkin-id="{{ checkin.id }}"
                 data-url="{% url 'checkins:bookmark' pk=checkin.pk %}"
                 title="บันทึกสถานที่"
+                data-i18n-title="action_bookmark"
               >
                 <i class="bi {% if checkin.id in user_bookmarked_ids %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
               </button>
@@ -514,43 +584,106 @@
       updateGeoDisplay(parseFloat(latInput.value), parseFloat(lngInput.value));
     }
 
-    // 3. Photo Preview
-    const filenameLabel = document.getElementById('feed-photo-filename');
-    if (photoInput && previewImg) {
-      photoInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-          if (file.size > 5 * 1024 * 1024) {
-            alert('คำเตือน: ขนาดไฟล์เกิน 5MB กรุณาเลือกรูปภาพที่มีขนาดเล็กลง');
-            this.value = '';
-            return;
-          }
-          if (filenameLabel) {
-            filenameLabel.textContent = file.name;
-          }
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            previewImg.src = e.target.result;
-            if (previewWrapper) previewWrapper.classList.remove('d-none');
-          };
-          reader.readAsDataURL(file);
+    // 3. Multi-Photo Selection, Thumbnails & Aspect Ratio Logic
+    let selectedFiles = [];
+    const maxPhotos = 10;
+    const aspectWrapper = document.getElementById('feed-aspect-ratio-wrapper');
+    const photoCountBadge = document.getElementById('feed-photo-count-badge');
+    const thumbsContainer = document.getElementById('feed-thumbs-container');
+    const aspectRatioInput = document.getElementById('feed_aspect_ratio');
+    const aspectPillButtons = document.querySelectorAll('.aspect-ratio-pill-btn');
+
+    // Handle Aspect Ratio Pills
+    aspectPillButtons.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        aspectPillButtons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        if (aspectRatioInput) {
+          aspectRatioInput.value = this.dataset.ratio || 'original';
         }
       });
+    });
+
+    function syncInputFiles() {
+      if (!photoInput) return;
+      const dt = new DataTransfer();
+      selectedFiles.forEach(file => dt.items.add(file));
+      photoInput.files = dt.files;
+      
+      // Update badge
+      if (photoCountBadge) {
+        photoCountBadge.textContent = `${selectedFiles.length}/${maxPhotos} รูป`;
+      }
+      
+      // Toggle visibility
+      if (selectedFiles.length > 0) {
+        if (aspectWrapper) aspectWrapper.classList.remove('d-none');
+        if (previewWrapper) previewWrapper.classList.remove('d-none');
+      } else {
+        if (aspectWrapper) aspectWrapper.classList.add('d-none');
+        if (previewWrapper) previewWrapper.classList.add('d-none');
+      }
+      
+      renderThumbnails();
     }
 
-    if (btnRemovePreview) {
-      btnRemovePreview.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (photoInput) photoInput.value = '';
-        if (previewImg) previewImg.src = '';
-        if (previewWrapper) previewWrapper.classList.add('d-none');
+    function renderThumbnails() {
+      if (!thumbsContainer) return;
+      thumbsContainer.innerHTML = '';
+      
+      selectedFiles.forEach((file, idx) => {
+        const card = document.createElement('div');
+        card.className = 'multi-photo-thumb-card';
+        
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = file.name;
+        
+        const btnRemove = document.createElement('button');
+        btnRemove.type = 'button';
+        btnRemove.className = 'btn-remove-thumb';
+        btnRemove.innerHTML = '<i class="bi bi-x"></i>';
+        btnRemove.title = 'ลบรูปนี้';
+        btnRemove.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          selectedFiles.splice(idx, 1);
+          syncInputFiles();
+        });
+        
+        card.appendChild(img);
+        card.appendChild(btnRemove);
+        thumbsContainer.appendChild(card);
       });
     }
 
-    // 4. Form Submit Loading State
+    if (photoInput) {
+      photoInput.addEventListener('change', function() {
+        const newFiles = Array.from(this.files);
+        for (const file of newFiles) {
+          if (selectedFiles.length >= maxPhotos) {
+            alert(`สามารถเลือกรูปภาพได้สูงสุด ${maxPhotos} รูปต่อโพสต์`);
+            break;
+          }
+          if (file.size > 8 * 1024 * 1024) {
+            alert(`ไฟล์ ${file.name} มีขนาดเกิน 8MB กรุณาเลือกรูปภาพที่มีขนาดเล็กลง`);
+            continue;
+          }
+          selectedFiles.push(file);
+        }
+        syncInputFiles();
+      });
+    }
+
+    // 4. Form Submit Loading State & Validation
     if (feedForm && btnSubmit) {
-      feedForm.addEventListener('submit', function() {
+      feedForm.addEventListener('submit', function(e) {
+        if (selectedFiles.length === 0) {
+          e.preventDefault();
+          alert('กรุณาเลือกรูปภาพอย่างน้อย 1 รูปสำหรับจุดเช็คอิน');
+          return;
+        }
         btnSubmit.disabled = true;
         btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> กำลังโพสต์...';
       });
