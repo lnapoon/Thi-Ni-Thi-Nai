@@ -94,19 +94,11 @@ class ProfileEditForm(forms.ModelForm):
             "display_name",
             "category",
             "bio",
-            "website_title",
-            "website_url",
-            "music_title",
-            "music_url",
         ]
         labels = {
             "display_name": "ชื่อที่แสดง",
-            "category": "หมวดหมู่ / MBTI / สถานะ",
+            "category": "หมวดหมู่ / สถานะ",
             "bio": "ข้อความแนะนำตัว",
-            "website_title": "ชื่อปุ่ม/โซเชียล",
-            "website_url": "URL ลิงก์",
-            "music_title": "ชื่อเพลง / ข้อความเสียง",
-            "music_url": "URL ลิงก์เพลง",
             "avatar": "รูปภาพโปรไฟล์",
         }
         widgets = {
@@ -119,7 +111,7 @@ class ProfileEditForm(forms.ModelForm):
             "category": forms.TextInput(
                 attrs={
                     "class": "form-control rounded-pill px-3",
-                    "placeholder": "หมวดหมู่ / MBTI / สถานะ (เช่น ENFP - T)",
+                    "placeholder": "หมวดหมู่ / สถานะ (เช่น นักเดินทาง, สายคาเฟ่)",
                 }
             ),
             "bio": forms.Textarea(
@@ -127,30 +119,6 @@ class ProfileEditForm(forms.ModelForm):
                     "class": "form-control rounded-4 p-3",
                     "rows": 3,
                     "placeholder": "คำอธิบายโปรไฟล์ (Bio)",
-                }
-            ),
-            "website_title": forms.TextInput(
-                attrs={
-                    "class": "form-control rounded-pill px-3",
-                    "placeholder": "ชื่อลิงก์โปรไฟล์/โซเชียล (เช่น Facebook / Monphrakan)",
-                }
-            ),
-            "website_url": forms.URLInput(
-                attrs={
-                    "class": "form-control rounded-pill px-3",
-                    "placeholder": "https://facebook.com/yourprofile",
-                }
-            ),
-            "music_title": forms.TextInput(
-                attrs={
-                    "class": "form-control rounded-pill px-3",
-                    "placeholder": "เพลงโปรด / แท็กเสียง (เช่น ดาวนำทาง)",
-                }
-            ),
-            "music_url": forms.URLInput(
-                attrs={
-                    "class": "form-control rounded-pill px-3",
-                    "placeholder": "https://spotify.com/track/...",
                 }
             ),
             "avatar": forms.FileInput(

@@ -6,138 +6,124 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-7 col-lg-6">
     <div class="card border-0 shadow-sm rounded-4 p-4">
-      <div class="d-flex align-items-center mb-3">
-        <a href="{% url 'accounts:profile_me' %}" class="btn btn-light btn-sm rounded-circle me-2" title="ย้อนกลับ" data-i18n-title="action_back">
-          <i class="bi bi-arrow-left"></i>
+      
+      <!-- Top Bar: Back Button & Header -->
+      <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+        <a href="{% url 'accounts:profile_me' %}" class="btn btn-light btn-sm rounded-circle me-2.5 d-flex align-items-center justify-content-center shadow-2xs" style="width: 36px; height: 36px;" title="ย้อนกลับ" data-i18n-title="action_back">
+          <i class="bi bi-arrow-left fs-5"></i>
         </a>
-        <h5 class="fw-bold mb-0" data-i18n="edit_profile_title">แก้ไขข้อมูลโปรไฟล์</h5>
+        <div>
+          <h5 class="fw-bold mb-0 text-dark" data-i18n="edit_profile_title">แก้ไขข้อมูลโปรไฟล์</h5>
+          <span class="text-muted micro-text">ปรับแต่งข้อมูลส่วนตัวและรูปโปรไฟล์ของคุณ</span>
+        </div>
       </div>
 
       <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
 
-        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3" data-i18n="edit_profile_user_info">ข้อมูลผู้ใช้</h6>
-        
-        <!-- User Info Fields (First Name, Last Name, Email) -->
-        <div class="row g-2 mb-3">
-          <div class="col-12 col-sm-6 mb-2 mb-sm-0">
-            <label for="id_first_name" class="form-label small fw-semibold" data-i18n="edit_profile_first_name">ชื่อ</label>
-            <input type="text" name="first_name" id="id_first_name" class="form-control rounded-pill px-3" value="{{ u_form.first_name.value|default:'' }}" placeholder="ชื่อ" data-i18n-placeholder="edit_profile_first_name_ph">
-            {% if u_form.first_name.errors %}
-              <div class="text-danger small mt-1">{{ u_form.first_name.errors.0 }}</div>
-            {% endif %}
-          </div>
-          <div class="col-12 col-sm-6">
-            <label for="id_last_name" class="form-label small fw-semibold" data-i18n="edit_profile_last_name">นามสกุล</label>
-            <input type="text" name="last_name" id="id_last_name" class="form-control rounded-pill px-3" value="{{ u_form.last_name.value|default:'' }}" placeholder="นามสกุล" data-i18n-placeholder="edit_profile_last_name_ph">
-            {% if u_form.last_name.errors %}
-              <div class="text-danger small mt-1">{{ u_form.last_name.errors.0 }}</div>
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label for="id_email" class="form-label small fw-semibold" data-i18n="edit_profile_email">อีเมล</label>
-          <input type="email" name="email" id="id_email" class="form-control rounded-pill px-3" value="{{ u_form.email.value|default:'' }}" placeholder="อีเมล" data-i18n-placeholder="edit_profile_email_ph">
-          {% if u_form.email.errors %}
-            <div class="text-danger small mt-1">{{ u_form.email.errors.0 }}</div>
-          {% endif %}
-        </div>
-
-        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4" data-i18n="edit_profile_ig_details">ข้อมูลโปรไฟล์เพิ่มเติม</h6>
-
-        <!-- Display Name -->
-        <div class="mb-3">
-          <label for="{{ p_form.display_name.id_for_label }}" class="form-label small fw-semibold" data-i18n="edit_profile_display_name">ชื่อที่แสดง</label>
-          <input type="text" name="display_name" id="id_display_name" class="form-control rounded-pill px-3" value="{{ p_form.display_name.value|default:'' }}" placeholder="ชื่อที่แสดง (เช่น ปูนเองก็เหนื่อย🫠)" data-i18n-placeholder="edit_profile_display_name_ph">
-          {% if p_form.display_name.errors %}
-            <div class="text-danger small mt-1">{{ p_form.display_name.errors.0 }}</div>
-          {% endif %}
-        </div>
-
-        <!-- Category / MBTI -->
-        <div class="mb-3">
-          <label for="{{ p_form.category.id_for_label }}" class="form-label small fw-semibold" data-i18n="edit_profile_category">หมวดหมู่ / MBTI / สถานะ</label>
-          <input type="text" name="category" id="id_category" class="form-control rounded-pill px-3" value="{{ p_form.category.value|default:'' }}" placeholder="หมวดหมู่ / MBTI / สถานะ (เช่น ENFP - T)" data-i18n-placeholder="edit_profile_category_ph">
-          {% if p_form.category.errors %}
-            <div class="text-danger small mt-1">{{ p_form.category.errors.0 }}</div>
-          {% endif %}
-        </div>
-
-        <!-- Bio -->
-        <div class="mb-3">
-          <label for="{{ p_form.bio.id_for_label }}" class="form-label small fw-semibold" data-i18n="edit_profile_bio">ข้อความแนะนำตัว</label>
-          <textarea name="bio" id="id_bio" class="form-control rounded-4 p-3" rows="3" placeholder="คำอธิบายโปรไฟล์ (Bio)" data-i18n-placeholder="edit_profile_bio_ph">{{ p_form.bio.value|default:'' }}</textarea>
-          {% if p_form.bio.errors %}
-            <div class="text-danger small mt-1">{{ p_form.bio.errors.0 }}</div>
-          {% endif %}
-        </div>
-
-        <!-- Social / External Link -->
-        <div class="p-3 bg-light rounded-4 mb-3 border">
-          <h6 class="fw-bold small text-dark mb-2"><i class="bi bi-link-45deg text-primary me-1"></i> <span data-i18n="edit_profile_social_links">ลิงก์ภายนอก / โซเชียล</span></h6>
-          <div class="mb-2">
-            <label for="{{ p_form.website_title.id_for_label }}" class="form-label micro-text text-muted mb-1" data-i18n="edit_profile_website_title">ชื่อปุ่ม/โซเชียล</label>
-            <input type="text" name="website_title" id="id_website_title" class="form-control rounded-pill px-3" value="{{ p_form.website_title.value|default:'' }}" placeholder="ชื่อลิงก์โปรไฟล์/โซเชียล (เช่น Facebook / Monphrakan)" data-i18n-placeholder="edit_profile_website_title_ph">
-          </div>
-          <div>
-            <label for="{{ p_form.website_url.id_for_label }}" class="form-label micro-text text-muted mb-1" data-i18n="edit_profile_website_url">URL ลิงก์</label>
-            <input type="url" name="website_url" id="id_website_url" class="form-control rounded-pill px-3" value="{{ p_form.website_url.value|default:'' }}" placeholder="https://facebook.com/yourprofile" data-i18n-placeholder="edit_profile_website_url_ph">
-          </div>
-        </div>
-
-        <!-- Music Link / Badge -->
+        <!-- Section 1: Avatar Upload -->
         <div class="p-3 bg-light rounded-4 mb-4 border">
-          <h6 class="fw-bold small text-dark mb-2"><i class="bi bi-music-note-beamed text-danger me-1"></i> <span data-i18n="edit_profile_music_header">เพลงโปรด / แท็กเสียง</span></h6>
-          <div class="mb-2">
-            <label for="{{ p_form.music_title.id_for_label }}" class="form-label micro-text text-muted mb-1" data-i18n="edit_profile_music_title">ชื่อเพลง / ข้อความเสียง</label>
-            <input type="text" name="music_title" id="id_music_title" class="form-control rounded-pill px-3" value="{{ p_form.music_title.value|default:'' }}" placeholder="เพลงโปรด / แท็กเสียง (เช่น ดาวนำทาง)" data-i18n-placeholder="edit_profile_music_title_ph">
-          </div>
-          <div>
-            <label for="{{ p_form.music_url.id_for_label }}" class="form-label micro-text text-muted mb-1" data-i18n="edit_profile_music_url">URL ลิงก์เพลง</label>
-            <input type="url" name="music_url" id="id_music_url" class="form-control rounded-pill px-3" value="{{ p_form.music_url.value|default:'' }}" placeholder="https://spotify.com/track/..." data-i18n-placeholder="edit_profile_music_url_ph">
-          </div>
-        </div>
-
-        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4" data-i18n="edit_profile_avatar_header">รูปภาพโปรไฟล์</h6>
-
-        <div class="mb-4">
-          <div class="d-flex align-items-center gap-3 mb-2">
-            {% if user.profile.avatar %}
-              <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" id="avatar-preview-img" class="rounded-circle border shadow-2xs" width="64" height="64" style="object-fit: cover;">
-            {% else %}
-              <div id="avatar-preview-placeholder" class="bg-light rounded-circle d-flex align-items-center justify-content-center border shadow-2xs" style="width: 64px; height: 64px;">
-                <i class="bi bi-person text-secondary fs-3"></i>
-              </div>
-            {% endif %}
+          <h6 class="fw-bold small text-dark mb-3"><i class="bi bi-person-circle text-primary me-1.5"></i> <span data-i18n="edit_profile_avatar_header">รูปภาพโปรไฟล์</span></h6>
+          <div class="d-flex align-items-center gap-3">
+            <div class="position-relative flex-shrink-0">
+              {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" id="avatar-preview-img" class="rounded-circle border shadow-sm" width="68" height="68" style="object-fit: cover;">
+              {% else %}
+                <div id="avatar-preview-placeholder" class="bg-white rounded-circle d-flex align-items-center justify-content-center border shadow-2xs text-primary" style="width: 68px; height: 68px;">
+                  <i class="bi bi-person-fill fs-2"></i>
+                </div>
+              {% endif %}
+            </div>
             <div class="flex-grow-1">
-              <label for="id_avatar" class="form-label small text-muted mb-1" data-i18n="edit_profile_avatar_change">เปลี่ยนรูปโปรไฟล์ใหม่</label>
+              <label for="id_avatar" class="form-label micro-text text-muted mb-1 fw-semibold" data-i18n="edit_profile_avatar_change">เปลี่ยนรูปโปรไฟล์ใหม่</label>
               
               <!-- Hidden Native Input -->
               <input type="file" name="avatar" id="id_avatar" class="d-none" accept="image/jpeg,image/png,image/webp,image/heic">
               
-              <!-- Custom Bilingual Trigger Bar -->
+              <!-- Custom Trigger Bar -->
               <div class="input-group">
-                <button type="button" class="btn btn-outline-secondary rounded-start-pill px-3" id="btn-browse-avatar">
-                  <i class="bi bi-upload me-1 text-primary"></i> <span data-i18n="file_input_choose">เลือกไฟล์</span>
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-start-pill px-3" id="btn-browse-avatar">
+                  <i class="bi bi-upload me-1"></i> <span data-i18n="file_input_choose">เลือกไฟล์</span>
                 </button>
-                <div class="form-control bg-light text-muted rounded-end-pill px-3 py-2 small d-flex align-items-center overflow-hidden" id="avatar-filename-display" style="cursor: pointer;">
+                <div class="form-control form-control-sm bg-white text-muted rounded-end-pill px-3 py-1.5 small d-flex align-items-center overflow-hidden" id="avatar-filename-display" style="cursor: pointer;">
                   <span class="text-truncate" id="avatar-filename-text" data-i18n="file_input_none">ไม่ได้เลือกไฟล์ใด</span>
                 </div>
               </div>
             </div>
           </div>
           {% if p_form.avatar.errors %}
-            <div class="text-danger small mt-1">{{ p_form.avatar.errors.0 }}</div>
+            <div class="text-danger small mt-1.5 ms-1">{{ p_form.avatar.errors.0 }}</div>
           {% endif %}
         </div>
 
-        <div class="d-flex gap-2">
-          <a href="{% url 'accounts:profile_me' %}" class="btn btn-light flex-grow-1 rounded-pill py-2" data-i18n="edit_profile_cancel">ยกเลิก</a>
-          <button type="submit" class="btn btn-primary flex-grow-1 rounded-pill py-2 fw-semibold shadow-sm" data-i18n="edit_profile_save">บันทึกข้อมูล</button>
+        <!-- Section 2: User Account Info (First Name, Last Name, Email) -->
+        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3" data-i18n="edit_profile_user_info">ข้อมูลผู้ใช้</h6>
+        
+        <div class="row g-2 mb-3">
+          <div class="col-12 col-sm-6 mb-2 mb-sm-0">
+            <label for="id_first_name" class="form-label small fw-semibold text-secondary" data-i18n="edit_profile_first_name">ชื่อ</label>
+            <input type="text" name="first_name" id="id_first_name" class="form-control rounded-pill px-3 py-2" value="{{ u_form.first_name.value|default:'' }}" placeholder="ชื่อ" data-i18n-placeholder="edit_profile_first_name_ph">
+            {% if u_form.first_name.errors %}
+              <div class="text-danger small mt-1">{{ u_form.first_name.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="col-12 col-sm-6">
+            <label for="id_last_name" class="form-label small fw-semibold text-secondary" data-i18n="edit_profile_last_name">นามสกุล</label>
+            <input type="text" name="last_name" id="id_last_name" class="form-control rounded-pill px-3 py-2" value="{{ u_form.last_name.value|default:'' }}" placeholder="นามสกุล" data-i18n-placeholder="edit_profile_last_name_ph">
+            {% if u_form.last_name.errors %}
+              <div class="text-danger small mt-1">{{ u_form.last_name.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="id_email" class="form-label small fw-semibold text-secondary" data-i18n="edit_profile_email">อีเมล</label>
+          <input type="email" name="email" id="id_email" class="form-control rounded-pill px-3 py-2" value="{{ u_form.email.value|default:'' }}" placeholder="อีเมล" data-i18n-placeholder="edit_profile_email_ph">
+          {% if u_form.email.errors %}
+            <div class="text-danger small mt-1">{{ u_form.email.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Section 3: Additional Profile Details -->
+        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4" data-i18n="edit_profile_ig_details">ข้อมูลโปรไฟล์เพิ่มเติม</h6>
+
+        <!-- Display Name -->
+        <div class="mb-3">
+          <label for="{{ p_form.display_name.id_for_label }}" class="form-label small fw-semibold text-secondary" data-i18n="edit_profile_display_name">ชื่อที่แสดง</label>
+          <input type="text" name="display_name" id="id_display_name" class="form-control rounded-pill px-3 py-2" value="{{ p_form.display_name.value|default:'' }}" placeholder="ชื่อที่แสดง (เช่น ปูนเองก็เหนื่อย🫠)" data-i18n-placeholder="edit_profile_display_name_ph">
+          {% if p_form.display_name.errors %}
+            <div class="text-danger small mt-1">{{ p_form.display_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Category / Status -->
+        <div class="mb-3">
+          <label for="{{ p_form.category.id_for_label }}" class="form-label small fw-semibold text-secondary" data-i18n="edit_profile_category">หมวดหมู่ / สถานะ</label>
+          <input type="text" name="category" id="id_category" class="form-control rounded-pill px-3 py-2" value="{{ p_form.category.value|default:'' }}" placeholder="หมวดหมู่ / สถานะ (เช่น นักเดินทาง, สายคาเฟ่)" data-i18n-placeholder="edit_profile_category_ph">
+          {% if p_form.category.errors %}
+            <div class="text-danger small mt-1">{{ p_form.category.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Bio -->
+        <div class="mb-4">
+          <label for="{{ p_form.bio.id_for_label }}" class="form-label small fw-semibold text-secondary" data-i18n="edit_profile_bio">ข้อความแนะนำตัว</label>
+          <textarea name="bio" id="id_bio" class="form-control rounded-4 p-3" rows="3" placeholder="คำอธิบายโปรไฟล์ (Bio)" data-i18n-placeholder="edit_profile_bio_ph">{{ p_form.bio.value|default:'' }}</textarea>
+          {% if p_form.bio.errors %}
+            <div class="text-danger small mt-1">{{ p_form.bio.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Section 4: Action Buttons -->
+        <div class="d-flex gap-2 pt-2">
+          <a href="{% url 'accounts:profile_me' %}" class="btn btn-light border flex-grow-1 rounded-pill py-2.5 fw-semibold text-secondary shadow-2xs" data-i18n="edit_profile_cancel">ยกเลิก</a>
+          <button type="submit" class="btn btn-primary flex-grow-1 rounded-pill py-2.5 fw-semibold shadow-sm" data-i18n="edit_profile_save">
+            <i class="bi bi-check-lg me-1"></i> <span data-i18n="edit_profile_save">บันทึกข้อมูล</span>
+          </button>
         </div>
       </form>
 
+      <!-- Bottom Navigation Link -->
       <div class="mt-4 pt-3 border-top">
         <a href="{% url 'accounts:about' %}" class="btn btn-outline-secondary w-100 rounded-pill py-2 d-flex align-items-center justify-content-between px-3 text-start shadow-sm">
           <span class="small fw-semibold text-body"><i class="bi bi-info-circle-fill me-2 text-primary"></i> <span data-i18n="nav_about">เกี่ยวกับแอปพลิเคชัน</span></span>
