@@ -38,6 +38,7 @@ class CheckIn(models.Model):
         max_length=20,
         choices=ASPECT_RATIO_CHOICES,
         default="original",
+        blank=True,
         verbose_name="สัดส่วนภาพ",
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="สร้างเมื่อ")
