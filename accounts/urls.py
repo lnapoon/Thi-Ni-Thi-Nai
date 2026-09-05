@@ -16,6 +16,12 @@ from .views import (
     GitHubOAuthCallbackView,
     about_view,
 )
+from .otp_views import (
+    PasswordResetRequestView,
+    PasswordResetVerifyView,
+    PasswordResetResendView,
+    PasswordResetConfirmView,
+)
 
 app_name = 'accounts'
 
@@ -38,4 +44,10 @@ urlpatterns = [
     path('oauth/google/callback/', GoogleOAuthCallbackView.as_view(), name='google_callback'),
     path('oauth/github/login/', GitHubOAuthLoginView.as_view(), name='github_login'),
     path('oauth/github/callback/', GitHubOAuthCallbackView.as_view(), name='github_callback'),
+
+    # Password Reset with Email OTP
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
+    path('password-reset/verify/', PasswordResetVerifyView.as_view(), name='password_reset_verify'),
+    path('password-reset/resend/', PasswordResetResendView.as_view(), name='password_reset_resend'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]

@@ -34,6 +34,8 @@ raw_allowed_hosts = config("ALLOWED_HOSTS", default="*", cast=Csv())
 ALLOWED_HOSTS = list(raw_allowed_hosts) if raw_allowed_hosts else ["*"]
 if "*" not in ALLOWED_HOSTS and ".vercel.app" not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.extend([".vercel.app", "localhost", "127.0.0.1", "*"])
+if "testserver" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("testserver")
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.vercel.app",
@@ -191,3 +193,14 @@ MESSAGE_TAGS = {
     messages.WARNING: "warning",
     messages.ERROR: "danger",
 }
+
+# ─────────────────────────────────────────────────────────────
+# Email Configuration (Gmail SMTP)
+# ─────────────────────────────────────────────────────────────
+EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default=f'"ที่นี่ Check-in" <{EMAIL_HOST_USER}>')
