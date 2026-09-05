@@ -11,10 +11,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 import django
 django.setup()
 
-from django.contrib.auth.models import User
-from accounts.models import Profile
-from checkins.models import CheckIn
-import cloudinary.uploader
+# pyrefly: ignore [missing-import]
+from django.contrib.auth.models import User  # type: ignore
+# pyrefly: ignore [missing-import]
+from accounts.models import Profile  # type: ignore
+# pyrefly: ignore [missing-import]
+from checkins.models import CheckIn  # type: ignore
+# pyrefly: ignore [missing-import]
+import cloudinary.uploader  # type: ignore
 
 BRAIN_DIR = Path("/Users/monphrakan/.gemini/antigravity-ide/brain/8a27a3ef-061e-45e4-94fe-960adc1c94f8")
 

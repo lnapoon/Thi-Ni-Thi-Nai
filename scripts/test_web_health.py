@@ -11,9 +11,12 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 import django
 django.setup()
 
-from django.test import Client
-from django.contrib.auth.models import User
-from checkins.models import CheckIn
+# pyrefly: ignore [missing-import]
+from django.test import Client  # type: ignore
+# pyrefly: ignore [missing-import]
+from django.contrib.auth.models import User  # type: ignore
+# pyrefly: ignore [missing-import]
+from checkins.models import CheckIn  # type: ignore
 
 def run_health_checks():
     print("==================================================")
