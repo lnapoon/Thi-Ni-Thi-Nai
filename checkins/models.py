@@ -17,7 +17,7 @@ ASPECT_RATIO_CHOICES = (
     ("1:1", "1:1 สี่เหลี่ยมจัตุรัส (Square)"),
     ("4:5", "4:5 แนวตั้งพอดีจอ (Portrait)"),
     ("16:9", "16:9 แนวนอนมุมกว้าง (Landscape)"),
-    ("9:16", "9:16 แนวตั้งเต็มจอ (Story)"),
+    ("9:16", "9:16 แนวตั้งเต็มจอ (Full Screen)"),
 )
 
 
@@ -38,6 +38,7 @@ class CheckIn(models.Model):
         max_length=20,
         choices=ASPECT_RATIO_CHOICES,
         default="original",
+        blank=True,
         verbose_name="สัดส่วนภาพ",
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="สร้างเมื่อ")

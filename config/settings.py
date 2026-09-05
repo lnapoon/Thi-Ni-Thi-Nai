@@ -32,6 +32,8 @@ MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 # Allow all hosts in production/serverless environments
 raw_allowed_hosts = config("ALLOWED_HOSTS", default="*", cast=Csv())
 ALLOWED_HOSTS = list(raw_allowed_hosts) if raw_allowed_hosts else ["*"]
+if "testserver" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("testserver")
 if "*" not in ALLOWED_HOSTS and ".vercel.app" not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.extend([".vercel.app", "localhost", "127.0.0.1", "*"])
 if "testserver" not in ALLOWED_HOSTS:

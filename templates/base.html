@@ -37,7 +37,7 @@
   <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=58">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -92,7 +92,7 @@
               <li><a class="dropdown-item rounded-3 py-2" href="{% url 'accounts:about' %}"><i class="bi bi-info-circle me-2 text-info"></i> <span data-i18n="nav_about">เกี่ยวกับแอปพลิเคชัน</span></a></li>
               {% if user.is_staff %}
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item rounded-3 py-2 text-primary fw-semibold" href="{% url 'checkins:admin_dashboard' %}"><i class="bi bi-speedometer2 me-2"></i> <span data-i18n="nav_admin_dashboard">แดชบอร์ดจัดการระบบ (Admin)</span></a></li>
+                <li><a class="dropdown-item rounded-3 py-2 text-primary fw-semibold" href="{% url 'checkins:admin_dashboard' %}"><i class="bi bi-speedometer2 me-2"></i> <span data-i18n="nav_admin_dashboard">แดชบอร์ดจัดการระบบ</span></a></li>
               {% endif %}
               <li><hr class="dropdown-divider"></li>
               <!-- Language Row in Dropdown -->
@@ -266,18 +266,18 @@
             <i class="bi bi-lock-fill fs-2"></i>
           </div>
         </div>
-        <h5 class="fw-bold text-dark mb-2" id="authRequiredModalTitle">เข้าสู่ระบบเพื่อใช้งาน</h5>
-        <p class="text-muted small mb-4" id="authRequiredModalDesc">
+        <h5 class="fw-bold text-dark mb-2" id="authRequiredModalTitle" data-i18n="auth_login_title">เข้าสู่ระบบเพื่อใช้งาน</h5>
+        <p class="text-muted small mb-4" id="authRequiredModalDesc" data-i18n="auth_login_desc">
           เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อสร้างโพสต์เช็คอิน กดถูกใจ แสดงความคิดเห็น และบันทึกสถานที่โปรดของคุณ
         </p>
         <div class="d-grid gap-2">
           <a href="{% url 'accounts:login' %}" class="btn btn-primary rounded-pill py-2 fw-bold shadow-sm">
-            <i class="bi bi-box-arrow-in-right me-1"></i> เข้าสู่ระบบ
+            <i class="bi bi-box-arrow-in-right me-1"></i> <span data-i18n="auth_btn_login">เข้าสู่ระบบ</span>
           </a>
           <a href="{% url 'accounts:signup' %}" class="btn btn-outline-secondary rounded-pill py-2 fw-semibold">
-            <i class="bi bi-person-plus me-1"></i> สมัครสมาชิกใหม่ (ฟรี)
+            <i class="bi bi-person-plus me-1"></i> <span data-i18n="auth_btn_signup">สมัครสมาชิกใหม่</span>
           </a>
-          <button type="button" class="btn btn-link btn-sm text-muted text-decoration-none mt-1" data-bs-dismiss="modal">
+          <button type="button" class="btn btn-link btn-sm text-muted text-decoration-none mt-1" data-bs-dismiss="modal" data-i18n="auth_btn_later">
             ไว้ทีหลัง
           </button>
         </div>
@@ -299,7 +299,7 @@
             <h6 class="modal-title fw-bold text-dark mb-0" id="shareModalTitle" data-i18n="share_modal_title">
               <i class="bi bi-send-fill text-primary me-2"></i>แชร์จุดเช็คอิน
             </h6>
-            <span class="text-muted small" style="font-size: 0.78rem;">ส่งต่อสถานที่สวยๆ ไปยังโซเชียลมีเดีย</span>
+            <span class="text-muted small" style="font-size: 0.78rem;" data-i18n="share_modal_desc">ส่งต่อสถานที่สวยๆ ไปยังโซเชียลมีเดีย</span>
           </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -320,7 +320,7 @@
 
           <!-- 2. Section Title -->
           <div class="d-flex align-items-center mb-3">
-            <span class="text-muted extra-small fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+            <span class="text-muted extra-small fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;" data-i18n="share_apps_title">
               แชร์ไปยังแอปพลิเคชัน
             </span>
             <div class="flex-grow-1 ms-2 border-top"></div>
@@ -408,7 +408,7 @@
 
         <!-- Header: Centered Comments Title -->
         <div class="position-relative py-2 px-3 border-bottom text-center">
-          <h6 class="modal-title fw-bold mb-0 text-dark" id="postCommentsModalTitle" style="font-size: 1rem;">ความคิดเห็น</h6>
+          <h6 class="modal-title fw-bold mb-0 text-dark" id="postCommentsModalTitle" style="font-size: 1rem;" data-i18n="comments_title">ความคิดเห็น</h6>
           <button type="button" class="btn-close position-absolute end-0 top-50 translate-middle-y me-3" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.75rem;"></button>
         </div>
 
@@ -459,15 +459,15 @@
                   required 
                   maxlength="500"
                 >
-                <button type="submit" id="btnModalSubmitComment" class="btn-comments-send" title="ส่งความคิดเห็น">
+                <button type="submit" id="btnModalSubmitComment" class="btn-comments-send" title="ส่งความคิดเห็น" data-i18n-title="comments_send">
                   <i class="bi bi-arrow-up-circle-fill fs-5 text-primary"></i>
                 </button>
               </div>
             </form>
           {% else %}
             <div class="w-100 text-center py-2">
-              <span class="text-muted small me-2">เข้าสู่ระบบเพื่อร่วมแสดงความคิดเห็น</span>
-              <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
+              <span class="text-muted small me-2" data-i18n="comments_login_prompt">เข้าสู่ระบบเพื่อร่วมแสดงความคิดเห็น</span>
+              <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#authRequiredModal" data-i18n="nav_login">
                 เข้าสู่ระบบ / สมัครสมาชิก
               </button>
             </div>
@@ -498,7 +498,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
         <div class="modal-header bg-light border-bottom">
-          <h6 class="modal-title fw-bold text-dark" id="pdpaModalTitle">
+          <h6 class="modal-title fw-bold text-dark" id="pdpaModalTitle" data-i18n="pdpa_title">
             <i class="bi bi-shield-check text-primary me-2"></i>นโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)
           </h6>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -517,7 +517,7 @@
           <p class="mb-0">ข้อมูลของคุณจะถูกจัดเก็บบนโครงสร้างพื้นฐานที่มีการเข้ารหัสความปลอดภัย SSL/TLS และไม่มีการนำข้อมูลไปขายหรือส่งต่อให้บุคคลภายนอกโดยไม่ได้รับความยินยอม</p>
         </div>
         <div class="modal-footer bg-light border-top">
-          <button type="button" class="btn btn-primary rounded-pill px-4 btn-sm fw-bold" data-bs-dismiss="modal">รับทราบและเข้าใจแล้ว</button>
+          <button type="button" class="btn btn-primary rounded-pill px-4 btn-sm fw-bold" data-bs-dismiss="modal" data-i18n="pdpa_btn_understand">รับทราบและเข้าใจแล้ว</button>
         </div>
       </div>
     </div>
@@ -530,15 +530,15 @@
         <i class="bi bi-shield-lock-fill fs-5"></i>
       </div>
       <div class="flex-grow-1">
-        <h6 class="fw-bold text-dark mb-1" style="font-size: 0.9rem;">การคุ้มครองข้อมูลส่วนบุคคลและคุกกี้ (PDPA)</h6>
-        <p class="text-muted small mb-2" style="font-size: 0.78rem; line-height: 1.4;">
+        <h6 class="fw-bold text-dark mb-1" style="font-size: 0.9rem;" data-i18n="pdpa_banner_title">การคุ้มครองข้อมูลส่วนบุคคลและคุกกี้ (PDPA)</h6>
+        <p class="text-muted small mb-2" style="font-size: 0.78rem; line-height: 1.4;" data-i18n="pdpa_banner_desc">
           เว็บไซต์นี้ใช้คุกกี้ที่จำเป็น และขอสิทธิ์เข้าถึงพิกัด GPS เฉพาะตอนที่คุณแชร์สถานที่ เพื่อประสบการณ์ใช้งานที่ดีที่สุดตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล
         </p>
         <div class="d-flex align-items-center gap-2">
-          <button type="button" id="btnAcceptPdpa" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" style="font-size: 0.75rem;">
+          <button type="button" id="btnAcceptPdpa" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" style="font-size: 0.75rem;" data-i18n="pdpa_btn_accept">
             <i class="bi bi-check2 me-1"></i> ยินยอมทั้งหมด
           </button>
-          <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#pdpaModal" style="font-size: 0.75rem;">
+          <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#pdpaModal" style="font-size: 0.75rem;" data-i18n="pdpa_btn_read">
             อ่านนโยบาย
           </button>
         </div>
@@ -585,7 +585,7 @@
             <a href="{% url 'checkins:admin_dashboard' %}" class="list-group-item list-group-item-action py-3 d-flex align-items-center justify-content-between bg-primary-subtle text-primary">
               <div class="d-flex align-items-center gap-3">
                 <i class="bi bi-speedometer2 fs-5 text-primary"></i>
-                <span class="fw-bold" data-i18n="nav_admin_dashboard">แดชบอร์ดจัดการระบบ (Admin)</span>
+                <span class="fw-bold" data-i18n="nav_admin_dashboard">แดชบอร์ดจัดการระบบ</span>
               </div>
               <i class="bi bi-chevron-right text-primary small"></i>
             </a>
@@ -624,9 +624,9 @@
   <!-- Bootstrap 5 JS Bundle CDN -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <!-- I18n, Geolocation & Social JS -->
-  <script src="{% static 'js/i18n.js' %}"></script>
-  <script src="{% static 'js/geolocation.js' %}"></script>
-  <script src="{% static 'js/social.js' %}"></script>
+  <script src="{% static 'js/i18n.js' %}?v=52"></script>
+  <script src="{% static 'js/geolocation.js' %}?v=52"></script>
+  <script src="{% static 'js/social.js' %}?v=52"></script>
 
   <!-- Instant Page Preload / Fast Navigation System -->
   <script>

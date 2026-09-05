@@ -65,18 +65,23 @@ class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["first_name", "last_name", "email"]
+        labels = {
+            "first_name": "ชื่อ",
+            "last_name": "นามสกุล",
+            "email": "อีเมล",
+        }
         widgets = {
             "first_name": forms.TextInput(
-                attrs={"class": "form-control rounded-pill px-3", "placeholder": "ชื่อ"}
+                attrs={"class": "form-control rounded-pill px-3", "placeholder": "ระบุชื่อจริง"}
             ),
             "last_name": forms.TextInput(
                 attrs={
                     "class": "form-control rounded-pill px-3",
-                    "placeholder": "นามสกุล",
+                    "placeholder": "ระบุนามสกุล",
                 }
             ),
             "email": forms.EmailInput(
-                attrs={"class": "form-control rounded-pill px-3", "placeholder": "อีเมล"}
+                attrs={"class": "form-control rounded-pill px-3", "placeholder": "ระบุอีเมลของคุณ"}
             ),
         }
 
@@ -89,53 +94,31 @@ class ProfileEditForm(forms.ModelForm):
             "display_name",
             "category",
             "bio",
-            "website_title",
-            "website_url",
-            "music_title",
-            "music_url",
         ]
+        labels = {
+            "display_name": "ชื่อที่แสดง",
+            "category": "หมวดหมู่ / สถานะ",
+            "bio": "ข้อความแนะนำตัว",
+            "avatar": "รูปภาพโปรไฟล์",
+        }
         widgets = {
             "display_name": forms.TextInput(
                 attrs={
                     "class": "form-control rounded-pill px-3",
-                    "placeholder": "ชื่อที่แสดง (เช่น ปูนเองก็เหนื่อย🫠)",
+                    "placeholder": "ระบุชื่อที่ต้องการให้แสดงบนโปรไฟล์",
                 }
             ),
             "category": forms.TextInput(
                 attrs={
                     "class": "form-control rounded-pill px-3",
-                    "placeholder": "หมวดหมู่ / MBTI / สถานะ (เช่น ENFP - T)",
+                    "placeholder": "ระบุหมวดหมู่หรือสถานะ เช่น นักเดินทาง, สายท่องเที่ยว",
                 }
             ),
             "bio": forms.Textarea(
                 attrs={
                     "class": "form-control rounded-4 p-3",
                     "rows": 3,
-                    "placeholder": "คำอธิบายโปรไฟล์ (Bio)",
-                }
-            ),
-            "website_title": forms.TextInput(
-                attrs={
-                    "class": "form-control rounded-pill px-3",
-                    "placeholder": "ชื่อลิงก์โปรไฟล์/โซเชียล (เช่น Facebook / Monphrakan)",
-                }
-            ),
-            "website_url": forms.URLInput(
-                attrs={
-                    "class": "form-control rounded-pill px-3",
-                    "placeholder": "https://facebook.com/yourprofile",
-                }
-            ),
-            "music_title": forms.TextInput(
-                attrs={
-                    "class": "form-control rounded-pill px-3",
-                    "placeholder": "เพลงโปรด / แท็กเสียง (เช่น ดาวนำทาง)",
-                }
-            ),
-            "music_url": forms.URLInput(
-                attrs={
-                    "class": "form-control rounded-pill px-3",
-                    "placeholder": "https://spotify.com/track/...",
+                    "placeholder": "เขียนแนะนำตัว หรือเล่าเรื่องราวเกี่ยวกับตัวคุณสั้นๆ...",
                 }
             ),
             "avatar": forms.FileInput(

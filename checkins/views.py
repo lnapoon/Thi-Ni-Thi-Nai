@@ -80,6 +80,13 @@ class FeedView(ListView):
             num_comments=Count('comments', distinct=True)
         ).order_by('-created_at')
 
+        feed_type = self.request.GET.get('feed', 'all')
+        if feed_type == 'following' and self.request.user.is_authenticated:
+            following_user_ids = Follow.objects.filter(
+                follower=self.request.user
+            ).values_list('following_id', flat=True)
+            qs = qs.filter(user_id__in=following_user_ids)
+
         # Limit to 4 posts for unauthenticated visitors
         if not self.request.user.is_authenticated:
             return qs[:GUEST_FEED_LIMIT]
@@ -108,12 +115,21 @@ class FeedView(ListView):
         context = super().get_context_data(**kwargs)
         checkins_list = context.get('checkins', [])
         is_guest = not self.request.user.is_authenticated
-        total_posts = CheckIn.objects.count()
+        feed_type = self.request.GET.get('feed', 'all')
+
+        if feed_type == 'following' and not is_guest:
+            following_user_ids = Follow.objects.filter(
+                follower=self.request.user
+            ).values_list('following_id', flat=True)
+            total_posts = CheckIn.objects.filter(user_id__in=following_user_ids).count()
+        else:
+            total_posts = CheckIn.objects.count()
 
         context['is_guest'] = is_guest
         context['guest_feed_limit'] = GUEST_FEED_LIMIT
         context['total_posts_count'] = total_posts
         context['has_more_for_guest'] = (is_guest and total_posts > GUEST_FEED_LIMIT)
+        context['active_feed_type'] = feed_type
 
         if 'form' not in context:
             context['form'] = CheckInForm()

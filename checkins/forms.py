@@ -61,18 +61,28 @@ class CheckInForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['photo'].required = False
+        self.fields['aspect_ratio'].required = False
         if self.instance and self.instance.pk:
             self.fields['photo'].label = 'เปลี่ยนรูปภาพสถานที่ (เว้นว่างไว้หากใช้รูปเดิม)'
 
     def clean(self):
         cleaned_data = super().clean()
         photo = cleaned_data.get('photo')
-        if not self.instance.pk and not photo and not self.files.getlist('photos') and not self.files.getlist('photo'):
+        has_files_photos = False
+        if self.files and hasattr(self.files, 'getlist'):
+            has_files_photos = bool(self.files.getlist('photos') or self.files.getlist('photo'))
+        elif self.files:
+            has_files_photos = bool(self.files.get('photos') or self.files.get('photo'))
+
+        if not self.instance.pk and not photo and not has_files_photos:
             self.add_error('photo', 'กรุณาเลือกรูปภาพสถานที่อย่างน้อย 1 รูป')
         return cleaned_data
 
     def clean_photo(self):
         photo = self.cleaned_data.get('photo')
+        if not photo and self.instance and self.instance.pk:
+            return self.instance.photo
+
         if photo and hasattr(photo, 'size'):
             # Validate max size: 5 MB
             max_size_mb = 5
