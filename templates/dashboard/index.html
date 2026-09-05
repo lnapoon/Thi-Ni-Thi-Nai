@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}แผงควบคุมระบบ (Admin Dashboard) - ที่นี่ Check-in{% endblock %}
+{% block title %}แผงควบคุมระบบ - ที่นี่ Check-in{% endblock %}
 
 {% block extra_head %}
 <!-- Chart.js CDN -->
@@ -159,11 +159,11 @@
         <div class="d-flex align-items-center gap-2 mb-1">
           <span class="badge bg-warning text-dark fw-bold px-2 py-1 rounded-pill" style="font-size: 0.75rem;">ADMIN PANEL</span>
           <span class="badge bg-success bg-opacity-25 text-white border border-success border-opacity-50 px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
-            🟢 ระบบออนไลน์ปกติ
+            ระบบออนไลน์ปกติ
           </span>
         </div>
         <h3 class="fw-bold text-white mb-1">
-          แผงควบคุมและสถิติระบบ (Admin Dashboard)
+          แผงควบคุมและสถิติระบบ
         </h3>
         <p class="text-white-50 small mb-0">
           ยินดีต้อนรับคุณ <strong>@{{ user.username }}</strong> &bull; สรุปภาพรวมและจัดการข้อมูลของเว็บไซต์ <strong>ที่นี่ Check-in</strong>
@@ -266,7 +266,7 @@
         <div class="dash-card p-4 h-100">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h6 class="fw-bold text-dark mb-0">
-              <i class="bi bi-pie-chart-fill text-primary me-2"></i> สัดส่วนกิจกรรมในระบบ (Engagement)
+              <i class="bi bi-pie-chart-fill text-primary me-2"></i> สัดส่วนกิจกรรมในระบบ
             </h6>
           </div>
           <div style="height: 240px; position: relative;">
@@ -327,10 +327,10 @@
 
                 <div class="d-flex gap-2 ms-2 flex-shrink-0">
                   <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1">
-                    ❤️ {{ place.num_likes }}
+                    <i class="bi bi-heart-fill me-1"></i> {{ place.num_likes }}
                   </span>
                   <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">
-                    💬 {{ place.num_comments }}
+                    <i class="bi bi-chat-fill me-1"></i> {{ place.num_comments }}
                   </span>
                 </div>
               </div>
@@ -372,7 +372,7 @@
                   </div>
                 </div>
                 <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold">
-                  📍 {{ u.num_checkins }} เช็คอิน
+                  <i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ u.num_checkins }} เช็คอิน
                 </span>
               </div>
             {% endfor %}
@@ -496,10 +496,10 @@
                 </td>
                 <td>
                   <span class="badge bg-danger-subtle text-danger border border-danger-subtle me-1">
-                    ❤️ {{ c.num_likes }}
+                    <i class="bi bi-heart-fill text-danger me-1"></i> {{ c.num_likes }}
                   </span>
-                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                    💬 {{ c.num_comments }}
+                  <span class="badge bg-light text-dark border">
+                    <i class="bi bi-chat-fill text-primary me-1"></i> {{ c.num_comments }}
                   </span>
                 </td>
                 <td class="text-muted small">
@@ -568,7 +568,7 @@
           <thead>
             <tr>
               <th style="width: 60px;">โปรไฟล์</th>
-              <th>ชื่อผู้ใช้ (Username)</th>
+              <th>ชื่อผู้ใช้</th>
               <th>ชื่อ - นามสกุล</th>
               <th>อีเมล</th>
               <th>จำนวนเช็คอิน</th>
@@ -599,13 +599,17 @@
                   {{ u.email|default:"-" }}
                 </td>
                 <td>
-                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">
-                    📍 {{ u.num_checkins }} โพสต์
-                  </span>
+                  {% if u.num_checkins > 0 %}
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">
+                      <i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ u.num_checkins }} โพสต์
+                    </span>
+                  {% else %}
+                    <span class="badge bg-light text-muted border">0 โพสต์</span>
+                  {% endif %}
                 </td>
                 <td>
                   {% if u.is_superuser %}
-                    <span class="badge bg-warning text-dark fw-bold rounded-pill">👑 Superuser</span>
+                    <span class="badge bg-warning text-dark fw-bold rounded-pill">Superuser</span>
                   {% elif u.is_staff %}
                     <span class="badge bg-info-subtle text-info border rounded-pill">Staff</span>
                   {% else %}

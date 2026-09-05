@@ -719,7 +719,7 @@ function initSocialInteractions() {
   }
 
   function showCopyFeedback() {
-    showToast('📋 คัดลอกลิงก์เรียบร้อยแล้ว!');
+    showToast('คัดลอกลิงก์เรียบร้อยแล้ว!');
     if (copyShareBtn) {
       const originalHTML = copyShareBtn.innerHTML;
       copyShareBtn.innerHTML = '<i class="bi bi-check2 me-1"></i> คัดลอกแล้ว';
@@ -947,6 +947,10 @@ function initSocialInteractions() {
       document.body.appendChild(container);
     }
 
+    const translatedMsg = (window.i18n && typeof window.i18n.translateText === 'function') 
+      ? window.i18n.translateText(message) 
+      : message;
+
     const toast = document.createElement('div');
     toast.className = `toast align-items-center text-bg-${type} border-0 shadow rounded-pill`;
     toast.setAttribute('role', 'alert');
@@ -954,7 +958,7 @@ function initSocialInteractions() {
     toast.setAttribute('aria-atomic', 'true');
     toast.innerHTML = `
       <div class="d-flex px-3 py-2">
-        <div class="toast-body p-0 fw-medium small">${message}</div>
+        <div class="toast-body p-0 fw-medium small">${translatedMsg}</div>
       </div>
     `;
 

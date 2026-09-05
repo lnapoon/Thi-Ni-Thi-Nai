@@ -39,19 +39,25 @@ class CheckInTests(TestCase):
         self.assertTrue(self.checkin.has_location)
 
     def test_unauthenticated_access_redirects(self):
-        """Test that anonymous users are redirected to login for protected views."""
-        routes = [
-            reverse('checkins:feed'),
+        """Test that protected views redirect anonymous users to login while public views remain accessible."""
+        protected_routes = [
             reverse('checkins:create'),
-            reverse('checkins:detail', kwargs={'pk': self.checkin.pk}),
             reverse('checkins:edit', kwargs={'pk': self.checkin.pk}),
             reverse('checkins:delete', kwargs={'pk': self.checkin.pk}),
-            reverse('checkins:map'),
         ]
-        for url in routes:
+        for url in protected_routes:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 302)
             self.assertTrue(response.url.startswith('/accounts/login/'))
+
+        public_routes = [
+            reverse('checkins:feed'),
+            reverse('checkins:map'),
+            reverse('checkins:detail', kwargs={'pk': self.checkin.pk}),
+        ]
+        for url in public_routes:
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
 
     def test_feed_view_authenticated(self):
         """Test that authenticated users can see the feed with check-ins."""
