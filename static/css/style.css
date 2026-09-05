@@ -579,18 +579,21 @@ body.dark-mode .ig-action-btn.btn-bookmark.bookmarked {
 
 /* Post Composer Action Bar & Action Chips */
 .composer-action-bar {
-  row-gap: 8px;
+  row-gap: 10px;
+  column-gap: 10px;
+  margin-top: 1rem !important;
+  padding-top: 0.85rem !important;
 }
 
 .composer-chip-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 9999px;
   background-color: #f1f5f9;
   border: 1px solid #e2e8f0;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: #475569;
   white-space: nowrap;
