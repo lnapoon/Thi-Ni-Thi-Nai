@@ -102,7 +102,8 @@
         </button>
       </div>
 
-      <div class="zone-scroll-container d-flex align-items-center gap-2 mb-3">
+      <!-- Desktop Pills (>= 768px) -->
+      <div class="zone-scroll-container d-none d-md-flex align-items-center gap-2 mb-3">
         <button type="button" class="zone-pill-btn active" data-region="">
           <i class="bi bi-grid-fill"></i> <span data-i18n="map_all_regions">ทุกภูมิภาค</span>
           <span class="badge bg-secondary-subtle text-secondary rounded-pill ms-1">{{ total_geotagged }}</span>
@@ -114,6 +115,21 @@
             <span class="badge bg-secondary-subtle text-secondary rounded-pill ms-1">{{ reg.count }}</span>
           </button>
         {% endfor %}
+      </div>
+
+      <!-- Mobile Dropdown Selector (< 768px) -->
+      <div class="mb-3 d-md-none">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-light border-end-0 text-primary rounded-start-3">
+            <i class="bi bi-compass-fill"></i>
+          </span>
+          <select id="select-region-mobile" class="form-select border-start-0 rounded-end-3 fw-semibold">
+            <option value="">🌐 ทุกภูมิภาค ({{ total_geotagged }} แห่ง)</option>
+            {% for reg in regions_with_counts %}
+              <option value="{{ reg.name }}">📍 {{ reg.name }} ({{ reg.count }} แห่ง)</option>
+            {% endfor %}
+          </select>
+        </div>
       </div>
 
       <!-- 2. Province Drill-down & Keyword Search Form -->
@@ -210,6 +226,7 @@
     let searchQuery = '';
 
     const zoneButtons = document.querySelectorAll('.zone-pill-btn');
+    const selectRegionMobile = document.getElementById('select-region-mobile');
     const provinceSelect = document.getElementById('select-province');
     const searchInput = document.getElementById('input-search-place');
     const btnReset = document.getElementById('btn-reset-filters');
@@ -219,6 +236,31 @@
     const cardsCountText = document.getElementById('cards-count-text');
     const placesGrid = document.getElementById('places-grid-container');
     const placesEmptyState = document.getElementById('places-empty-state');
+
+    function syncRegionMobileLabels() {
+      if (!selectRegionMobile) return;
+      const isEn = window.i18n && window.i18n.currentLang === 'en';
+      const suffix = isEn ? 'places' : 'แห่ง';
+      const allText = isEn ? 'All Regions' : 'ทุกภูมิภาค';
+
+      const totalCount = rawMarkers.length;
+      if (selectRegionMobile.options[0]) {
+        selectRegionMobile.options[0].textContent = `🌐 ${allText} (${totalCount} ${suffix})`;
+      }
+
+      const regCounts = {};
+      rawMarkers.forEach(m => {
+        if (m.region) regCounts[m.region] = (regCounts[m.region] || 0) + 1;
+      });
+
+      for (let i = 1; i < selectRegionMobile.options.length; i++) {
+        const opt = selectRegionMobile.options[i];
+        const rName = opt.value;
+        const rDisplay = isEn ? (window.i18n && window.i18n.t(rName)) || rName : rName;
+        const count = regCounts[rName] || 0;
+        opt.textContent = `📍 ${rDisplay} (${count} ${suffix})`;
+      }
+    }
 
     // Populate Province Select options based on active Region
     function populateProvinceSelect(selectedRegion) {
@@ -454,6 +496,7 @@
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
 
+      syncRegionMobileLabels();
       populateProvinceSelect('');
       renderMapMarkers();
       zoomToActiveSelection();
@@ -470,12 +513,33 @@
         this.classList.add('active');
 
         currentRegion = this.dataset.region || '';
+        if (selectRegionMobile) selectRegionMobile.value = currentRegion;
         currentProvince = ''; // reset province on region change
         populateProvinceSelect(currentRegion);
         renderMapMarkers();
         zoomToActiveSelection();
       });
     });
+
+    if (selectRegionMobile) {
+      selectRegionMobile.addEventListener('change', function() {
+        currentRegion = this.value || '';
+        currentProvince = ''; // reset province on region change
+
+        // Sync desktop buttons active state
+        zoneButtons.forEach(b => {
+          if ((b.dataset.region || '') === currentRegion) {
+            b.classList.add('active');
+          } else {
+            b.classList.remove('active');
+          }
+        });
+
+        populateProvinceSelect(currentRegion);
+        renderMapMarkers();
+        zoomToActiveSelection();
+      });
+    }
 
     if (provinceSelect) {
       provinceSelect.addEventListener('change', function() {
@@ -499,6 +563,7 @@
         currentProvince = '';
         searchQuery = '';
         if (searchInput) searchInput.value = '';
+        if (selectRegionMobile) selectRegionMobile.value = '';
         zoneButtons.forEach(b => b.classList.remove('active'));
         if (zoneButtons[0]) zoneButtons[0].classList.add('active');
         populateProvinceSelect('');
@@ -515,6 +580,7 @@
     }
 
     window.addEventListener('languagechange', function() {
+      syncRegionMobileLabels();
       populateProvinceSelect(currentRegion);
       renderMapMarkers();
     });
