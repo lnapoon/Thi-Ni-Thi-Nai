@@ -178,6 +178,11 @@ WHITENOISE_USE_FINDERS = True
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Upload payload limits (15 MB to comfortably allow multipart parsing in Django)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 15728640  # 15 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 15728640  # 15 MB
+
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

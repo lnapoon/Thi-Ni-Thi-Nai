@@ -193,3 +193,18 @@ class PasswordResetOTP(models.Model):
         if self.attempts >= 5:
             return False
         return timezone.now() <= self.expires_at
+
+
+# ─────────────────────────────────────────────────────────────
+# Post Delete Signals — Automatically destroy avatar in Cloudinary
+# ─────────────────────────────────────────────────────────────
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
+
+@receiver(post_delete, sender=Profile)
+def auto_delete_profile_cloudinary_avatar(sender, instance, **kwargs):
+    if getattr(instance, "avatar", None):
+        from checkins.utils import delete_cloudinary_image
+        delete_cloudinary_image(instance.avatar)
+

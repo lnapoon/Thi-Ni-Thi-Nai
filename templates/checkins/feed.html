@@ -651,18 +651,29 @@
     }
 
     if (photoInput) {
-      photoInput.addEventListener('change', function() {
+      photoInput.addEventListener('change', async function() {
         const newFiles = Array.from(this.files);
+        if (!newFiles.length) return;
+
+        if (photoCountBadge) {
+          photoCountBadge.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> กำลังประมวลผลรูป...';
+        }
+
         for (const file of newFiles) {
           if (selectedFiles.length >= maxPhotos) {
             alert(`สามารถเลือกรูปภาพได้สูงสุด ${maxPhotos} รูปต่อโพสต์`);
             break;
           }
-          if (file.size > 8 * 1024 * 1024) {
-            alert(`ไฟล์ ${file.name} มีขนาดเกิน 8MB กรุณาเลือกรูปภาพที่มีขนาดเล็กลง`);
+          if (file.size > 30 * 1024 * 1024) {
+            alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (เกิน 30MB)`);
             continue;
           }
-          selectedFiles.push(file);
+          try {
+            const optimized = (window.compressImage) ? await window.compressImage(file) : file;
+            selectedFiles.push(optimized);
+          } catch (err) {
+            selectedFiles.push(file);
+          }
         }
         syncInputFiles();
       });
@@ -676,6 +687,15 @@
           alert('กรุณาเลือกรูปภาพอย่างน้อย 1 รูปสำหรับจุดเช็คอิน');
           return;
         }
+
+        const totalPayloadBytes = selectedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
+        if (totalPayloadBytes > 4.2 * 1024 * 1024) {
+          e.preventDefault();
+          alert('ขนาดไฟล์รวมทั้งหมดเกินขีดจำกัด 4.2MB ของ Vercel กรุณาลดจำนวนรูปภาพหรือเลือกรูปที่มีขนาดเล็กลง');
+          btnSubmit.disabled = false;
+          return;
+        }
+
         btnSubmit.disabled = true;
         btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> กำลังโพสต์...';
       });

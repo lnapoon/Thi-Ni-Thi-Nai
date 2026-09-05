@@ -1,10 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 # pyrefly: ignore [missing-import]
 from cloudinary.models import CloudinaryField
-from .utils import optimize_checkin_image
+from .utils import optimize_checkin_image, delete_cloudinary_image
 from .constants import infer_location_from_text_or_coords, PROVINCE_TO_REGION
 
 
@@ -156,6 +158,26 @@ class CheckIn(models.Model):
             self._photo_optimized = True
         super().save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        # Collect public IDs before DB deletion so cascade does not lose references
+        pids = []
+        if self.photo:
+            p = getattr(self.photo, "public_id", str(self.photo))
+            if p:
+                pids.append(p)
+        for img in self.images.all():
+            if img.photo:
+                p = getattr(img.photo, "public_id", str(img.photo))
+                if p:
+                    pids.append(p)
+
+        res = super().delete(*args, **kwargs)
+
+        for p in pids:
+            delete_cloudinary_image(p)
+
+        return res
+
 
 class CheckInImage(models.Model):
     checkin = models.ForeignKey(
@@ -212,6 +234,13 @@ class CheckInImage(models.Model):
             self.photo = optimize_checkin_image(self.photo)
             self._photo_optimized = True
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pid = getattr(self.photo, "public_id", str(self.photo)) if self.photo else None
+        res = super().delete(*args, **kwargs)
+        if pid:
+            delete_cloudinary_image(pid)
+        return res
 
 
 class Like(models.Model):
@@ -275,3 +304,21 @@ class Bookmark(models.Model):
 
     def __str__(self):
         return f"{self.user.username} บันทึก {self.checkin.place_name}"
+
+
+# ─────────────────────────────────────────────────────────────
+# Post Delete Signals — Automatically destroy Cloudinary assets
+# ─────────────────────────────────────────────────────────────
+@receiver(post_delete, sender=CheckIn)
+def auto_delete_checkin_cloudinary_photo(sender, instance, **kwargs):
+    """Ensure Cloudinary photo is destroyed when a CheckIn is deleted."""
+    if getattr(instance, "photo", None):
+        delete_cloudinary_image(instance.photo)
+
+
+@receiver(post_delete, sender=CheckInImage)
+def auto_delete_checkin_image_cloudinary_photo(sender, instance, **kwargs):
+    """Ensure Cloudinary photo is destroyed when a CheckInImage is deleted."""
+    if getattr(instance, "photo", None):
+        delete_cloudinary_image(instance.photo)
+

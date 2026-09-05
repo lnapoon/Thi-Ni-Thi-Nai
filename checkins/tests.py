@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
-from checkins.models import CheckIn, Like
+from checkins.models import CheckIn, CheckInImage, Like
 from checkins.forms import CheckInForm
 
 def create_dummy_image(filename="test.jpg", size=(200, 200), color=(255, 0, 0)):
@@ -252,5 +252,74 @@ class CheckInTests(TestCase):
         self.assertEqual(created.province, 'ภูเก็ต')
         self.assertAlmostEqual(float(created.latitude), 7.8431, places=3)
         self.assertAlmostEqual(float(created.longitude), 98.2952, places=3)
+
+    def test_cloudinary_deletion_on_checkin_delete(self):
+        """Test that deleting a CheckIn calls cloudinary.uploader.destroy for its photos."""
+        from unittest.mock import patch
+        checkin = CheckIn.objects.create(
+            user=self.alice,
+            place_name='จุดชมวิวเกาะล้าน',
+            caption='ทะเลสวย น้ำใสมาก',
+            photo='checkins/test_photo_abc123'
+        )
+        img1 = CheckInImage.objects.create(
+            checkin=checkin,
+            photo='checkins/test_photo_extra456',
+            order=1
+        )
+
+        with patch('cloudinary.uploader.destroy') as mock_destroy:
+            mock_destroy.return_value = {'result': 'ok'}
+            checkin.delete()
+
+            # Verify destroy was called
+            self.assertTrue(mock_destroy.called)
+            destroyed_ids = [call[0][0] for call in mock_destroy.call_args_list]
+            self.assertIn('checkins/test_photo_abc123', destroyed_ids)
+            self.assertIn('checkins/test_photo_extra456', destroyed_ids)
+
+    def test_cloudinary_deletion_on_checkin_image_delete(self):
+        """Test that deleting a CheckInImage directly destroys its Cloudinary asset."""
+        from unittest.mock import patch
+        checkin = CheckIn.objects.create(
+            user=self.alice,
+            place_name='น้ำตกเอราวัณ',
+            caption='น้ำตกใสเขียวมรกต',
+            photo='checkins/test_erawan_main'
+        )
+        img = CheckInImage.objects.create(
+            checkin=checkin,
+            photo='checkins/test_erawan_sub789',
+            order=1
+        )
+
+        with patch('cloudinary.uploader.destroy') as mock_destroy:
+            mock_destroy.return_value = {'result': 'ok'}
+            img.delete()
+
+            self.assertTrue(mock_destroy.called)
+            mock_destroy.assert_called_with('checkins/test_erawan_sub789', invalidate=True)
+
+    def test_delete_cloudinary_image_utility(self):
+        """Test delete_cloudinary_image utility handles various inputs and exceptions safely."""
+        from checkins.utils import delete_cloudinary_image
+        from unittest.mock import patch
+
+        # None or empty string returns None
+        self.assertIsNone(delete_cloudinary_image(None))
+        self.assertIsNone(delete_cloudinary_image(''))
+
+        # Full URL parsing
+        with patch('cloudinary.uploader.destroy') as mock_destroy:
+            mock_destroy.return_value = {'result': 'ok'}
+            res = delete_cloudinary_image('https://res.cloudinary.com/demo/image/upload/v12345/checkins/sample_xyz.jpg')
+            mock_destroy.assert_called_with('checkins/sample_xyz', invalidate=True)
+            self.assertEqual(res, {'result': 'ok'})
+
+        # Network error caught gracefully without raising
+        with patch('cloudinary.uploader.destroy', side_effect=Exception('Cloudinary network timeout')):
+            res = delete_cloudinary_image('checkins/broken_id')
+            self.assertIsNone(res)
+
 
 
