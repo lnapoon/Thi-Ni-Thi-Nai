@@ -2074,5 +2074,208 @@ body.dark-mode .share-grid-label {
   }
 }
 
+/* ─────────────────────────────────────────────────────────────
+ * Map Page UI Components & Dark Mode Styling
+ * ───────────────────────────────────────────────────────────── */
+.map-filter-card {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.zone-pill-btn {
+  border-radius: 50rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--card-bg, #ffffff);
+  color: var(--text-color, #475569);
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.zone-pill-btn:hover {
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--bs-primary, #2563eb);
+  transform: translateY(-2px);
+}
+
+.zone-pill-btn.active {
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.38);
+}
+
+.zone-pill-btn.active .badge {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+.zone-scroll-container {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 4px;
+}
+.zone-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.map-card-item {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  cursor: pointer;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--card-bg, #ffffff);
+}
+
+.map-card-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12) !important;
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.map-card-img-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+
+.map-card-img-wrapper img {
+  transition: transform 0.4s ease;
+}
+
+.map-card-item:hover .map-card-img-wrapper img {
+  transform: scale(1.06);
+}
+
+.custom-leaflet-popup .leaflet-popup-content-wrapper {
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.25);
+}
+
+.custom-leaflet-popup .leaflet-popup-content {
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Dark Mode Leaflet Map Tile Inversion */
+[data-bs-theme="dark"] .leaflet-tile-pane,
+body.dark-mode .leaflet-tile-pane {
+  filter: brightness(0.78) invert(1) hue-rotate(180deg) saturate(1.2) contrast(0.88);
+}
+
+[data-bs-theme="dark"] .map-filter-card,
+body.dark-mode .map-filter-card {
+  background: #131b2e !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-bs-theme="dark"] .zone-pill-btn,
+body.dark-mode .zone-pill-btn {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-bs-theme="dark"] .zone-pill-btn:hover,
+body.dark-mode .zone-pill-btn:hover {
+  background: #334155;
+  color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .map-card-item,
+body.dark-mode .map-card-item {
+  background: #131b2e !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .map-card-item .text-dark,
+body.dark-mode .map-card-item .text-dark {
+  color: #f8fafc !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * Modern Map Search & Filter Controls
+ * ───────────────────────────────────────────────────────────── */
+.map-input-group {
+  background: var(--input-bg, #f8fafc);
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  border-radius: 50rem !important;
+  padding: 0.2rem 0.3rem 0.2rem 0.8rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+}
+
+.map-input-group:focus-within {
+  border-color: #3b82f6 !important;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.map-input-group .map-input-icon {
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.map-input-group .form-select,
+.map-input-group .form-control {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--text-color, #0f172a);
+  padding: 0.45rem 0.6rem;
+}
+
+.map-input-group .form-select:focus,
+.map-input-group .form-control:focus {
+  box-shadow: none !important;
+}
+
+[data-bs-theme="dark"] .map-input-group,
+body.dark-mode .map-input-group {
+  background: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-bs-theme="dark"] .map-input-group:focus-within,
+body.dark-mode .map-input-group:focus-within {
+  background: #0f172a !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2) !important;
+}
+
+[data-bs-theme="dark"] .map-input-group .form-select,
+[data-bs-theme="dark"] .map-input-group .form-control,
+body.dark-mode .map-input-group .form-select,
+body.dark-mode .map-input-group .form-control {
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .map-input-group .form-select option,
+body.dark-mode .map-input-group .form-select option {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+
+
 
 

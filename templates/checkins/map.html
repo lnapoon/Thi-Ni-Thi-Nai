@@ -5,66 +5,6 @@
 {% block extra_head %}
 <!-- Leaflet.js CSS CDN -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<style>
-  .zone-pill-btn {
-    border-radius: 50rem;
-    padding: 0.45rem 1rem;
-    font-size: 0.84rem;
-    font-weight: 600;
-    transition: all 0.25s ease;
-    border: 1px solid var(--border-color, #e2e8f0);
-    background: #ffffff;
-    color: #475569;
-    cursor: pointer;
-    white-space: nowrap;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-  .zone-pill-btn:hover {
-    background: #f1f5f9;
-    color: #0f172a;
-    transform: translateY(-1px);
-  }
-  .zone-pill-btn.active {
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-    color: #ffffff;
-    border-color: transparent;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
-  }
-  .zone-pill-btn.active .badge {
-    background-color: rgba(255, 255, 255, 0.25) !important;
-    color: #ffffff !important;
-  }
-  .zone-scroll-container {
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding-bottom: 4px;
-  }
-  .zone-scroll-container::-webkit-scrollbar {
-    display: none;
-  }
-  .map-card-item {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
-  }
-  .map-card-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
-  }
-  .custom-leaflet-popup .leaflet-popup-content-wrapper {
-    border-radius: 16px;
-    padding: 0;
-    overflow: hidden;
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
-  }
-  .custom-leaflet-popup .leaflet-popup-content {
-    margin: 0;
-    line-height: 1.4;
-  }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -90,7 +30,7 @@
     </div>
 
     <!-- Filter Control Card -->
-    <div class="card border-0 shadow-sm rounded-4 p-3 mb-3 bg-white">
+    <div class="card map-filter-card shadow-sm rounded-4 p-3 mb-3">
       
       <!-- 1. Region Selector Pills -->
       <div class="d-flex align-items-center justify-content-between mb-2">
@@ -120,7 +60,7 @@
       <!-- Mobile Dropdown Selector (< 768px) -->
       <div class="mb-3 d-md-none">
         <div class="input-group input-group-sm">
-          <span class="input-group-text bg-light border-end-0 text-primary rounded-start-3">
+          <span class="input-group-text bg-body-tertiary border-end-0 text-primary rounded-start-3">
             <i class="bi bi-compass-fill"></i>
           </span>
           <select id="select-region-mobile" class="form-select border-start-0 rounded-end-3 fw-semibold">
@@ -136,7 +76,7 @@
       <div class="row g-2 align-items-center">
         <div class="col-12 col-md-5">
           <div class="input-group input-group-sm">
-            <span class="input-group-text bg-light border-end-0 text-danger rounded-start-3">
+            <span class="input-group-text bg-body-tertiary border-end-0 text-danger rounded-start-3">
               <i class="bi bi-geo-alt-fill"></i>
             </span>
             <select id="select-province" class="form-select border-start-0 rounded-end-3">
@@ -147,7 +87,7 @@
 
         <div class="col-12 col-md-5">
           <div class="input-group input-group-sm">
-            <span class="input-group-text bg-light border-end-0 text-muted rounded-start-3">
+            <span class="input-group-text bg-body-tertiary border-end-0 text-muted rounded-start-3">
               <i class="bi bi-search"></i>
             </span>
             <input type="text" id="input-search-place" class="form-control border-start-0 rounded-end-3" placeholder="ค้นหาชื่อสถานที่ หรือคำบรรยาย..." data-i18n-placeholder="map_search_placeholder">
@@ -164,13 +104,13 @@
     </div>
 
     <!-- Leaflet Map Box -->
-    <div class="card border-0 shadow-sm rounded-4 p-2 p-md-3 mb-4 bg-white">
+    <div class="card map-filter-card shadow-sm rounded-4 p-2 p-md-3 mb-4">
       <div class="d-flex justify-content-between align-items-center mb-2 px-1">
         <div class="d-flex align-items-center gap-2 small">
           <span class="radar-dot"></span>
           <span class="fw-bold text-dark" id="map-active-zone-label">กำลังแสดง: ทั่วประเทศไทย</span>
         </div>
-        <span class="badge bg-light text-muted border rounded-pill small" id="map-matching-count-badge">
+        <span class="badge bg-body-tertiary text-muted border rounded-pill small" id="map-matching-count-badge">
           <span data-i18n="map_found_prefix">พบ</span> {{ total_geotagged }} <span data-i18n="map_found_suffix">แห่ง</span>
         </span>
       </div>
@@ -192,7 +132,7 @@
       </div>
 
       <!-- Empty State for Selected Zone -->
-      <div class="empty-state shadow-sm rounded-4 p-5 text-center bg-white my-3 d-none" id="places-empty-state">
+      <div class="empty-state map-filter-card shadow-sm rounded-4 p-5 text-center my-3 d-none" id="places-empty-state">
         <div class="mb-3">
           <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle shadow-sm" style="width: 70px; height: 70px;">
             <i class="bi bi-geo-alt fs-2"></i>
@@ -404,10 +344,10 @@
         const col = document.createElement('div');
         col.className = 'col-12 col-sm-6 col-lg-4';
         col.innerHTML = `
-          <div class="card map-card-item h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white" data-lat="${item.lat}" data-lng="${item.lng}">
-            <div class="position-relative" style="height: 160px;">
+          <div class="card map-card-item h-100 border-0 shadow-sm rounded-4 overflow-hidden" data-lat="${item.lat}" data-lng="${item.lng}">
+            <div class="map-card-img-wrapper position-relative" style="height: 160px;">
               <img src="${item.photo_url}" alt="${item.place_name}" style="width: 100%; height: 100%; object-fit: cover;">
-              <span class="badge bg-dark bg-opacity-75 text-white position-absolute top-0 start-0 m-2 rounded-pill px-2 py-1 small" style="backdrop-filter: blur(4px);">
+              <span class="badge bg-dark bg-opacity-75 text-white position-absolute top-0 start-0 m-2 rounded-pill px-2 py-1 small" style="backdrop-filter: blur(6px);">
                 <i class="bi bi-geo-alt-fill text-danger me-1"></i> ${provDisplay}
               </span>
             </div>
