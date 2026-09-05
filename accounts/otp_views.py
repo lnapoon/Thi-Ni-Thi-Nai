@@ -69,10 +69,12 @@ class PasswordResetRequestView(View):
                     )
                     logger.info(f"Password reset OTP sent to {email}")
                 except Exception as e:
-                    logger.error(f"Failed to send password reset email to {email}: {e}")
+                    logger.exception(f"Failed to send password reset email to {email}: {e}")
+                    print(f"❌ [EMAIL SEND ERROR] Failed to send email to {email}: {e}")
+                    err_detail = f" ({e})" if getattr(settings, "DEBUG", False) else ""
                     messages.error(
                         request,
-                        "เกิดข้อผิดพลาดในการส่งอีเมล กรุณาลองใหม่อีกครั้งในภายหลัง หรือติดต่อผู้ดูแลระบบ",
+                        f"เกิดข้อผิดพลาดในการส่งอีเมล{err_detail} กรุณาลองใหม่อีกครั้งในภายหลัง หรือติดต่อผู้ดูแลระบบ",
                     )
                     return render(request, self.template_name, {"form": form})
 
@@ -211,8 +213,10 @@ class PasswordResetResendView(View):
                 f"ส่งรหัส OTP ใหม่ไปยัง {_mask_email(email)} เรียบร้อยแล้ว",
             )
         except Exception as e:
-            logger.error(f"Failed to resend OTP to {email}: {e}")
-            messages.error(request, "ส่งอีเมลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง")
+            logger.exception(f"Failed to resend OTP to {email}: {e}")
+            print(f"❌ [EMAIL RESEND ERROR] Failed to resend to {email}: {e}")
+            err_detail = f" ({e})" if getattr(settings, "DEBUG", False) else ""
+            messages.error(request, f"ส่งอีเมลไม่สำเร็จ{err_detail} กรุณาลองใหม่อีกครั้ง")
 
         return redirect("accounts:password_reset_verify")
 
