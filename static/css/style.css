@@ -577,6 +577,53 @@ body.dark-mode .ig-action-btn.btn-bookmark.bookmarked {
   transform: scale(1.08);
 }
 
+/* Post Composer Action Bar & Action Chips */
+.composer-action-bar {
+  row-gap: 8px;
+}
+
+.composer-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-decoration: none !important;
+}
+
+.composer-chip-btn:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.composer-chip-btn i {
+  font-size: 1rem;
+}
+
+[data-bs-theme="dark"] .composer-chip-btn,
+body.dark-mode .composer-chip-btn {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-bs-theme="dark"] .composer-chip-btn:hover,
+body.dark-mode .composer-chip-btn:hover {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
 /* ==========================================================================
    Language Switcher (TH / EN) Pill
    ========================================================================== */

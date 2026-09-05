@@ -103,11 +103,6 @@
                   name="place_name" 
                   id="feed_place_name" 
                   class="form-control bg-light border-0 rounded-end-pill py-1 pe-3" 
-                <input 
-                  type="text" 
-                  name="place_name" 
-                  id="feed_place_name" 
-                  class="form-control bg-light border-0 rounded-end-pill py-1 pe-3" 
                   placeholder="ชื่อสถานที่ / คาเฟ่..." 
                   data-i18n-placeholder="composer_place_placeholder"
                   value="{{ form.place_name.value|default:'' }}"
@@ -170,25 +165,28 @@
               </div>
             </div>
 
-            <!-- Bottom Action Bar: Small Icons on Left + Submit Button on Right -->
-            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-              <div class="d-flex align-items-center gap-1.5 gap-sm-2">
-                <!-- Small Photo Upload Trigger Icon -->
-                <label for="feed_photo_input" class="btn btn-sm btn-light rounded-pill px-2.5 px-sm-3 py-1 d-inline-flex align-items-center gap-1 border text-secondary cursor-pointer shadow-none" style="font-size: 0.82rem;" title="เพิ่มรูปภาพ" data-i18n-title="composer_add_photo">
-                  <i class="bi bi-images text-success fs-6"></i>
+            <!-- Bottom Action Bar: Responsive Action Chips + Submit Button -->
+            <div class="composer-action-bar d-flex align-items-center justify-content-between pt-2.5 mt-2 border-top gap-2 flex-wrap">
+              <div class="d-flex align-items-center gap-2 flex-wrap min-w-0">
+                <!-- Photo Upload Action Chip -->
+                <label for="feed_photo_input" class="composer-chip-btn mb-0" title="เพิ่มรูปภาพ" data-i18n-title="composer_add_photo">
+                  <i class="bi bi-images text-success"></i>
                   <span class="fw-semibold" data-i18n="composer_add_photo">เพิ่มรูปภาพ</span>
                 </label>
 
-                <!-- Small GPS Geolocation Trigger / Status -->
-                <button type="button" id="btn-feed-get-location" class="btn btn-sm btn-light rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1 border text-secondary shadow-none" style="font-size: 0.82rem;" title="จับพิกัด GPS" data-i18n-title="composer_gps">
-                  <i class="bi bi-crosshair text-primary fs-6"></i>
-                  <span id="feed-geo-status" class="small text-muted" data-i18n="composer_gps">พิกัด</span>
+                <!-- GPS Location Action Chip -->
+                <button type="button" id="btn-feed-get-location" class="composer-chip-btn" title="จับพิกัด GPS" data-i18n-title="composer_gps">
+                  <i class="bi bi-crosshair text-primary"></i>
+                  <span class="fw-semibold" data-i18n="composer_gps">พิกัด</span>
                 </button>
+
+                <!-- Dynamic Location Status Chip -->
+                <div id="feed-geo-status" class="d-inline-flex align-items-center"></div>
               </div>
 
               <!-- Submit Post Button -->
-              <button type="submit" id="btn-submit-checkin" class="btn btn-warning btn-sm rounded-pill px-4 py-1 fw-bold shadow-sm d-flex align-items-center gap-1">
-                <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
+              <button type="submit" id="btn-submit-checkin" class="btn btn-warning btn-sm rounded-pill px-3.5 py-1.5 fw-bold shadow-sm d-flex align-items-center gap-1.5 ms-auto">
+                <i class="bi bi-send-fill" style="font-size: 0.82rem;"></i>
                 <span data-i18n="composer_post">โพสต์</span>
               </button>
             </div>
@@ -545,8 +543,8 @@
       }
       if (geoStatus) {
         geoStatus.innerHTML = `
-          <span class="text-success fw-semibold">
-            <i class="bi bi-check-circle-fill me-1"></i> พิกัด: ${lat.toFixed(4)}, ${lng.toFixed(4)}
+          <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1.5 small d-inline-flex align-items-center gap-1" style="font-size: 0.76rem;">
+            <i class="bi bi-check-circle-fill"></i> ${lat.toFixed(3)}, ${lng.toFixed(3)}
           </span>
         `;
       }
@@ -555,12 +553,12 @@
     function fetchGeoLocation() {
       if (!navigator.geolocation) {
         if (geoStatus) {
-          geoStatus.innerHTML = '<span class="text-muted"><i class="bi bi-info-circle me-1"></i> อุปกรณ์ไม่รองรับ GPS</span>';
+          geoStatus.innerHTML = '<span class="badge bg-secondary-subtle text-secondary rounded-pill px-2 py-1 extra-small" style="font-size: 0.72rem;">ไม่รองรับ GPS</span>';
         }
         return;
       }
       if (geoStatus) {
-        geoStatus.innerHTML = '<span class="text-primary"><span class="spinner-border spinner-border-sm me-1"></span> กำลังดึงพิกัด...</span>';
+        geoStatus.innerHTML = '<span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1 extra-small" style="font-size: 0.72rem;"><span class="spinner-border spinner-border-sm me-1" style="width: 0.68rem; height: 0.68rem;"></span> ดึงพิกัด...</span>';
       }
       navigator.geolocation.getCurrentPosition(
         function(pos) {
@@ -568,7 +566,7 @@
         },
         function(err) {
           if (geoStatus) {
-            geoStatus.innerHTML = '<span class="text-muted"><i class="bi bi-geo me-1"></i> ไม่ได้ระบุพิกัด (สามารถโพสต์ได้)</span>';
+            geoStatus.innerHTML = '';
           }
         },
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
