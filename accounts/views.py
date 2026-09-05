@@ -245,6 +245,8 @@ class UserFollowersListView(LoginRequiredMixin, View):
             {
                 "success": True,
                 "type": "followers",
+                "title_th": f"ผู้ติดตามของ @{target_user.username}",
+                "title_en": f"Followers of @{target_user.username}",
                 "title": f"ผู้ติดตามของ @{target_user.username}",
                 "users": data,
             }
@@ -282,6 +284,8 @@ class UserFollowingListView(LoginRequiredMixin, View):
             {
                 "success": True,
                 "type": "following",
+                "title_th": f"กำลังติดตามโดย @{target_user.username}",
+                "title_en": f"Following by @{target_user.username}",
                 "title": f"กำลังติดตามโดย @{target_user.username}",
                 "users": data,
             }

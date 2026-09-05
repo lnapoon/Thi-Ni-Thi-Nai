@@ -25,7 +25,11 @@ class CheckInForm(forms.ModelForm):
 
     class Meta:
         model = CheckIn
-        fields = ['place_name', 'region', 'province', 'caption', 'photo', 'aspect_ratio', 'latitude', 'longitude']
+        fields = [
+            'place_name', 'region', 'province', 'caption', 'photo', 
+            'aspect_ratio', 'latitude', 'longitude', 
+            'user_latitude', 'user_longitude', 'show_user_location'
+        ]
         widgets = {
             'place_name': forms.TextInput(attrs={
                 'class': 'form-control form-control-lg',
@@ -48,6 +52,13 @@ class CheckInForm(forms.ModelForm):
             'aspect_ratio': forms.HiddenInput(attrs={'id': 'id_aspect_ratio'}),
             'latitude': forms.HiddenInput(attrs={'id': 'id_latitude'}),
             'longitude': forms.HiddenInput(attrs={'id': 'id_longitude'}),
+            'user_latitude': forms.HiddenInput(attrs={'id': 'id_user_latitude'}),
+            'user_longitude': forms.HiddenInput(attrs={'id': 'id_user_longitude'}),
+            'show_user_location': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'id_show_user_location',
+                'role': 'switch',
+            }),
         }
         labels = {
             'place_name': 'ชื่อสถานที่ / จุดเช็คอิน *',
@@ -56,6 +67,7 @@ class CheckInForm(forms.ModelForm):
             'caption': 'ข้อความบรรยาย * (สูงสุด 500 ตัวอักษร)',
             'photo': 'รูปภาพสถานที่ *',
             'aspect_ratio': 'สัดส่วนภาพ',
+            'show_user_location': 'เปิดใช้งานการแชร์ตำแหน่งปัจจุบันของคุณ (ผู้โพสต์)',
         }
 
     def __init__(self, *args, **kwargs):

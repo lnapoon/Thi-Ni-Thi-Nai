@@ -228,21 +228,42 @@
             </div>
           </div>
 
-          <!-- Compact GPS Status Bar -->
-          <div class="p-2 px-3 bg-white rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-crosshair text-primary fs-5"></i>
-              <div id="geo-status" class="small">
-                <span class="badge bg-secondary-subtle text-secondary py-1 px-2 rounded-pill">
-                  <span class="spinner-border spinner-border-sm me-1" role="status"></span> <span data-i18n="form_gps_locating">กำลังจับพิกัด GPS...</span>
-                </span>
+          <!-- Compact GPS Status Bar & Pinning Tools -->
+          <div class="p-3 bg-white rounded-4 border">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-crosshair text-primary fs-5"></i>
+                <div id="geo-status" class="small">
+                  <span class="badge bg-secondary-subtle text-secondary py-1 px-2 rounded-pill">
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span> <span data-i18n="form_gps_locating">กำลังจับพิกัด GPS...</span>
+                  </span>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" id="btn-open-map-picker" class="btn btn-outline-danger btn-sm rounded-pill py-1 px-3 fw-semibold shadow-sm" style="font-size: 0.78rem;">
+                  <i class="bi bi-pin-map-fill me-1"></i><span data-i18n="composer_pin_map">ปักหมุดบนแผนที่</span>
+                </button>
+                <button type="button" id="btn-get-location" class="btn btn-outline-primary btn-sm rounded-pill py-1 px-3 fw-semibold" style="font-size: 0.78rem;">
+                  <i class="bi bi-arrow-clockwise me-1"></i><span data-i18n="form_gps_refresh">จับพิกัดใหม่</span>
+                </button>
               </div>
             </div>
-            <button type="button" id="btn-get-location" class="btn btn-outline-primary btn-sm rounded-pill py-1 px-3 fw-semibold" style="font-size: 0.75rem;">
-              <i class="bi bi-arrow-clockwise me-1"></i><span data-i18n="form_gps_refresh">จับพิกัดใหม่</span>
-            </button>
+
+            <!-- Toggle Switch for Poster's Actual Live Location -->
+            <div class="form-check form-switch pt-2 border-top mt-2">
+              <input class="form-check-input cursor-pointer" type="checkbox" name="show_user_location" id="id_show_user_location" role="switch" {% if form.show_user_location.value %}checked{% endif %}>
+              <label class="form-check-label small fw-semibold text-dark cursor-pointer ms-1" for="id_show_user_location">
+                <i class="bi bi-geo-fill text-primary me-1"></i><span data-i18n="composer_toggle_user_loc">เปิดใช้งานการแชร์ตำแหน่งปัจจุบันของคุณ (ผู้โพสต์)</span>
+              </label>
+              <div class="text-muted extra-small ms-1 mt-0.5" style="font-size: 0.72rem;" data-i18n="composer_toggle_user_loc_hint">
+                เปิดไว้เมื่อต้องการให้ผู้อื่นเห็นจุดที่คุณอยู่จริงขณะเช็คอินเทียบกับจุดที่ปักหมุดบนแผนที่
+              </div>
+            </div>
+
             {{ form.latitude }}
             {{ form.longitude }}
+            {{ form.user_latitude }}
+            {{ form.user_longitude }}
           </div>
         </div>
 
@@ -418,6 +439,53 @@
           </button>
         </div>
 
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- Modal 3: Interactive Leaflet Map Picker Modal (ปักหมุดสถานที่) -->
+<!-- ======================================================== -->
+<div class="modal fade" id="mapPickerModal" tabindex="-1" aria-labelledby="mapPickerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+      
+      <div class="modal-header border-bottom py-3 px-4 bg-light d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+          <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+            <i class="bi bi-geo-alt-fill fs-5"></i>
+          </div>
+          <div>
+            <h6 class="modal-title fw-bold text-dark mb-0" id="mapPickerModalLabel" data-i18n="composer_map_picker_title">เลื่อนแผนที่หรือคลิกเพื่อปักหมุดสถานที่</h6>
+            <span class="text-muted extra-small" style="font-size: 0.74rem;" data-i18n="composer_map_picker_sub">สามารถเลือกปักหมุดที่ไหนก็ได้ตามต้องการ ระบบจะลากจุดพิกัดละติจูด/ลองจิจูดให้เอง</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-0 position-relative">
+        <!-- Interactive Map Container -->
+        <div id="picker-map-container" style="height: 420px; width: 100%;"></div>
+
+        <!-- Floating Coords Indicator -->
+        <div class="position-absolute bottom-0 start-0 m-3 z-3 bg-white bg-opacity-95 p-2 px-3 rounded-pill border shadow-sm small fw-semibold text-dark d-flex align-items-center gap-2">
+          <i class="bi bi-pin-map-fill text-danger fs-5"></i>
+          <span id="picker-coords-text">พิกัด: 13.7563, 100.5018</span>
+        </div>
+      </div>
+
+      <div class="modal-footer border-top py-2.5 px-4 bg-white d-flex justify-content-between align-items-center">
+        <span class="text-muted extra-small" style="font-size: 0.78rem;">
+          <i class="bi bi-info-circle me-1 text-primary"></i>แตะจุดใดก็ได้บนแผนที่หรือลากหมุดเพื่อเลือกตำแหน่ง
+        </span>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-light rounded-pill px-3 py-1.5 small fw-semibold" data-bs-dismiss="modal" data-i18n="form_btn_cancel">ยกเลิก</button>
+          <button type="button" id="btn-confirm-map-picker" class="btn btn-warning rounded-pill px-4 py-1.5 small fw-bold text-dark shadow-sm">
+            <i class="bi bi-check2-circle me-1"></i><span data-i18n="composer_use_this_location">ใช้ตำแหน่งนี้</span>
+          </button>
+        </div>
       </div>
 
     </div>

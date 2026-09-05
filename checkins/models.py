@@ -32,6 +32,11 @@ class CheckIn(models.Model):
     )
     latitude = models.FloatField(null=True, blank=True, verbose_name="ละติจูด")
     longitude = models.FloatField(null=True, blank=True, verbose_name="ลองจิจูด")
+    user_latitude = models.FloatField(null=True, blank=True, verbose_name="ละติจูดผู้โพสต์จริง")
+    user_longitude = models.FloatField(null=True, blank=True, verbose_name="ลองจิจูดผู้โพสต์จริง")
+    show_user_location = models.BooleanField(
+        default=False, verbose_name="แสดงตำแหน่งผู้โพสต์จริงบนแผนที่"
+    )
     caption = models.TextField(max_length=500, verbose_name="ข้อความบรรยาย")
     photo = CloudinaryField("รูปภาพสถานที่", folder="checkins")
     aspect_ratio = models.CharField(
@@ -104,6 +109,14 @@ class CheckIn(models.Model):
     @property
     def has_location(self):
         return self.latitude is not None and self.longitude is not None
+
+    @property
+    def has_user_location(self):
+        return (
+            self.show_user_location
+            and self.user_latitude is not None
+            and self.user_longitude is not None
+        )
 
     @property
     def comments_count(self):

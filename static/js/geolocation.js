@@ -109,7 +109,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (file) {
         // Client side size warning
         if (file.size > 5 * 1024 * 1024) {
-          alert('คำเตือน: ขนาดไฟล์รูปภาพเกิน 5MB กรุณาเลือกรูปภาพที่มีขนาดเล็กลง');
+          const isEn = window.i18n && window.i18n.currentLang === 'en';
+          const alertMsg = isEn
+            ? 'Warning: Image file size exceeds 5MB. Please choose a smaller image.'
+            : 'คำเตือน: ขนาดไฟล์รูปภาพเกิน 5MB กรุณาเลือกรูปภาพที่มีขนาดเล็กลง';
+          alert(alertMsg);
         }
         const reader = new FileReader();
         reader.onload = function (event) {

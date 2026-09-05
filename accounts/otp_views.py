@@ -62,7 +62,7 @@ class PasswordResetRequestView(View):
                     send_mail(
                         subject=subject,
                         message=plain_message,
-                        from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
+                        from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None) or "noreply@thini.com",
                         recipient_list=[email],
                         html_message=html_message,
                         fail_silently=False,
@@ -70,7 +70,7 @@ class PasswordResetRequestView(View):
                     logger.info(f"Password reset OTP sent to {email}")
                 except Exception as e:
                     logger.exception(f"Failed to send password reset email to {email}: {e}")
-                    print(f"❌ [EMAIL SEND ERROR] Failed to send email to {email}: {e}")
+                    print(f"[EMAIL SEND ERROR] Failed to send email to {email}: {e}")
                     err_detail = f" ({e})" if getattr(settings, "DEBUG", False) else ""
                     messages.error(
                         request,
@@ -202,7 +202,7 @@ class PasswordResetResendView(View):
             send_mail(
                 subject=subject,
                 message=plain_message,
-                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
+                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None) or "noreply@thini.com",
                 recipient_list=[email],
                 html_message=html_message,
                 fail_silently=False,
@@ -214,7 +214,7 @@ class PasswordResetResendView(View):
             )
         except Exception as e:
             logger.exception(f"Failed to resend OTP to {email}: {e}")
-            print(f"❌ [EMAIL RESEND ERROR] Failed to resend to {email}: {e}")
+            print(f"[EMAIL RESEND ERROR] Failed to resend to {email}: {e}")
             err_detail = f" ({e})" if getattr(settings, "DEBUG", False) else ""
             messages.error(request, f"ส่งอีเมลไม่สำเร็จ{err_detail} กรุณาลองใหม่อีกครั้ง")
 

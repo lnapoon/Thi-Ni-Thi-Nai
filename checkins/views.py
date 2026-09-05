@@ -101,6 +101,14 @@ class FeedView(ListView):
         if form.is_valid():
             checkin = form.save(commit=False)
             checkin.user = request.user
+            u_lat = request.POST.get('user_latitude')
+            u_lng = request.POST.get('user_longitude')
+            if u_lat and u_lng:
+                try:
+                    checkin.user_latitude = float(u_lat)
+                    checkin.user_longitude = float(u_lng)
+                except (ValueError, TypeError):
+                    pass
             checkin.save()
             handle_multi_photo_upload(checkin, request, is_update=False)
             messages.success(request, f'🎉 เช็คอินที่ "{checkin.place_name}" สำเร็จแล้ว!')
@@ -213,6 +221,14 @@ class CheckInCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        u_lat = self.request.POST.get('user_latitude')
+        u_lng = self.request.POST.get('user_longitude')
+        if u_lat and u_lng:
+            try:
+                form.instance.user_latitude = float(u_lat)
+                form.instance.user_longitude = float(u_lng)
+            except (ValueError, TypeError):
+                pass
         response = super().form_valid(form)
         handle_multi_photo_upload(self.object, self.request, is_update=False)
         messages.success(self.request, f'🎉 เช็คอินที่ "{form.instance.place_name}" สำเร็จแล้ว!')
@@ -227,6 +243,7 @@ class CheckInCreateView(LoginRequiredMixin, CreateView):
         context['page_title'] = 'สร้างจุดเช็คอินใหม่'
         context['button_text'] = 'โพสต์เช็คอิน'
         context['regions_data_json'] = json.dumps(REGIONS_DATA, ensure_ascii=False)
+        context['all_provinces_json'] = json.dumps(ALL_PROVINCES, ensure_ascii=False)
         return context
 
 
@@ -245,6 +262,14 @@ class CheckInUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return super().handle_no_permission()
 
     def form_valid(self, form):
+        u_lat = self.request.POST.get('user_latitude')
+        u_lng = self.request.POST.get('user_longitude')
+        if u_lat and u_lng:
+            try:
+                form.instance.user_latitude = float(u_lat)
+                form.instance.user_longitude = float(u_lng)
+            except (ValueError, TypeError):
+                pass
         response = super().form_valid(form)
         handle_multi_photo_upload(self.object, self.request, is_update=True)
         messages.success(self.request, f'✏️ แก้ไขข้อมูลเช็คอิน "{form.instance.place_name}" สำเร็จแล้ว!')
@@ -260,6 +285,7 @@ class CheckInUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         context['button_text'] = 'บันทึกการแก้ไข'
         context['is_edit'] = True
         context['regions_data_json'] = json.dumps(REGIONS_DATA, ensure_ascii=False)
+        context['all_provinces_json'] = json.dumps(ALL_PROVINCES, ensure_ascii=False)
         return context
 
 
@@ -304,6 +330,9 @@ class CheckInMapView(TemplateView):
                 'province': item.province or '',
                 'lat': item.latitude,
                 'lng': item.longitude,
+                'user_lat': item.user_latitude if item.show_user_location else None,
+                'user_lng': item.user_longitude if item.show_user_location else None,
+                'show_user_location': item.show_user_location,
                 'photo_url': item.get_photo_url,
                 'caption': item.caption,
                 'author': item.user.username,

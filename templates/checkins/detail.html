@@ -183,18 +183,41 @@
           </h4>
         </div>
 
-        <!-- Location Coordinates badge -->
+        <!-- Interactive Map & Location Section -->
         {% if checkin.has_location %}
-          <div class="p-3 bg-light rounded-3 border mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
-            <div>
-              <span class="badge bg-primary me-2"><i class="bi bi-crosshair me-1"></i><span data-i18n="action_gps_badge">พิกัด GPS</span></span>
-              <span class="text-secondary small fw-medium font-monospace">{{ checkin.latitude|floatformat:5 }}, {{ checkin.longitude|floatformat:5 }}</span>
+          <div class="mb-3 rounded-4 overflow-hidden border shadow-sm bg-light">
+            <div class="p-3 bg-white border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div>
+                <span class="badge bg-danger me-1"><i class="bi bi-geo-alt-fill me-1"></i><span data-i18n="detail_place_pin">จุดเช็คอิน</span></span>
+                <span class="text-dark small fw-bold font-monospace">{{ checkin.latitude|floatformat:4 }}, {{ checkin.longitude|floatformat:4 }}</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                {% if checkin.has_user_location %}
+                  <button type="button" id="btn-toggle-poster-loc" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold active" style="font-size: 0.76rem;">
+                    <i class="bi bi-eye-fill me-1"></i><span data-i18n="detail_toggle_user_loc">ตำแหน่งผู้โพสต์ (เปิดอยู่)</span>
+                  </button>
+                {% endif %}
+                <a href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm rounded-pill px-3" style="font-size: 0.76rem;">
+                  <i class="bi bi-geo-alt me-1"></i> <span data-i18n="action_open_gmaps">Google Maps</span>
+                </a>
+              </div>
             </div>
-            <div class="d-flex gap-2">
-              <a href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm rounded-pill px-3">
-                <i class="bi bi-geo-alt me-1"></i> <span data-i18n="action_open_gmaps">เปิด Google Maps</span>
-              </a>
-            </div>
+
+            <!-- Leaflet Map Container -->
+            <div id="detail-map-container" style="height: 280px; width: 100%;"></div>
+
+            <!-- Distance Info Bar (If Poster Location Enabled) -->
+            {% if checkin.has_user_location %}
+              <div class="p-2 px-3 bg-primary-subtle text-primary border-top small fw-semibold d-flex align-items-center justify-content-between" style="font-size: 0.78rem;">
+                <div>
+                  <i class="bi bi-geo-fill me-1"></i>
+                  <span>ตำแหน่งผู้โพสต์ขณะเช็คอิน: {{ checkin.user_latitude|floatformat:4 }}, {{ checkin.user_longitude|floatformat:4 }}</span>
+                </div>
+                <div id="poster-distance-badge" class="badge bg-primary text-white rounded-pill px-2.5 py-1">
+                  คำนวณระยะทาง...
+                </div>
+              </div>
+            {% endif %}
           </div>
         {% endif %}
 
@@ -283,9 +306,119 @@
 
         </div>
 
+        <!-- Dedicated Note to Monphrakan Khamlue -->
+        <div class="text-center pt-2 pb-1 text-muted border-top extra-small opacity-75" style="font-size: 0.74rem;">
+          <i class="bi bi-heart-fill text-danger me-1"></i><span data-i18n="dedication_tag">ระบบเช็คอินและปักหมุดสถานที่พัฒนาขึ้นเพื่อ</span> <strong class="text-dark">Monphrakan Khamlue</strong>
+        </div>
+
       </div>
     </div>
 
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function() {
+    {% if checkin.has_location %}
+      const placeLat = {{ checkin.latitude }};
+      const placeLng = {{ checkin.longitude }};
+      const hasUserLoc = {% if checkin.has_user_location %}true{% else %}false{% endif %};
+      const userLat = {% if checkin.has_user_location %}{{ checkin.user_latitude }}{% else %}null{% endif %};
+      const userLng = {% if checkin.has_user_location %}{{ checkin.user_longitude }}{% else %}null{% endif %};
+
+      const mapEl = document.getElementById('detail-map-container');
+      if (!mapEl) return;
+
+      const map = L.map('detail-map-container', {
+        center: [placeLat, placeLng],
+        zoom: hasUserLoc ? 12 : 14,
+        zoomControl: true
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+
+      // Red Pin for Checked-in Place
+      const placeIcon = L.divIcon({
+        className: 'custom-place-marker',
+        html: '<div style="background-color: #ef4444; width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: white;"><i class="bi bi-geo-alt-fill" style="font-size:16px;"></i></div>',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32]
+      });
+
+      const placeMarker = L.marker([placeLat, placeLng], { icon: placeIcon }).addTo(map);
+      placeMarker.bindPopup(`<strong>{{ checkin.place_name|escapejs }}</strong><br><span class="text-muted small">สถานที่เช็คอิน</span>`);
+
+      let userMarker = null;
+      let polylineLine = null;
+      let isUserLocVisible = true;
+
+      if (hasUserLoc && userLat && userLng) {
+        // Blue Marker for Poster's Actual Location
+        const userIcon = L.divIcon({
+          className: 'custom-user-marker',
+          html: '<div style="background-color: #2563eb; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 12px rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; color: white;"><i class="bi bi-person-fill" style="font-size:15px;"></i></div>',
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        });
+
+        userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(map);
+        userMarker.bindPopup(`<strong>@{{ checkin.user.username|escapejs }}</strong><br><span class="text-muted small">ตำแหน่งจริงขณะโพสต์</span>`);
+
+        // Polyline connecting the two markers
+        polylineLine = L.polyline([[placeLat, placeLng], [userLat, userLng]], {
+          color: '#2563eb',
+          weight: 3,
+          dashArray: '6, 8',
+          opacity: 0.85
+        }).addTo(map);
+
+        // Fit bounds to show both markers
+        const bounds = L.latLngBounds([[placeLat, placeLng], [userLat, userLng]]);
+        map.fitBounds(bounds, { padding: [40, 40] });
+
+        // Calculate distance in kilometers
+        function getDistanceKm(lat1, lon1, lat2, lon2) {
+          const R = 6371; // km
+          const dLat = (lat2 - lat1) * Math.PI / 180;
+          const dLon = (lon2 - lon1) * Math.PI / 180;
+          const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+          return (R * c).toFixed(1);
+        }
+
+        const distKm = getDistanceKm(placeLat, placeLng, userLat, userLng);
+        const distBadge = document.getElementById('poster-distance-badge');
+        if (distBadge) {
+          distBadge.textContent = `ระยะห่าง: ${distKm} กม.`;
+        }
+
+        // Toggle Switch for Poster Location Marker
+        const btnToggleLoc = document.getElementById('btn-toggle-poster-loc');
+        if (btnToggleLoc) {
+          btnToggleLoc.addEventListener('click', function() {
+            isUserLocVisible = !isUserLocVisible;
+            if (isUserLocVisible) {
+              if (userMarker) map.addLayer(userMarker);
+              if (polylineLine) map.addLayer(polylineLine);
+              this.classList.add('active');
+              this.innerHTML = '<i class="bi bi-eye-fill me-1"></i><span>ตำแหน่งผู้โพสต์ (เปิดอยู่)</span>';
+            } else {
+              if (userMarker) map.removeLayer(userMarker);
+              if (polylineLine) map.removeLayer(polylineLine);
+              this.classList.remove('active');
+              this.innerHTML = '<i class="bi bi-eye-slash me-1"></i><span>ตำแหน่งผู้โพสต์ (ปิดอยู่)</span>';
+            }
+          });
+        }
+      }
+    {% endif %}
+  })();
+</script>
 {% endblock %}

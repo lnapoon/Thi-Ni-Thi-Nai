@@ -785,11 +785,23 @@ function initSocialInteractions() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          modalTitle.textContent = data.title;
+          const isEn = window.i18n && window.i18n.currentLang === 'en';
+
+          // Localized Title
+          if (data.title_th && data.title_en) {
+            modalTitle.textContent = isEn ? data.title_en : data.title_th;
+          } else if (data.title) {
+            modalTitle.textContent = data.title;
+          }
+
           if (data.users.length === 0) {
-            modalBody.innerHTML = '<div class="text-center py-4 text-muted small">ยังไม่มีผู้ใช้งานในรายการนี้</div>';
+            const emptyText = isEn ? 'No users found in this list' : 'ยังไม่มีผู้ใช้งานในรายการนี้';
+            modalBody.innerHTML = `<div class="text-center py-4 text-muted small" data-no-i18n="true">${emptyText}</div>`;
             return;
           }
+
+          const txtFollowing = isEn ? 'Following' : 'กำลังติดตาม';
+          const txtFollow = isEn ? 'Follow' : 'ติดตาม';
 
           let html = '<div class="list-group list-group-flush">';
           data.users.forEach(u => {
@@ -800,9 +812,9 @@ function initSocialInteractions() {
             let followBtn = '';
             if (!u.is_self) {
               if (u.is_following) {
-                followBtn = `<button class="btn btn-light border btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow following" data-username="${u.username}" data-url="/accounts/follow/${u.username}/"><i class="bi bi-check2 me-1 text-success"></i> กำลังติดตาม</button>`;
+                followBtn = `<button class="btn btn-light border btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow following" data-username="${u.username}" data-url="/accounts/follow/${u.username}/"><i class="bi bi-check2 me-1 text-success"></i> ${txtFollowing}</button>`;
               } else {
-                followBtn = `<button class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow" data-username="${u.username}" data-url="/accounts/follow/${u.username}/"><i class="bi bi-person-plus-fill me-1"></i> ติดตาม</button>`;
+                followBtn = `<button class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold btn-toggle-follow" data-username="${u.username}" data-url="/accounts/follow/${u.username}/"><i class="bi bi-person-plus-fill me-1"></i> ${txtFollow}</button>`;
               }
             }
 
@@ -824,7 +836,9 @@ function initSocialInteractions() {
         }
       })
       .catch(err => {
-        modalBody.innerHTML = '<div class="text-danger text-center py-3">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+        const isEn = window.i18n && window.i18n.currentLang === 'en';
+        const errText = isEn ? 'Error loading user list' : 'เกิดข้อผิดพลาดในการโหลดข้อมูล';
+        modalBody.innerHTML = `<div class="text-danger text-center py-3" data-no-i18n="true">${errText}</div>`;
       });
     });
   });
