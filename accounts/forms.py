@@ -72,16 +72,16 @@ class UserUpdateForm(forms.ModelForm):
         }
         widgets = {
             "first_name": forms.TextInput(
-                attrs={"class": "form-control rounded-pill px-3", "placeholder": "ชื่อ"}
+                attrs={"class": "form-control rounded-pill px-3", "placeholder": "ระบุชื่อจริง"}
             ),
             "last_name": forms.TextInput(
                 attrs={
                     "class": "form-control rounded-pill px-3",
-                    "placeholder": "นามสกุล",
+                    "placeholder": "ระบุนามสกุล",
                 }
             ),
             "email": forms.EmailInput(
-                attrs={"class": "form-control rounded-pill px-3", "placeholder": "อีเมล"}
+                attrs={"class": "form-control rounded-pill px-3", "placeholder": "ระบุอีเมลของคุณ"}
             ),
         }
 
@@ -105,20 +105,20 @@ class ProfileEditForm(forms.ModelForm):
             "display_name": forms.TextInput(
                 attrs={
                     "class": "form-control rounded-pill px-3",
-                    "placeholder": "ชื่อที่แสดง (เช่น ปูนเองก็เหนื่อย🫠)",
+                    "placeholder": "ระบุชื่อที่ต้องการให้แสดงบนโปรไฟล์",
                 }
             ),
             "category": forms.TextInput(
                 attrs={
                     "class": "form-control rounded-pill px-3",
-                    "placeholder": "หมวดหมู่ / สถานะ (เช่น นักเดินทาง, สายคาเฟ่)",
+                    "placeholder": "ระบุหมวดหมู่หรือสถานะ เช่น นักเดินทาง, สายท่องเที่ยว",
                 }
             ),
             "bio": forms.Textarea(
                 attrs={
                     "class": "form-control rounded-4 p-3",
                     "rows": 3,
-                    "placeholder": "คำอธิบายโปรไฟล์ (Bio)",
+                    "placeholder": "เขียนแนะนำตัว หรือเล่าเรื่องราวเกี่ยวกับตัวคุณสั้นๆ...",
                 }
             ),
             "avatar": forms.FileInput(

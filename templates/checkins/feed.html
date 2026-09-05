@@ -103,7 +103,12 @@
                   name="place_name" 
                   id="feed_place_name" 
                   class="form-control bg-light border-0 rounded-end-pill py-1 pe-3" 
-                  placeholder="ชื่อสถานที่ / คาเฟ่ / แหล่งท่องเที่ยวที่นี่..." 
+                <input 
+                  type="text" 
+                  name="place_name" 
+                  id="feed_place_name" 
+                  class="form-control bg-light border-0 rounded-end-pill py-1 pe-3" 
+                  placeholder="ชื่อสถานที่ / คาเฟ่..." 
                   data-i18n-placeholder="composer_place_placeholder"
                   value="{{ form.place_name.value|default:'' }}"
                   required
@@ -141,7 +146,7 @@
               </div>
               <div class="aspect-ratio-selector-bar">
                 <button type="button" class="aspect-ratio-pill-btn active" data-ratio="original">
-                  <i class="bi bi-arrows-fullscreen"></i> <span data-i18n="composer_ratio_original">ออริจินัล (พอดีเฟรม)</span>
+                  <i class="bi bi-arrows-fullscreen"></i> <span data-i18n="composer_ratio_original">ออริจินัล</span>
                 </button>
                 <button type="button" class="aspect-ratio-pill-btn" data-ratio="1:1">
                   <i class="bi bi-square"></i> <span data-i18n="composer_ratio_1_1">1:1 (จัตุรัส)</span>
@@ -167,11 +172,11 @@
 
             <!-- Bottom Action Bar: Small Icons on Left + Submit Button on Right -->
             <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-              <div class="d-flex align-items-center gap-2">
+              <div class="d-flex align-items-center gap-1.5 gap-sm-2">
                 <!-- Small Photo Upload Trigger Icon -->
-                <label for="feed_photo_input" class="btn btn-sm btn-light rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 border text-secondary cursor-pointer shadow-none" style="font-size: 0.82rem;" title="เพิ่มรูปภาพ (สูงสุด 10 รูป)" data-i18n-title="composer_add_photo">
+                <label for="feed_photo_input" class="btn btn-sm btn-light rounded-pill px-2.5 px-sm-3 py-1 d-inline-flex align-items-center gap-1 border text-secondary cursor-pointer shadow-none" style="font-size: 0.82rem;" title="เพิ่มรูปภาพ" data-i18n-title="composer_add_photo">
                   <i class="bi bi-images text-success fs-6"></i>
-                  <span class="fw-semibold" data-i18n="composer_add_photo">เพิ่มรูปภาพ (สูงสุด 10 รูป)</span>
+                  <span class="fw-semibold" data-i18n="composer_add_photo">เพิ่มรูปภาพ</span>
                 </label>
 
                 <!-- Small GPS Geolocation Trigger / Status -->

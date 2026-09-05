@@ -1919,4 +1919,15 @@ body.dark-mode .share-grid-label {
   color: #cbd5e1;
 }
 
+/* Mobile Responsive Optimizations for Edit Profile & Forms */
+@media (max-width: 575.98px) {
+  .profile-edit-card {
+    border-radius: 20px !important;
+  }
+  .profile-edit-card .form-control {
+    font-size: 15px;
+  }
+}
+
+
 
