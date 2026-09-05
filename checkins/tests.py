@@ -216,4 +216,41 @@ class CheckInTests(TestCase):
         self.assertIn('total_geotagged', response.context)
         self.assertGreaterEqual(response.context['total_geotagged'], 1)
 
+    def test_create_view_contains_map_picker_and_regions(self):
+        """Test that checkin create view contains the interactive map picker and region elements."""
+        self.client.login(username='alice', password='password123')
+        response = self.client.get(reverse('checkins:create'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'checkins/form.html')
+        self.assertContains(response, 'id="id_region"')
+        self.assertContains(response, 'id="id_province"')
+        self.assertContains(response, 'id="btn-open-map-picker"')
+        self.assertContains(response, 'id="mapPickerModal"')
+        self.assertContains(response, 'id="picker-map-container"')
+        self.assertContains(response, 'id="btn-confirm-map-picker"')
+        self.assertContains(response, 'populateRegionOptions')
+        self.assertContains(response, 'populateProvinceOptions')
+
+    def test_create_view_post_with_pinned_coordinates(self):
+        """Test submitting new check-in with custom pinned location, region, and province."""
+        self.client.login(username='alice', password='password123')
+        photo = create_dummy_image('pinned_beach.jpg')
+        response = self.client.post(reverse('checkins:create'), {
+            'place_name': 'หาดกะรน ภูเก็ต',
+            'region': 'ภาคใต้',
+            'province': 'ภูเก็ต',
+            'caption': 'วิวทะเลสวยมาก คลื่นลมสงบ',
+            'latitude': 7.8431,
+            'longitude': 98.2952,
+            'aspect_ratio': '16:9',
+            'photo': photo,
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        created = CheckIn.objects.filter(place_name='หาดกะรน ภูเก็ต').first()
+        self.assertIsNotNone(created)
+        self.assertEqual(created.region, 'ภาคใต้')
+        self.assertEqual(created.province, 'ภูเก็ต')
+        self.assertAlmostEqual(float(created.latitude), 7.8431, places=3)
+        self.assertAlmostEqual(float(created.longitude), 98.2952, places=3)
+
 
