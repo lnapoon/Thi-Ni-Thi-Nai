@@ -72,3 +72,46 @@ class AccountsTests(TestCase):
         self.user.profile.refresh_from_db()
         self.assertEqual(self.user.first_name, 'Alice')
         self.assertEqual(self.user.profile.bio, 'Traveler and food lover.')
+
+    def test_password_reset_otp_flow(self):
+        """Test complete OTP password reset flow."""
+        from accounts.models import PasswordResetOTP
+
+        # 1. Request OTP
+        resp = self.client.post(reverse('accounts:password_reset_request'), {
+            'email': 'alice@example.com'
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertRedirects(resp, reverse('accounts:password_reset_verify'))
+
+        otp = PasswordResetOTP.objects.filter(user=self.user, is_used=False).first()
+        self.assertIsNotNone(otp)
+        self.assertEqual(len(otp.otp_code), 6)
+
+        # 2. Verify with wrong OTP
+        resp_wrong = self.client.post(reverse('accounts:password_reset_verify'), {
+            'otp_code': '000000'
+        })
+        self.assertEqual(resp_wrong.status_code, 200)
+        self.assertContains(resp_wrong, 'รหัส OTP ไม่ถูกต้อง')
+
+        # 3. Verify with correct OTP
+        resp_correct = self.client.post(reverse('accounts:password_reset_verify'), {
+            'otp_code': otp.otp_code
+        })
+        self.assertEqual(resp_correct.status_code, 302)
+        self.assertRedirects(resp_correct, reverse('accounts:password_reset_confirm'))
+
+        otp.refresh_from_db()
+        self.assertTrue(otp.is_used)
+
+        # 4. Set new password
+        resp_confirm = self.client.post(reverse('accounts:password_reset_confirm'), {
+            'new_password': 'BrandNewPassword123!',
+            'confirm_password': 'BrandNewPassword123!',
+        })
+        self.assertEqual(resp_confirm.status_code, 302)
+        self.assertRedirects(resp_confirm, reverse('accounts:login'))
+
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password('BrandNewPassword123!'))

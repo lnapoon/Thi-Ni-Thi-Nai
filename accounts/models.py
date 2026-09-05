@@ -143,3 +143,53 @@ def _user_is_following(user, target_user):
 
 User.add_to_class("get_avatar_url", property(_user_get_avatar_url))
 User.add_to_class("is_following", _user_is_following)
+
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="password_reset_otps",
+        verbose_name="ผู้ใช้งาน",
+    )
+    email = models.EmailField(verbose_name="อีเมลที่รับ OTP")
+    otp_code = models.CharField(max_length=6, verbose_name="รหัส OTP 6 หลัก")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="เวลาที่สร้าง")
+    expires_at = models.DateTimeField(verbose_name="เวลาหมดอายุ")
+    is_used = models.BooleanField(default=False, verbose_name="ถูกใช้งานแล้วหรือไม่")
+    attempts = models.PositiveIntegerField(default=0, verbose_name="จำนวนครั้งที่ลองกรอก")
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "OTP รีเซ็ตรหัสผ่าน"
+        verbose_name_plural = "OTP รีเซ็ตรหัสผ่านทั้งหมด"
+
+    def __str__(self):
+        return f"OTP for {self.user.username} ({self.otp_code})"
+
+    @classmethod
+    def generate_otp_for_user(cls, user, email):
+        import secrets
+        from datetime import timedelta
+        from django.utils import timezone
+
+        # Invalidate previous unused OTPs for this user
+        cls.objects.filter(user=user, is_used=False).update(is_used=True)
+        # Generate 6-digit numeric OTP cryptographically
+        code = f"{secrets.randbelow(900000) + 100000}"
+        now = timezone.now()
+        expires = now + timedelta(minutes=10)
+        return cls.objects.create(
+            user=user,
+            email=email,
+            otp_code=code,
+            expires_at=expires,
+        )
+
+    def is_valid(self):
+        from django.utils import timezone
+        if self.is_used:
+            return False
+        if self.attempts >= 5:
+            return False
+        return timezone.now() <= self.expires_at
