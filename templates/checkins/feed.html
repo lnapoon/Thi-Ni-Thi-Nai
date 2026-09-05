@@ -6,54 +6,6 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-8 col-lg-6">
 
-    <!-- Top Featured Travelers / Stories Carousel -->
-    {% if featured_creators %}
-      <div class="stories-carousel-card border-0 shadow-sm rounded-4 p-3 mb-4">
-        <div class="d-flex align-items-center justify-content-between mb-2.5 px-1">
-          <div class="d-flex align-items-center gap-2">
-            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
-              <i class="bi bi-compass-fill" style="font-size: 0.85rem;"></i>
-            </div>
-            <span class="fw-bold text-dark small" data-i18n="feed_stories_title">นักเดินทางแนะนำ</span>
-          </div>
-          <a href="{% url 'accounts:search' %}" class="small text-primary text-decoration-none fw-semibold d-flex align-items-center gap-0.5" data-i18n="feed_find_more">
-            <span data-i18n="feed_find_more_text">ค้นหาเพิ่ม</span> <i class="bi bi-chevron-right extra-small" style="font-size: 0.72rem;"></i>
-          </a>
-        </div>
-        <div class="stories-scroll-wrapper">
-          <!-- Current User Profile Bubble -->
-          <a href="{% url 'accounts:profile_me' %}" class="story-item">
-            <div class="story-avatar-ring" style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);">
-              {% if user.get_avatar_url %}
-                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="story-avatar-img">
-              {% else %}
-                <div class="story-avatar-img bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
-                  <i class="bi bi-person-fill"></i>
-                </div>
-              {% endif %}
-            </div>
-            <span class="story-username text-primary fw-bold" data-i18n="feed_story_you">คุณ</span>
-          </a>
-
-          <!-- Active Creators Bubbles -->
-          {% for creator in featured_creators %}
-            <a href="{% url 'accounts:profile_user' username=creator.username %}" class="story-item" title="@{{ creator.username }}">
-              <div class="story-avatar-ring">
-                {% if creator.get_avatar_url %}
-                  <img src="{{ creator.get_avatar_url }}" alt="{{ creator.username }}" class="story-avatar-img">
-                {% else %}
-                  <div class="story-avatar-img bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
-                    <i class="bi bi-person-fill"></i>
-                  </div>
-                {% endif %}
-              </div>
-              <span class="story-username">@{{ creator.username }}</span>
-            </a>
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-
     <!-- Minimal Compact Post Composer Card -->
     {% if user.is_authenticated %}
       <div class="card feed-post-composer-card shadow-sm border-0 rounded-4 mb-4 bg-white animate__animated animate__fadeIn">
@@ -198,6 +150,30 @@
         </div>
       </div>
     {% endif %}
+
+    <!-- Full-Width Segmented Feed Navigation Tabs (ฟีดทั่วไป vs กำลังติดตาม) -->
+    <div class="mb-3 px-1">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="text-muted extra-small fw-semibold" style="font-size: 0.78rem;">
+          <i class="bi bi-funnel me-1 text-primary"></i><span data-i18n="feed_select_view">มุมมองฟีด</span>
+        </span>
+        <span class="badge bg-body-tertiary text-muted border rounded-pill small fw-normal px-2.5 py-1" style="font-size: 0.74rem;">
+          {{ total_posts_count }} <span data-i18n="feed_posts_unit">โพสต์</span>
+        </span>
+      </div>
+      <div class="feed-segmented-nav w-100">
+        <a href="{% url 'checkins:feed' %}" class="feed-nav-btn {% if active_feed_type != 'following' %}active{% endif %}">
+          <i class="bi bi-globe2"></i>
+          <span data-i18n="feed_tab_all">ฟีดทั่วไป</span>
+        </a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'checkins:feed' %}?feed=following" class="feed-nav-btn {% if active_feed_type == 'following' %}active{% endif %}">
+            <i class="bi bi-people-fill"></i>
+            <span data-i18n="feed_tab_following">กำลังติดตาม</span>
+          </a>
+        {% endif %}
+      </div>
+    </div>
 
     <!-- Feed Content List -->
     {% if checkins %}
@@ -472,22 +448,34 @@
 
     {% else %}
       <!-- Empty State with Animated Illustration -->
-      <div class="empty-state shadow-sm rounded-4 p-5 text-center bg-white my-4">
+      <div class="empty-state shadow-sm rounded-4 p-5 text-center bg-white my-4 checkin-card">
         <div class="mb-3 animate__animated animate__bounceIn">
           <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle shadow-sm" style="width: 80px; height: 80px;">
-            <i class="bi bi-geo-alt fs-1"></i>
+            {% if active_feed_type == 'following' %}
+              <i class="bi bi-people fs-1"></i>
+            {% else %}
+              <i class="bi bi-geo-alt fs-1"></i>
+            {% endif %}
           </div>
         </div>
-        <h5 class="fw-bold text-dark" data-i18n="feed_empty_title">ยังไม่มีจุดเช็คอินในขณะนี้</h5>
-        <p class="text-muted small mb-4" data-i18n="feed_empty_desc">มาเป็นคนแรกที่เริ่มบันทึกและแชร์ภาพถ่ายสถานที่สวยๆ กันเถอะ!</p>
-        {% if user.is_authenticated %}
-          <a href="{% url 'checkins:create' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow">
-            <i class="bi bi-plus-circle-fill me-1"></i> <span data-i18n="feed_empty_btn">เช็คอินสถานที่แรกเลย</span>
+        {% if active_feed_type == 'following' %}
+          <h5 class="fw-bold text-dark" data-i18n="feed_empty_following_title">ยังไม่มีโพสต์จากคนที่คุณติดตาม</h5>
+          <p class="text-muted small mb-4" data-i18n="feed_empty_following_desc">ค้นหานักเดินทางที่น่าสนใจและเริ่มติดตามเพื่อดูอัปเดตใหม่ๆ ที่นี่!</p>
+          <a href="{% url 'accounts:search' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+            <i class="bi bi-search me-1"></i> <span data-i18n="feed_btn_search_travelers">ค้นหานักเดินทาง</span>
           </a>
         {% else %}
-          <button type="button" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
-            <i class="bi bi-plus-circle-fill me-1"></i> <span data-i18n="feed_empty_guest_btn">เข้าสู่ระบบเพื่อเริ่มเช็คอิน</span>
-          </button>
+          <h5 class="fw-bold text-dark" data-i18n="feed_empty_title">ยังไม่มีจุดเช็คอินในขณะนี้</h5>
+          <p class="text-muted small mb-4" data-i18n="feed_empty_desc">มาเป็นคนแรกที่เริ่มบันทึกและแชร์ภาพถ่ายสถานที่สวยๆ กันเถอะ!</p>
+          {% if user.is_authenticated %}
+            <a href="{% url 'checkins:create' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow">
+              <i class="bi bi-plus-circle-fill me-1"></i> <span data-i18n="feed_empty_btn">เช็คอินสถานที่แรกเลย</span>
+            </a>
+          {% else %}
+            <button type="button" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
+              <i class="bi bi-plus-circle-fill me-1"></i> <span data-i18n="feed_empty_guest_btn">เข้าสู่ระบบเพื่อเริ่มเช็คอิน</span>
+            </button>
+          {% endif %}
         {% endif %}
       </div>
     {% endif %}

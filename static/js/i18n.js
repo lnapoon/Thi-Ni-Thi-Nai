@@ -85,6 +85,10 @@ const APP_TRANSLATIONS = {
     'edit_checkin_title': 'แก้ไขเช็คอิน',
 
     // Feed & Stories
+    'feed_select_view': 'มุมมองฟีด',
+    'feed_tab_all': 'ฟีดทั่วไป',
+    'feed_tab_following': 'กำลังติดตาม',
+    'feed_posts_unit': 'โพสต์',
     'feed_stories_title': 'นักเดินทางแนะนำ',
     'feed_find_more': 'ค้นหาเพิ่ม →',
     'feed_story_you': 'คุณ',
@@ -467,6 +471,10 @@ const APP_TRANSLATIONS = {
     'edit_checkin_title': 'Edit Check-in',
 
     // Feed & Stories
+    'feed_select_view': 'Feed View',
+    'feed_tab_all': 'All Feed',
+    'feed_tab_following': 'Following',
+    'feed_posts_unit': 'posts',
     'feed_stories_title': 'Top Travelers',
     'feed_find_more': 'Find More →',
     'feed_story_you': 'You',

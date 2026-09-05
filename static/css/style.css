@@ -2202,6 +2202,66 @@ body.dark-mode .map-card-item .text-dark {
   color: #f8fafc !important;
 }
 
+/* ─────────────────────────────────────────────────────────────
+ * Compact Segmented Feed Navigation Tabs
+ * ───────────────────────────────────────────────────────────── */
+.feed-segmented-nav {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 50rem;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.feed-nav-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-color, #64748b);
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border-radius: 50rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.feed-nav-btn:hover {
+  color: var(--bs-primary, #2563eb);
+}
+
+.feed-nav-btn.active {
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+  color: #ffffff !important;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.35);
+}
+
+[data-bs-theme="dark"] .feed-segmented-nav,
+body.dark-mode .feed-segmented-nav {
+  background: #131b2e !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-bs-theme="dark"] .feed-nav-btn,
+body.dark-mode .feed-nav-btn {
+  color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .feed-nav-btn:hover,
+body.dark-mode .feed-nav-btn:hover {
+  color: #f8fafc;
+}
+
+
 
 
 
