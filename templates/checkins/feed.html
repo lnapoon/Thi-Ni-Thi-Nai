@@ -8,13 +8,16 @@
 
     <!-- Top Featured Travelers / Stories Carousel -->
     {% if featured_creators %}
-      <div class="stories-carousel-card">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-          <span class="fw-bold text-dark small">
-            <i class="bi bi-compass-fill text-primary me-1"></i> <span data-i18n="feed_stories_title">นักเดินทางแนะนำ</span>
-          </span>
-          <a href="{% url 'accounts:search' %}" class="small text-primary text-decoration-none fw-semibold" data-i18n="feed_find_more">
-            ค้นหาเพิ่ม &rarr;
+      <div class="stories-carousel-card border-0 shadow-sm rounded-4 p-3 mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-2.5 px-1">
+          <div class="d-flex align-items-center gap-2">
+            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+              <i class="bi bi-compass-fill" style="font-size: 0.85rem;"></i>
+            </div>
+            <span class="fw-bold text-dark small" data-i18n="feed_stories_title">นักเดินทางแนะนำ</span>
+          </div>
+          <a href="{% url 'accounts:search' %}" class="small text-primary text-decoration-none fw-semibold d-flex align-items-center gap-0.5" data-i18n="feed_find_more">
+            <span data-i18n="feed_find_more_text">ค้นหาเพิ่ม</span> <i class="bi bi-chevron-right extra-small" style="font-size: 0.72rem;"></i>
           </a>
         </div>
         <div class="stories-scroll-wrapper">
@@ -203,8 +206,8 @@
           
           <!-- Card Header (Author Info & Place) -->
           <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between px-3 pt-3 pb-2">
-            <div class="d-flex align-items-center gap-2">
-              <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="text-decoration-none">
+            <div class="d-flex align-items-center gap-2.5 min-w-0">
+              <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="text-decoration-none flex-shrink-0">
                 {% if checkin.user.get_avatar_url %}
                   <img src="{{ checkin.user.get_avatar_url }}" alt="{{ checkin.user.username }}" class="card-author-avatar">
                 {% else %}
@@ -213,46 +216,48 @@
                   </div>
                 {% endif %}
               </a>
-              <div>
-                <div class="d-flex align-items-center gap-1">
-                  <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="fw-bold text-dark text-decoration-none lh-1" style="font-size: 0.92rem;">
+              <div class="min-w-0 flex-grow-1 overflow-hidden">
+                <div class="d-flex align-items-center gap-1 min-w-0">
+                  <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="fw-bold text-dark text-decoration-none lh-1 text-truncate" style="font-size: 0.94rem;">
                     @{{ checkin.user.username }}
                   </a>
                   {% if checkin.user.is_staff or checkin.user.is_superuser %}
-                    <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.75rem;" title="แอดมิน"></i>
+                    <i class="bi bi-patch-check-fill text-primary flex-shrink-0" style="font-size: 0.78rem;" title="ผู้ดูแลระบบ"></i>
                   {% endif %}
                 </div>
                 
                 <!-- Location Chip with Radar Dot -->
-                <div class="d-flex align-items-center mt-1" style="font-size: 0.75rem;">
+                <div class="d-flex align-items-center mt-1" style="font-size: 0.78rem;">
                   <span class="radar-dot"></span>
-                  <a href="{% url 'checkins:detail' pk=checkin.pk %}" class="text-secondary fw-semibold text-decoration-none text-truncate" style="max-width: 180px;">
+                  <a href="{% url 'checkins:detail' pk=checkin.pk %}" class="text-secondary fw-semibold text-decoration-none text-truncate" style="max-width: 190px;" title="{{ checkin.place_name }}">
                     {{ checkin.place_name }}
                   </a>
                 </div>
               </div>
             </div>
 
-            <!-- Header Options / Timestamp -->
-            <div class="d-flex align-items-center gap-2">
-              <span class="text-muted" style="font-size: 0.72rem;">{{ checkin.created_at|timesince }} <span data-i18n="ago_suffix">ที่แล้ว</span></span>
+            <!-- Header Options / Timestamp Pill -->
+            <div class="d-flex align-items-center gap-1.5 ms-auto flex-shrink-0">
+              <span class="badge bg-light text-muted border rounded-pill small fw-normal px-2.5 py-1" style="font-size: 0.7rem;">
+                <i class="bi bi-clock me-1 text-primary"></i>{{ checkin.created_at|timesince }} <span data-i18n="ago_suffix">ที่แล้ว</span>
+              </span>
               <div class="dropdown">
-                <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="bi bi-three-dots fs-5"></i>
+                <button class="btn btn-sm btn-link text-muted p-1 text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="ตัวเลือกเพิ่มเติม">
+                  <i class="bi bi-three-dots-vertical fs-6"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
-                  <li><a class="dropdown-item small" href="{% url 'checkins:detail' pk=checkin.pk %}"><i class="bi bi-eye me-2"></i><span data-i18n="map_view_detail">ดูรายละเอียด</span></a></li>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-1.5 mt-1">
+                  <li><a class="dropdown-item rounded-3 py-2 small" href="{% url 'checkins:detail' pk=checkin.pk %}"><i class="bi bi-eye me-2 text-primary"></i><span data-i18n="map_view_detail">ดูรายละเอียด</span></a></li>
                   {% if checkin.has_location %}
                     <li>
-                      <a class="dropdown-item small" href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener">
+                      <a class="dropdown-item rounded-3 py-2 small" href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener">
                         <i class="bi bi-geo-alt me-2 text-danger"></i><span data-i18n="action_open_gmaps">เปิด Google Maps</span>
                       </a>
                     </li>
                   {% endif %}
                   {% if checkin.user == user or user.is_staff %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item small text-primary" href="{% url 'checkins:edit' pk=checkin.pk %}"><i class="bi bi-pencil me-2"></i><span data-i18n="action_edit">แก้ไข</span></a></li>
-                    <li><a class="dropdown-item small text-danger" href="{% url 'checkins:delete' pk=checkin.pk %}"><i class="bi bi-trash3 me-2"></i><span data-i18n="action_delete">ลบโพสต์</span></a></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item rounded-3 py-2 small text-primary" href="{% url 'checkins:edit' pk=checkin.pk %}"><i class="bi bi-pencil me-2"></i><span data-i18n="action_edit">แก้ไข</span></a></li>
+                    <li><a class="dropdown-item rounded-3 py-2 small text-danger" href="{% url 'checkins:delete' pk=checkin.pk %}"><i class="bi bi-trash3 me-2"></i><span data-i18n="action_delete">ลบโพสต์</span></a></li>
                   {% endif %}
                 </ul>
               </div>
