@@ -243,15 +243,15 @@
           <!-- Card Photo / Multi-Photo Carousel with Double Tap Heart Animation -->
           {% with photos=checkin.get_all_photos %}
             {% if photos|length > 1 %}
-              <div class="post-carousel-container ratio-{{ checkin.aspect_ratio|default:'original' }}" data-checkin-id="{{ checkin.id }}">
+              <div class="post-carousel-container ratio-{{ checkin.aspect_ratio|slugify|default:'original' }}" data-checkin-id="{{ checkin.id }}">
                 <!-- Badge Counter (e.g. 1/4) -->
                 <div class="post-carousel-badge-counter">1/{{ photos|length }}</div>
 
                 <!-- Navigation Arrows -->
-                <button type="button" class="post-carousel-nav-btn btn-prev" style="display: none;" aria-label="Previous image">
+                <button type="button" class="post-carousel-nav-btn btn-prev prev" style="display: none;" aria-label="Previous image">
                   <i class="bi bi-chevron-left"></i>
                 </button>
-                <button type="button" class="post-carousel-nav-btn btn-next" aria-label="Next image">
+                <button type="button" class="post-carousel-nav-btn btn-next next" aria-label="Next image">
                   <i class="bi bi-chevron-right"></i>
                 </button>
 
@@ -259,9 +259,7 @@
                 <div class="post-carousel-track double-tap-like-area" data-checkin-id="{{ checkin.id }}">
                   {% for item in photos %}
                     <div class="post-carousel-slide">
-                      {% if checkin.aspect_ratio == 'original' %}
-                        <img src="{{ item.url }}" alt="" class="post-carousel-slide-bg" loading="lazy">
-                      {% endif %}
+                      <img src="{{ item.url }}" alt="" class="post-carousel-slide-bg" loading="lazy">
                       <img src="{{ item.url }}" alt="{{ checkin.place_name }}" class="post-carousel-img" loading="lazy">
                     </div>
                   {% endfor %}
@@ -277,10 +275,8 @@
                 <i class="bi bi-heart-fill double-tap-heart"></i>
               </div>
             {% else %}
-              <div class="card-img-wrapper post-carousel-container ratio-{{ checkin.aspect_ratio|default:'original' }} double-tap-like-area" data-checkin-id="{{ checkin.id }}">
-                {% if checkin.aspect_ratio == 'original' %}
-                  <img src="{{ checkin.get_photo_url }}" alt="" class="post-carousel-slide-bg" loading="lazy">
-                {% endif %}
+              <div class="card-img-wrapper post-carousel-container ratio-{{ checkin.aspect_ratio|slugify|default:'original' }} double-tap-like-area" data-checkin-id="{{ checkin.id }}">
+                <img src="{{ checkin.get_photo_url }}" alt="" class="post-carousel-slide-bg" loading="lazy">
                 <img src="{{ checkin.get_photo_url }}" alt="{{ checkin.place_name }}" class="post-carousel-img" loading="lazy">
                 <i class="bi bi-heart-fill double-tap-heart"></i>
               </div>

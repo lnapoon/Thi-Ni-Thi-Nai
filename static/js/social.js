@@ -848,6 +848,34 @@ function initSocialInteractions() {
    * ---------------------------------------------------- */
   function initMultiPhotoCarousels() {
     document.querySelectorAll('.post-carousel-container').forEach(carousel => {
+      // 1. Lock ratio to first image if 'original' ratio
+      const isOriginal = carousel.classList.contains('ratio-original') || 
+                         carousel.className.includes('ratio-original') ||
+                         (!carousel.className.includes('ratio-1') && 
+                          !carousel.className.includes('ratio-4') && 
+                          !carousel.className.includes('ratio-9') && 
+                          !carousel.className.includes('ratio-16'));
+
+      if (isOriginal) {
+        const firstImg = carousel.querySelector('.post-carousel-slide:first-child .post-carousel-img') ||
+                         carousel.querySelector('.post-carousel-img');
+        if (firstImg) {
+          const applyFirstImageRatio = () => {
+            if (firstImg.naturalWidth && firstImg.naturalHeight) {
+              const rawRatio = firstImg.naturalWidth / firstImg.naturalHeight;
+              // Clamp between 0.8 (portrait 4:5) and 1.91 (landscape ~16:9) like Instagram
+              const clampedRatio = Math.max(0.8, Math.min(1.91, rawRatio));
+              carousel.style.aspectRatio = `${clampedRatio}`;
+            }
+          };
+          if (firstImg.complete && firstImg.naturalWidth > 0) {
+            applyFirstImageRatio();
+          } else {
+            firstImg.addEventListener('load', applyFirstImageRatio, { once: true });
+          }
+        }
+      }
+
       if (carousel.dataset.carouselInitialized) return;
       carousel.dataset.carouselInitialized = 'true';
 
@@ -856,8 +884,8 @@ function initSocialInteractions() {
       const totalSlides = slides.length;
       if (totalSlides <= 1) return;
 
-      const prevBtn = carousel.querySelector('.btn-prev');
-      const nextBtn = carousel.querySelector('.btn-next');
+      const prevBtn = carousel.querySelector('.btn-prev, .prev');
+      const nextBtn = carousel.querySelector('.btn-next, .next');
       const counterBadge = carousel.querySelector('.post-carousel-badge-counter');
       const dots = carousel.querySelectorAll('.post-carousel-dot');
 
@@ -873,7 +901,12 @@ function initSocialInteractions() {
         }
 
         if (counterBadge) {
-          counterBadge.textContent = `${currentIndex + 1}/${totalSlides}`;
+          const currentSpan = counterBadge.querySelector('.current-slide');
+          if (currentSpan) {
+            currentSpan.textContent = currentIndex + 1;
+          } else {
+            counterBadge.textContent = `${currentIndex + 1}/${totalSlides}`;
+          }
         }
 
         dots.forEach((d, idx) => {
@@ -916,21 +949,27 @@ function initSocialInteractions() {
         });
       });
 
-      // Touch / Swipe Handling
+      // Mobile Touch Gestures (Swipe Left / Right)
       let touchStartX = 0;
-      let touchEndX = 0;
+      let touchStartY = 0;
       let isSwiping = false;
 
       carousel.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
+        if (e.touches.length !== 1) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
         isSwiping = true;
       }, { passive: true });
 
       carousel.addEventListener('touchend', (e) => {
         if (!isSwiping) return;
-        touchEndX = e.changedTouches[0].screenX;
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
         const diffX = touchStartX - touchEndX;
-        if (Math.abs(diffX) > 40) {
+        const diffY = touchStartY - touchEndY;
+
+        // Verify genuine horizontal swipe intent (prevent conflict with vertical page scrolling)
+        if (Math.abs(diffX) > 35 && Math.abs(diffX) > Math.abs(diffY) * 1.15) {
           if (diffX > 0) {
             goToSlide(currentIndex + 1); // Swipe Left -> Next
           } else {
@@ -939,6 +978,40 @@ function initSocialInteractions() {
         }
         isSwiping = false;
       }, { passive: true });
+
+      // Desktop Mouse Drag Support
+      let isMouseDown = false;
+      let mouseStartX = 0;
+      let mouseMoved = false;
+
+      carousel.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.post-carousel-nav-btn, .post-carousel-dots')) return;
+        isMouseDown = true;
+        mouseMoved = false;
+        mouseStartX = e.clientX;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isMouseDown) return;
+        if (Math.abs(e.clientX - mouseStartX) > 8) {
+          mouseMoved = true;
+        }
+      });
+
+      window.addEventListener('mouseup', (e) => {
+        if (!isMouseDown) return;
+        isMouseDown = false;
+        if (mouseMoved) {
+          const diffX = mouseStartX - e.clientX;
+          if (Math.abs(diffX) > 40) {
+            if (diffX > 0) {
+              goToSlide(currentIndex + 1);
+            } else {
+              goToSlide(currentIndex - 1);
+            }
+          }
+        }
+      });
 
       // Initialize initial state
       goToSlide(0);

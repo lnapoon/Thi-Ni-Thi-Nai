@@ -66,15 +66,12 @@
       <!-- Multi-Photo Instagram Carousel with Aspect Ratio Container -->
       {% with all_photos=checkin.get_all_photos %}
         {% if all_photos|length > 1 %}
-          <div class="post-carousel-container ratio-{{ checkin.aspect_ratio|default:'original' }}" data-checkin-id="{{ checkin.id }}">
-            <div class="post-carousel-track">
+          <div class="post-carousel-container ratio-{{ checkin.aspect_ratio|slugify|default:'original' }}" data-checkin-id="{{ checkin.id }}">
+            <div class="post-carousel-track double-tap-like-area" data-checkin-id="{{ checkin.id }}">
               {% for p in all_photos %}
                 <div class="post-carousel-slide">
-                  {% if checkin.aspect_ratio == 'original' %}
-                    <div class="post-carousel-slide-bg" style="background-image: url('{{ p.url }}');"></div>
-                  {% endif %}
+                  <img src="{{ p.url }}" alt="" class="post-carousel-slide-bg" loading="lazy">
                   <img src="{{ p.url }}" alt="{{ checkin.place_name }}" class="post-carousel-img" loading="lazy">
-                  <i class="bi bi-heart-fill double-tap-heart"></i>
                 </div>
               {% endfor %}
             </div>
@@ -85,30 +82,30 @@
             </div>
 
             <!-- Navigation Arrow Buttons -->
-            <button type="button" class="post-carousel-nav-btn prev" aria-label="Previous image">
+            <button type="button" class="post-carousel-nav-btn btn-prev prev" style="display: none;" aria-label="Previous image">
               <i class="bi bi-chevron-left"></i>
             </button>
-            <button type="button" class="post-carousel-nav-btn next" aria-label="Next image">
+            <button type="button" class="post-carousel-nav-btn btn-next next" aria-label="Next image">
               <i class="bi bi-chevron-right"></i>
             </button>
 
             <!-- Pagination Dots -->
             <div class="post-carousel-dots">
               {% for p in all_photos %}
-                <div class="post-carousel-dot {% if forloop.first %}active{% endif %}"></div>
+                <div class="post-carousel-dot {% if forloop.first %}active{% endif %}" data-slide-index="{{ forloop.counter0 }}"></div>
               {% endfor %}
             </div>
+
+            <i class="bi bi-heart-fill double-tap-heart"></i>
           </div>
         {% else %}
           <!-- Single Photo Display -->
-          <div class="post-carousel-container ratio-{{ checkin.aspect_ratio|default:'original' }}" data-checkin-id="{{ checkin.id }}">
+          <div class="card-img-wrapper post-carousel-container ratio-{{ checkin.aspect_ratio|slugify|default:'original' }} double-tap-like-area" data-checkin-id="{{ checkin.id }}">
             <div class="post-carousel-slide" style="width: 100%; height: 100%;">
-              {% if checkin.aspect_ratio == 'original' %}
-                <div class="post-carousel-slide-bg" style="background-image: url('{{ checkin.get_photo_url }}');"></div>
-              {% endif %}
+              <img src="{{ checkin.get_photo_url }}" alt="" class="post-carousel-slide-bg" loading="lazy">
               <img src="{{ checkin.get_photo_url }}" alt="{{ checkin.place_name }}" class="post-carousel-img" loading="lazy">
-              <i class="bi bi-heart-fill double-tap-heart"></i>
             </div>
+            <i class="bi bi-heart-fill double-tap-heart"></i>
           </div>
         {% endif %}
       {% endwith %}
