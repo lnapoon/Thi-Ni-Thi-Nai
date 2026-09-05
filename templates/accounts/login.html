@@ -29,7 +29,7 @@
 
         <div class="mb-3">
           <label for="id_username" class="form-label small fw-semibold text-dark">
-            <i class="bi bi-person me-1 text-primary"></i><span data-i18n="auth_username_label">ชื่อผู้ใช้ (Username)</span>
+            <i class="bi bi-person me-1 text-primary"></i><span data-i18n="auth_username_label">ชื่อผู้ใช้</span>
           </label>
           <div class="input-group">
             <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="form-control rounded-pill px-3 py-2 {% if form.username.errors %}is-invalid{% endif %}" placeholder="ระบุชื่อผู้ใช้" data-i18n-placeholder="auth_username_placeholder">
@@ -41,7 +41,7 @@
 
         <div class="mb-4">
           <label for="id_password" class="form-label small fw-semibold text-dark">
-            <i class="bi bi-lock me-1 text-primary"></i><span data-i18n="auth_password_label">รหัสผ่าน (Password)</span>
+            <i class="bi bi-lock me-1 text-primary"></i><span data-i18n="auth_password_label">รหัสผ่าน</span>
           </label>
           <div class="input-group">
             <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control rounded-pill px-3 py-2 {% if form.password.errors %}is-invalid{% endif %}" placeholder="ระบุรหัสผ่าน" data-i18n-placeholder="auth_password_placeholder">

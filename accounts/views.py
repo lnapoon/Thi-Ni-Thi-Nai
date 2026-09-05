@@ -301,6 +301,8 @@ class UserSearchView(LoginRequiredMixin, View):
                     | Q(first_name__icontains=query)
                     | Q(last_name__icontains=query)
                     | Q(profile__bio__icontains=query)
+                    | Q(profile__display_name__icontains=query)
+                    | Q(profile__category__icontains=query)
                 )
                 .exclude(id=request.user.id)
                 .select_related("profile")
@@ -311,16 +313,7 @@ class UserSearchView(LoginRequiredMixin, View):
                 .order_by("-num_followers", "-num_checkins")[:50]
             )
         else:
-            # Suggested users (Active users with checkins, excluding self)
-            users_qs = (
-                User.objects.exclude(id=request.user.id)
-                .select_related("profile")
-                .annotate(
-                    num_checkins=Count("checkins", distinct=True),
-                    num_followers=Count("follower_relations", distinct=True),
-                )
-                .order_by("-num_checkins", "-num_followers", "-date_joined")[:30]
-            )
+            users_qs = User.objects.none()
 
         user_following_ids = set(
             Follow.objects.filter(follower=request.user).values_list(

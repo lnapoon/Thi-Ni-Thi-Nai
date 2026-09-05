@@ -6,51 +6,6 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-8 col-lg-6">
 
-    <!-- Top Featured Travelers / Stories Carousel -->
-    {% if featured_creators %}
-      <div class="stories-carousel-card">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-          <span class="fw-bold text-dark small">
-            <i class="bi bi-compass-fill text-primary me-1"></i> นักเดินทางแนะนำ (Top Travelers)
-          </span>
-          <a href="{% url 'accounts:search' %}" class="small text-primary text-decoration-none fw-semibold">
-            ค้นหาเพิ่ม &rarr;
-          </a>
-        </div>
-        <div class="stories-scroll-wrapper">
-          <!-- Current User Profile Bubble -->
-          <a href="{% url 'accounts:profile_me' %}" class="story-item">
-            <div class="story-avatar-ring" style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);">
-              {% if user.get_avatar_url %}
-                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="story-avatar-img">
-              {% else %}
-                <div class="story-avatar-img bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
-                  <i class="bi bi-person-fill"></i>
-                </div>
-              {% endif %}
-            </div>
-            <span class="story-username text-primary fw-bold">คุณ</span>
-          </a>
-
-          <!-- Active Creators Bubbles -->
-          {% for creator in featured_creators %}
-            <a href="{% url 'accounts:profile_user' username=creator.username %}" class="story-item" title="@{{ creator.username }}">
-              <div class="story-avatar-ring">
-                {% if creator.get_avatar_url %}
-                  <img src="{{ creator.get_avatar_url }}" alt="{{ creator.username }}" class="story-avatar-img">
-                {% else %}
-                  <div class="story-avatar-img bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
-                    <i class="bi bi-person-fill"></i>
-                  </div>
-                {% endif %}
-              </div>
-              <span class="story-username">@{{ creator.username }}</span>
-            </a>
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-
     <!-- Minimal Compact Post Composer Card -->
     {% if user.is_authenticated %}
       <div class="card feed-post-composer-card shadow-sm border-0 rounded-4 mb-4 bg-white animate__animated animate__fadeIn">
@@ -93,7 +48,7 @@
             </div>
 
             <!-- Place Name Inline Input -->
-            <div class="mb-2 ps-1">
+            <div class="mb-3 ps-1">
               <div class="input-group input-group-sm">
                 <span class="input-group-text bg-light border-0 text-danger rounded-start-pill ps-3">
                   <i class="bi bi-geo-alt-fill"></i>
@@ -103,7 +58,7 @@
                   name="place_name" 
                   id="feed_place_name" 
                   class="form-control bg-light border-0 rounded-end-pill py-1 pe-3" 
-                  placeholder="ชื่อสถานที่ / คาเฟ่ / แหล่งท่องเที่ยวที่นี่..." 
+                  placeholder="ชื่อสถานที่ / คาเฟ่..." 
                   data-i18n-placeholder="composer_place_placeholder"
                   value="{{ form.place_name.value|default:'' }}"
                   required
@@ -135,25 +90,25 @@
             <div id="feed-aspect-ratio-wrapper" class="d-none mb-2 px-1">
               <div class="d-flex align-items-center justify-content-between mb-1">
                 <span class="text-muted extra-small fw-semibold" style="font-size: 0.75rem;">
-                  <i class="bi bi-aspect-ratio me-1 text-primary"></i>เลือกสัดส่วนภาพ (Aspect Ratio):
+                  <i class="bi bi-aspect-ratio me-1 text-primary"></i><span data-i18n="composer_aspect_ratio_label">เลือกสัดส่วนภาพ:</span>
                 </span>
                 <span class="badge bg-primary-subtle text-primary rounded-pill small" id="feed-photo-count-badge" style="font-size: 0.72rem;">0/10 รูป</span>
               </div>
               <div class="aspect-ratio-selector-bar">
                 <button type="button" class="aspect-ratio-pill-btn active" data-ratio="original">
-                  <i class="bi bi-arrows-fullscreen"></i> Original (พอดีเฟรม)
+                  <i class="bi bi-arrows-fullscreen"></i> <span data-i18n="composer_ratio_original">ออริจินัล</span>
                 </button>
                 <button type="button" class="aspect-ratio-pill-btn" data-ratio="1:1">
-                  <i class="bi bi-square"></i> 1:1 (จัตุรัส)
+                  <i class="bi bi-square"></i> <span data-i18n="composer_ratio_1_1">1:1 (จัตุรัส)</span>
                 </button>
                 <button type="button" class="aspect-ratio-pill-btn" data-ratio="4:5">
-                  <i class="bi bi-phone"></i> 4:5 (แนวตั้ง IG)
+                  <i class="bi bi-phone"></i> <span data-i18n="composer_ratio_4_5">4:5 (แนวตั้ง)</span>
                 </button>
                 <button type="button" class="aspect-ratio-pill-btn" data-ratio="16:9">
-                  <i class="bi bi-tv"></i> 16:9 (แนวนอน)
+                  <i class="bi bi-tv"></i> <span data-i18n="composer_ratio_16_9">16:9 (แนวนอน)</span>
                 </button>
                 <button type="button" class="aspect-ratio-pill-btn" data-ratio="9:16">
-                  <i class="bi bi-phone-fill"></i> 9:16 (Story)
+                  <i class="bi bi-phone-fill"></i> <span data-i18n="composer_ratio_9_16">9:16 (เต็มจอ)</span>
                 </button>
               </div>
             </div>
@@ -165,25 +120,28 @@
               </div>
             </div>
 
-            <!-- Bottom Action Bar: Small Icons on Left + Submit Button on Right -->
-            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-              <div class="d-flex align-items-center gap-2">
-                <!-- Small Photo Upload Trigger Icon -->
-                <label for="feed_photo_input" class="btn btn-sm btn-light rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 border text-secondary cursor-pointer shadow-none" style="font-size: 0.82rem;" title="เพิ่มรูปภาพ (สูงสุด 10 รูป)" data-i18n-title="composer_add_photo">
-                  <i class="bi bi-images text-success fs-6"></i>
-                  <span class="fw-semibold" data-i18n="composer_add_photo">เพิ่มรูปภาพ (สูงสุด 10 รูป)</span>
+            <!-- Bottom Action Bar: Responsive Action Chips + Submit Button -->
+            <div class="composer-action-bar d-flex align-items-center justify-content-between pt-3 mt-3 border-top gap-2 flex-wrap">
+              <div class="d-flex align-items-center gap-2 flex-wrap min-w-0">
+                <!-- Photo Upload Action Chip -->
+                <label for="feed_photo_input" class="composer-chip-btn mb-0" title="เพิ่มรูปภาพ" data-i18n-title="composer_add_photo">
+                  <i class="bi bi-images text-success"></i>
+                  <span class="fw-semibold" data-i18n="composer_add_photo">เพิ่มรูปภาพ</span>
                 </label>
 
-                <!-- Small GPS Geolocation Trigger / Status -->
-                <button type="button" id="btn-feed-get-location" class="btn btn-sm btn-light rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1 border text-secondary shadow-none" style="font-size: 0.82rem;" title="จับพิกัด GPS" data-i18n-title="composer_gps">
-                  <i class="bi bi-crosshair text-primary fs-6"></i>
-                  <span id="feed-geo-status" class="small text-muted" data-i18n="composer_gps">พิกัด</span>
+                <!-- GPS Location Action Chip -->
+                <button type="button" id="btn-feed-get-location" class="composer-chip-btn" title="จับพิกัด GPS" data-i18n-title="composer_gps">
+                  <i class="bi bi-crosshair text-primary"></i>
+                  <span class="fw-semibold" data-i18n="composer_gps">พิกัด</span>
                 </button>
+
+                <!-- Dynamic Location Status Chip -->
+                <div id="feed-geo-status" class="d-inline-flex align-items-center ms-1"></div>
               </div>
 
               <!-- Submit Post Button -->
-              <button type="submit" id="btn-submit-checkin" class="btn btn-warning btn-sm rounded-pill px-4 py-1 fw-bold shadow-sm d-flex align-items-center gap-1">
-                <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
+              <button type="submit" id="btn-submit-checkin" class="btn btn-warning btn-sm rounded-pill px-3.5 py-1.5 fw-bold shadow-sm d-flex align-items-center gap-1.5 ms-auto">
+                <i class="bi bi-send-fill" style="font-size: 0.82rem;"></i>
                 <span data-i18n="composer_post">โพสต์</span>
               </button>
             </div>
@@ -193,6 +151,30 @@
       </div>
     {% endif %}
 
+    <!-- Full-Width Segmented Feed Navigation Tabs (ฟีดทั่วไป vs กำลังติดตาม) -->
+    <div class="mb-3 px-1">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="text-muted extra-small fw-semibold" style="font-size: 0.78rem;">
+          <i class="bi bi-funnel me-1 text-primary"></i><span data-i18n="feed_select_view">มุมมองฟีด</span>
+        </span>
+        <span class="badge bg-body-tertiary text-muted border rounded-pill small fw-normal px-2.5 py-1" style="font-size: 0.74rem;">
+          {{ total_posts_count }} <span data-i18n="feed_posts_unit">โพสต์</span>
+        </span>
+      </div>
+      <div class="feed-segmented-nav w-100">
+        <a href="{% url 'checkins:feed' %}" class="feed-nav-btn {% if active_feed_type != 'following' %}active{% endif %}">
+          <i class="bi bi-globe2"></i>
+          <span data-i18n="feed_tab_all">ฟีดทั่วไป</span>
+        </a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'checkins:feed' %}?feed=following" class="feed-nav-btn {% if active_feed_type == 'following' %}active{% endif %}">
+            <i class="bi bi-people-fill"></i>
+            <span data-i18n="feed_tab_following">กำลังติดตาม</span>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
     <!-- Feed Content List -->
     {% if checkins %}
       {% for checkin in checkins %}
@@ -200,8 +182,8 @@
           
           <!-- Card Header (Author Info & Place) -->
           <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between px-3 pt-3 pb-2">
-            <div class="d-flex align-items-center gap-2">
-              <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="text-decoration-none">
+            <div class="d-flex align-items-center gap-2.5 min-w-0">
+              <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="text-decoration-none flex-shrink-0">
                 {% if checkin.user.get_avatar_url %}
                   <img src="{{ checkin.user.get_avatar_url }}" alt="{{ checkin.user.username }}" class="card-author-avatar">
                 {% else %}
@@ -210,46 +192,48 @@
                   </div>
                 {% endif %}
               </a>
-              <div>
-                <div class="d-flex align-items-center gap-1">
-                  <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="fw-bold text-dark text-decoration-none lh-1" style="font-size: 0.92rem;">
+              <div class="min-w-0 flex-grow-1 overflow-hidden">
+                <div class="d-flex align-items-center gap-1 min-w-0">
+                  <a href="{% url 'accounts:profile_user' username=checkin.user.username %}" class="fw-bold text-dark text-decoration-none lh-1 text-truncate" style="font-size: 0.94rem;">
                     @{{ checkin.user.username }}
                   </a>
                   {% if checkin.user.is_staff or checkin.user.is_superuser %}
-                    <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.75rem;" title="แอดมิน"></i>
+                    <i class="bi bi-patch-check-fill text-primary flex-shrink-0" style="font-size: 0.78rem;" title="ผู้ดูแลระบบ"></i>
                   {% endif %}
                 </div>
                 
                 <!-- Location Chip with Radar Dot -->
-                <div class="d-flex align-items-center mt-1" style="font-size: 0.75rem;">
+                <div class="d-flex align-items-center mt-1" style="font-size: 0.78rem;">
                   <span class="radar-dot"></span>
-                  <a href="{% url 'checkins:detail' pk=checkin.pk %}" class="text-secondary fw-semibold text-decoration-none text-truncate" style="max-width: 180px;">
+                  <a href="{% url 'checkins:detail' pk=checkin.pk %}" class="text-secondary fw-semibold text-decoration-none text-truncate" style="max-width: 190px;" title="{{ checkin.place_name }}">
                     {{ checkin.place_name }}
                   </a>
                 </div>
               </div>
             </div>
 
-            <!-- Header Options / Timestamp -->
-            <div class="d-flex align-items-center gap-2">
-              <span class="text-muted" style="font-size: 0.72rem;">{{ checkin.created_at|timesince }} <span data-i18n="ago_suffix">ที่แล้ว</span></span>
+            <!-- Header Options / Timestamp Pill -->
+            <div class="d-flex align-items-center gap-1.5 ms-auto flex-shrink-0">
+              <span class="badge bg-light text-muted border rounded-pill small fw-normal px-2.5 py-1" style="font-size: 0.7rem;">
+                <i class="bi bi-clock me-1 text-primary"></i>{{ checkin.created_at|timesince }} <span data-i18n="ago_suffix">ที่แล้ว</span>
+              </span>
               <div class="dropdown">
-                <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="bi bi-three-dots fs-5"></i>
+                <button class="btn btn-sm btn-link text-muted p-1 text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="ตัวเลือกเพิ่มเติม">
+                  <i class="bi bi-three-dots-vertical fs-6"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
-                  <li><a class="dropdown-item small" href="{% url 'checkins:detail' pk=checkin.pk %}"><i class="bi bi-eye me-2"></i><span data-i18n="map_view_detail">ดูรายละเอียด</span></a></li>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-1.5 mt-1">
+                  <li><a class="dropdown-item rounded-3 py-2 small" href="{% url 'checkins:detail' pk=checkin.pk %}"><i class="bi bi-eye me-2 text-primary"></i><span data-i18n="map_view_detail">ดูรายละเอียด</span></a></li>
                   {% if checkin.has_location %}
                     <li>
-                      <a class="dropdown-item small" href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener">
+                      <a class="dropdown-item rounded-3 py-2 small" href="https://www.google.com/maps/search/?api=1&query={{ checkin.latitude }},{{ checkin.longitude }}" target="_blank" rel="noopener">
                         <i class="bi bi-geo-alt me-2 text-danger"></i><span data-i18n="action_open_gmaps">เปิด Google Maps</span>
                       </a>
                     </li>
                   {% endif %}
                   {% if checkin.user == user or user.is_staff %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item small text-primary" href="{% url 'checkins:edit' pk=checkin.pk %}"><i class="bi bi-pencil me-2"></i><span data-i18n="action_edit">แก้ไข</span></a></li>
-                    <li><a class="dropdown-item small text-danger" href="{% url 'checkins:delete' pk=checkin.pk %}"><i class="bi bi-trash3 me-2"></i><span data-i18n="action_delete">ลบโพสต์</span></a></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item rounded-3 py-2 small text-primary" href="{% url 'checkins:edit' pk=checkin.pk %}"><i class="bi bi-pencil me-2"></i><span data-i18n="action_edit">แก้ไข</span></a></li>
+                    <li><a class="dropdown-item rounded-3 py-2 small text-danger" href="{% url 'checkins:delete' pk=checkin.pk %}"><i class="bi bi-trash3 me-2"></i><span data-i18n="action_delete">ลบโพสต์</span></a></li>
                   {% endif %}
                 </ul>
               </div>
@@ -414,20 +398,20 @@
       {% if is_guest %}
         <div class="guest-feed-gate-card shadow-lg border-0 rounded-4 p-4 text-center my-4 animate__animated animate__fadeInUp">
           <div class="mb-3">
-            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm" style="font-size: 0.82rem;">
-              <i class="bi bi-sparkles me-1"></i> บัญชีผู้เยี่ยมชม (Guest Mode)
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm" style="font-size: 0.82rem;" data-i18n="feed_guest_badge">
+              บัญชีผู้เยี่ยมชม
             </span>
           </div>
-          <h4 class="fw-bold text-dark mb-2">อยากสำรวจจุดเช็คอินเพิ่มเติม?</h4>
-          <p class="text-muted small mb-4 mx-auto" style="max-width: 440px; line-height: 1.6;">
-            คุณกำลังรับชมในโหมดผู้เยี่ยมชม (แสดงตัวอย่าง {{ checkins|length }} โพสต์ล่าสุด) เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อปลดล็อกฟีดทั้งหมด ค้นหาเพื่อนใหม่ กดถูกใจ และแชร์รูปภาพสถานที่สวยๆ ของคุณเอง
+          <h4 class="fw-bold text-dark mb-2" data-i18n="feed_guest_title">อยากสำรวจจุดเช็คอินเพิ่มเติม?</h4>
+          <p class="text-muted small mb-4 mx-auto" style="max-width: 440px; line-height: 1.6;" data-i18n="feed_guest_desc">
+            คุณกำลังรับชมในโหมดผู้เยี่ยมชม เข้าสู่ระบบหรือสมัครสมาชิกฟรี เพื่อปลดล็อกฟีดทั้งหมด ค้นหาเพื่อนใหม่ กดถูกใจ และแชร์รูปภาพสถานที่สวยๆ ของคุณเอง
           </p>
           <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
             <a href="{% url 'accounts:login' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
-              <i class="bi bi-box-arrow-in-right me-1"></i> เข้าสู่ระบบ
+              <i class="bi bi-box-arrow-in-right me-1"></i> <span data-i18n="nav_login">เข้าสู่ระบบ</span>
             </a>
             <a href="{% url 'accounts:signup' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow-sm">
-              <i class="bi bi-person-plus-fill me-1"></i> สมัครสมาชิกฟรี
+              <i class="bi bi-person-plus-fill me-1"></i> <span data-i18n="feed_empty_guest_btn">สมัครสมาชิกฟรี</span>
             </a>
           </div>
         </div>
@@ -439,7 +423,7 @@
           <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
               <li class="page-item">
-                <a class="page-link rounded-pill px-3 me-2 border-0 shadow-sm" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                <a class="page-link rounded-pill px-3 me-2 border-0 shadow-sm" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous" data-i18n="feed_pagination_prev">
                   &laquo; ก่อนหน้า
                 </a>
               </li>
@@ -447,13 +431,13 @@
 
             <li class="page-item active">
               <span class="page-link rounded-pill px-3 border-0 shadow-sm">
-                หน้า {{ page_obj.number }} จาก {{ page_obj.paginator.num_pages }}
+                <span data-i18n="feed_pagination_page">หน้า</span> {{ page_obj.number }} <span data-i18n="feed_pagination_of">จาก</span> {{ page_obj.paginator.num_pages }}
               </span>
             </li>
 
             {% if page_obj.has_next %}
               <li class="page-item">
-                <a class="page-link rounded-pill px-3 ms-2 border-0 shadow-sm" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                <a class="page-link rounded-pill px-3 ms-2 border-0 shadow-sm" href="?page={{ page_obj.next_page_number }}" aria-label="Next" data-i18n="feed_pagination_next">
                   ถัดไป &raquo;
                 </a>
               </li>
@@ -464,22 +448,34 @@
 
     {% else %}
       <!-- Empty State with Animated Illustration -->
-      <div class="empty-state shadow-sm rounded-4 p-5 text-center bg-white my-4">
+      <div class="empty-state shadow-sm rounded-4 p-5 text-center bg-white my-4 checkin-card">
         <div class="mb-3 animate__animated animate__bounceIn">
           <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle shadow-sm" style="width: 80px; height: 80px;">
-            <i class="bi bi-geo-alt fs-1"></i>
+            {% if active_feed_type == 'following' %}
+              <i class="bi bi-people fs-1"></i>
+            {% else %}
+              <i class="bi bi-geo-alt fs-1"></i>
+            {% endif %}
           </div>
         </div>
-        <h5 class="fw-bold text-dark">ยังไม่มีจุดเช็คอินในขณะนี้</h5>
-        <p class="text-muted small mb-4">มาเป็นคนแรกที่เริ่มบันทึกและแชร์ภาพถ่ายสถานที่สวยๆ กันเถอะ!</p>
-        {% if user.is_authenticated %}
-          <a href="{% url 'checkins:create' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow">
-            <i class="bi bi-plus-circle-fill me-1"></i> เช็คอินสถานที่แรกเลย
+        {% if active_feed_type == 'following' %}
+          <h5 class="fw-bold text-dark" data-i18n="feed_empty_following_title">ยังไม่มีโพสต์จากคนที่คุณติดตาม</h5>
+          <p class="text-muted small mb-4" data-i18n="feed_empty_following_desc">ค้นหานักเดินทางที่น่าสนใจและเริ่มติดตามเพื่อดูอัปเดตใหม่ๆ ที่นี่!</p>
+          <a href="{% url 'accounts:search' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+            <i class="bi bi-search me-1"></i> <span data-i18n="feed_btn_search_travelers">ค้นหานักเดินทาง</span>
           </a>
         {% else %}
-          <button type="button" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
-            <i class="bi bi-plus-circle-fill me-1"></i> เข้าสู่ระบบเพื่อเริ่มเช็คอิน
-          </button>
+          <h5 class="fw-bold text-dark" data-i18n="feed_empty_title">ยังไม่มีจุดเช็คอินในขณะนี้</h5>
+          <p class="text-muted small mb-4" data-i18n="feed_empty_desc">มาเป็นคนแรกที่เริ่มบันทึกและแชร์ภาพถ่ายสถานที่สวยๆ กันเถอะ!</p>
+          {% if user.is_authenticated %}
+            <a href="{% url 'checkins:create' %}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow">
+              <i class="bi bi-plus-circle-fill me-1"></i> <span data-i18n="feed_empty_btn">เช็คอินสถานที่แรกเลย</span>
+            </a>
+          {% else %}
+            <button type="button" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow" data-bs-toggle="modal" data-bs-target="#authRequiredModal">
+              <i class="bi bi-plus-circle-fill me-1"></i> <span data-i18n="feed_empty_guest_btn">เข้าสู่ระบบเพื่อเริ่มเช็คอิน</span>
+            </button>
+          {% endif %}
         {% endif %}
       </div>
     {% endif %}
@@ -540,8 +536,8 @@
       }
       if (geoStatus) {
         geoStatus.innerHTML = `
-          <span class="text-success fw-semibold">
-            <i class="bi bi-check-circle-fill me-1"></i> พิกัด: ${lat.toFixed(4)}, ${lng.toFixed(4)}
+          <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1.5 small d-inline-flex align-items-center gap-1" style="font-size: 0.76rem;">
+            <i class="bi bi-check-circle-fill"></i> ${lat.toFixed(3)}, ${lng.toFixed(3)}
           </span>
         `;
       }
@@ -550,12 +546,12 @@
     function fetchGeoLocation() {
       if (!navigator.geolocation) {
         if (geoStatus) {
-          geoStatus.innerHTML = '<span class="text-muted"><i class="bi bi-info-circle me-1"></i> อุปกรณ์ไม่รองรับ GPS</span>';
+          geoStatus.innerHTML = '<span class="badge bg-secondary-subtle text-secondary rounded-pill px-2 py-1 extra-small" style="font-size: 0.72rem;">ไม่รองรับ GPS</span>';
         }
         return;
       }
       if (geoStatus) {
-        geoStatus.innerHTML = '<span class="text-primary"><span class="spinner-border spinner-border-sm me-1"></span> กำลังดึงพิกัด...</span>';
+        geoStatus.innerHTML = '<span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1 extra-small" style="font-size: 0.72rem;"><span class="spinner-border spinner-border-sm me-1" style="width: 0.68rem; height: 0.68rem;"></span> ดึงพิกัด...</span>';
       }
       navigator.geolocation.getCurrentPosition(
         function(pos) {
@@ -563,7 +559,7 @@
         },
         function(err) {
           if (geoStatus) {
-            geoStatus.innerHTML = '<span class="text-muted"><i class="bi bi-geo me-1"></i> ไม่ได้ระบุพิกัด (สามารถโพสต์ได้)</span>';
+            geoStatus.innerHTML = '';
           }
         },
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
